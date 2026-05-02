@@ -5,24 +5,38 @@
       <h1 id="app-title">Service status</h1>
     </div>
 
-    <button type="button" (click)="refreshHealth()" [disabled]="loading()">
-      {{ loading() ? 'Checking...' : 'Refresh' }}
-    </button>
+    @if (loading()) {
+      <button mat-flat-button type="button" disabled>
+        <mat-spinner diameter="18" aria-hidden="true"></mat-spinner>
+        Checking
+      </button>
+    } @else {
+      <button mat-flat-button type="button" (click)="refreshHealth()">
+        <mat-icon aria-hidden="true">refresh</mat-icon>
+        Refresh
+      </button>
+    }
   </section>
 
   <section class="metrics" aria-label="Backend health">
-    <article>
-      <span>Backend</span>
-      <strong [class.ok]="health()?.backend === 'ok'">{{ health()?.backend ?? 'offline' }}</strong>
-    </article>
-    <article>
-      <span>Database</span>
-      <strong [class.ok]="health()?.database === 'ok'">{{ health()?.database ?? 'offline' }}</strong>
-    </article>
-    <article>
-      <span>Probe</span>
-      <strong>{{ health()?.databaseProbe ?? '-' }}</strong>
-    </article>
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <span>Backend</span>
+        <strong [class.ok]="health()?.backend === 'ok'">{{ health()?.backend ?? 'offline' }}</strong>
+      </mat-card-content>
+    </mat-card>
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <span>Database</span>
+        <strong [class.ok]="health()?.database === 'ok'">{{ health()?.database ?? 'offline' }}</strong>
+      </mat-card-content>
+    </mat-card>
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <span>Probe</span>
+        <strong>{{ health()?.databaseProbe ?? '-' }}</strong>
+      </mat-card-content>
+    </mat-card>
   </section>
 
   @if (error()) {
