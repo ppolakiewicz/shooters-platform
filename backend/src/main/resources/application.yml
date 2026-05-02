@@ -1,0 +1,16 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: shooters-platform-backend
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/shooters_platform}
+    username: ${SPRING_DATASOURCE_USERNAME:shooters}
+    password: ${SPRING_DATASOURCE_PASSWORD:shooters}
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false

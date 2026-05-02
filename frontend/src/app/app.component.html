@@ -1,0 +1,35 @@
+<main class="shell">
+  <section class="status-panel" aria-labelledby="app-title">
+    <div>
+      <p class="eyebrow">Shooters Platform</p>
+      <h1 id="app-title">Service status</h1>
+    </div>
+
+    <button type="button" (click)="refreshHealth()" [disabled]="loading()">
+      {{ loading() ? 'Checking...' : 'Refresh' }}
+    </button>
+  </section>
+
+  <section class="metrics" aria-label="Backend health">
+    <article>
+      <span>Backend</span>
+      <strong [class.ok]="health()?.backend === 'ok'">{{ health()?.backend ?? 'offline' }}</strong>
+    </article>
+    <article>
+      <span>Database</span>
+      <strong [class.ok]="health()?.database === 'ok'">{{ health()?.database ?? 'offline' }}</strong>
+    </article>
+    <article>
+      <span>Probe</span>
+      <strong>{{ health()?.databaseProbe ?? '-' }}</strong>
+    </article>
+  </section>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  @if (health()) {
+    <p class="timestamp">Last checked {{ health()?.timestamp | date:'medium' }}</p>
+  }
+</main>

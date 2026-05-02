@@ -1,0 +1,17 @@
+{
+  "name": "shooters-platform",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "e2e"
+  ],
+  "scripts": {
+    "frontend:start": "npm run start --workspace frontend",
+    "frontend:build": "npm run build --workspace frontend",
+    "e2e:test": "npm run test --workspace e2e",
+    "e2e:ui": "npm run test:ui --workspace e2e"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}
