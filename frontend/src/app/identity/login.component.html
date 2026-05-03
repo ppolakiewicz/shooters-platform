@@ -1,0 +1,49 @@
+<main class="auth-shell">
+  <mat-card appearance="outlined" class="auth-panel">
+    <mat-card-header>
+      <div>
+        <p class="eyebrow">Shooters Platform</p>
+        <mat-card-title>
+          <h1>Log in</h1>
+        </mat-card-title>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form (submit)="onSubmit(); $event.preventDefault()">
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" autocomplete="email" [formField]="loginForm.email">
+          @if (loginForm.email().touched() && loginForm.email().errors().length) {
+            <mat-error>{{ loginForm.email().errors()[0].message }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" autocomplete="current-password" [formField]="loginForm.password">
+          @if (loginForm.password().touched() && loginForm.password().errors().length) {
+            <mat-error>{{ loginForm.password().errors()[0].message }}</mat-error>
+          }
+        </mat-form-field>
+
+        @if (error()) {
+          <p class="form-error" role="alert">{{ error() }}</p>
+        }
+
+        <button mat-flat-button type="submit" [disabled]="loginForm().invalid() || submitting()">
+          @if (submitting()) {
+            <mat-spinner diameter="18" aria-hidden="true"></mat-spinner>
+          } @else {
+            <mat-icon aria-hidden="true">login</mat-icon>
+          }
+          Log in
+        </button>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <a mat-button routerLink="/register">Create account</a>
+    </mat-card-actions>
+  </mat-card>
+</main>

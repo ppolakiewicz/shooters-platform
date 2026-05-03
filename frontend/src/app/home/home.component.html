@@ -1,0 +1,57 @@
+<main class="shell">
+  <section class="status-panel" aria-labelledby="app-title">
+    <div>
+      <p class="eyebrow">Shooters Platform</p>
+      <h1 id="app-title">Service status</h1>
+      <p class="signed-in">Signed in as {{ auth.currentUser()?.email }}</p>
+    </div>
+
+    <div class="actions">
+      @if (loading()) {
+        <button mat-flat-button type="button" disabled>
+          <mat-spinner diameter="18" aria-hidden="true"></mat-spinner>
+          Checking
+        </button>
+      } @else {
+        <button mat-flat-button type="button" (click)="refreshHealth()">
+          <mat-icon aria-hidden="true">refresh</mat-icon>
+          Refresh
+        </button>
+      }
+
+      <button mat-stroked-button type="button" (click)="logout()" [disabled]="signingOut()">
+        <mat-icon aria-hidden="true">logout</mat-icon>
+        Logout
+      </button>
+    </div>
+  </section>
+
+  <section class="metrics" aria-label="Backend health">
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <span>Backend</span>
+        <strong [class.ok]="health()?.backend === 'ok'">{{ health()?.backend ?? 'offline' }}</strong>
+      </mat-card-content>
+    </mat-card>
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <span>Database</span>
+        <strong [class.ok]="health()?.database === 'ok'">{{ health()?.database ?? 'offline' }}</strong>
+      </mat-card-content>
+    </mat-card>
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <span>Probe</span>
+        <strong>{{ health()?.databaseProbe ?? '-' }}</strong>
+      </mat-card-content>
+    </mat-card>
+  </section>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  @if (health()) {
+    <p class="timestamp">Last checked {{ health()?.timestamp | date:'medium' }}</p>
+  }
+</main>

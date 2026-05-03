@@ -16,11 +16,20 @@ export default defineConfig({
   ],
   webServer: process.env.E2E_SKIP_WEBSERVER
     ? undefined
-    : {
-        command: 'npm run start --workspace frontend',
-        cwd: '..',
-        url: 'http://localhost:4200',
-        reuseExistingServer: true,
-        timeout: 120_000
-      }
+    : [
+        {
+          command: 'powershell -NoProfile -ExecutionPolicy Bypass -Command "docker compose up -d postgres; for ($i = 0; $i -lt 60; $i++) { if ((docker inspect --format \\"{{.State.Health.Status}}\\" shooters-platform-postgres) -eq \\"healthy\\") { break }; Start-Sleep -Seconds 1 }; Set-Location backend; .\\gradlew.bat bootRun"',
+          cwd: '..',
+          url: 'http://localhost:8080/api/health',
+          reuseExistingServer: true,
+          timeout: 180_000
+        },
+        {
+          command: 'npm run start --workspace frontend',
+          cwd: '..',
+          url: 'http://localhost:4200',
+          reuseExistingServer: true,
+          timeout: 120_000
+        }
+      ]
 });
