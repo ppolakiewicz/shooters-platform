@@ -62,12 +62,11 @@ jobs:
       - name: Start backend
         run: |
           mkdir -p .github/logs
-          cd backend
           SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/shooters_platform \
           SPRING_DATASOURCE_USERNAME=shooters \
           SPRING_DATASOURCE_PASSWORD=shooters \
-          bash ./gradlew bootRun --no-daemon > ../.github/logs/backend.log 2>&1 &
-          echo "$!" > ../.github/logs/backend.pid
+          java -jar backend/build/libs/*-SNAPSHOT.jar > .github/logs/backend.log 2>&1 &
+          echo "$!" > .github/logs/backend.pid
 
       - name: Start frontend
         run: |
@@ -86,6 +85,7 @@ jobs:
           done
 
           echo "Backend did not become healthy in time."
+          ps -ef
           cat .github/logs/backend.log
           exit 1
 
