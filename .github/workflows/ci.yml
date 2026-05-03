@@ -1,0 +1,131 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-noble
+      options: --ipc=host
+    services:
+      postgres:
+        image: postgres:18.3-alpine
+        env:
+          POSTGRES_DB: shooters_platform
+          POSTGRES_USER: shooters
+          POSTGRES_PASSWORD: shooters
+        options: >-
+          --health-cmd "pg_isready -U shooters -d shooters_platform"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      CI: true
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 25
+          cache: gradle
+          cache-dependency-path: |
+            backend/*.gradle
+            backend/gradle/wrapper/gradle-wrapper.properties
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build and test backend
+        working-directory: backend
+        run: bash ./gradlew build --no-daemon
+
+      - name: Build frontend
+        run: npm run frontend:build
+
+      - name: Test frontend
+        run: npm run test --workspace frontend
+
+      - name: Start backend
+        run: |
+          mkdir -p .github/logs
+          cd backend
+          SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/shooters_platform \
+          SPRING_DATASOURCE_USERNAME=shooters \
+          SPRING_DATASOURCE_PASSWORD=shooters \
+          bash ./gradlew bootRun --no-daemon > ../.github/logs/backend.log 2>&1 &
+          echo "$!" > ../.github/logs/backend.pid
+
+      - name: Start frontend
+        run: |
+          mkdir -p .github/logs
+          npm run frontend:start > .github/logs/frontend.log 2>&1 &
+          echo "$!" > .github/logs/frontend.pid
+
+      - name: Wait for backend
+        run: |
+          for attempt in {1..120}; do
+            if curl --fail --silent --show-error http://localhost:8080/api/health > /tmp/backend-health.json; then
+              cat /tmp/backend-health.json
+              exit 0
+            fi
+            sleep 1
+          done
+
+          echo "Backend did not become healthy in time."
+          cat .github/logs/backend.log
+          exit 1
+
+      - name: Wait for frontend
+        run: |
+          for attempt in {1..120}; do
+            if curl --fail --silent --show-error http://localhost:4200 > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+
+          echo "Frontend did not become available in time."
+          cat .github/logs/frontend.log
+          exit 1
+
+      - name: Run Playwright e2e tests
+        env:
+          E2E_SKIP_WEBSERVER: 1
+        run: npm run e2e:test
+
+      - name: Stop application servers
+        if: always()
+        run: |
+          if [ -f .github/logs/frontend.pid ]; then
+            kill "$(cat .github/logs/frontend.pid)" || true
+          fi
+
+          if [ -f .github/logs/backend.pid ]; then
+            kill "$(cat .github/logs/backend.pid)" || true
+          fi
+
+      - name: Upload Playwright diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-diagnostics
+          path: |
+            .github/logs/
+            e2e/playwright-report/
+            e2e/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
