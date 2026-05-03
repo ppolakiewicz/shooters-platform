@@ -76,12 +76,14 @@ jobs:
 
       - name: Wait for backend
         run: |
-          for attempt in {1..120}; do
+          attempt=1
+          while [ "$attempt" -le 120 ]; do
             if curl --fail --silent --show-error http://localhost:8080/api/health > /tmp/backend-health.json; then
               cat /tmp/backend-health.json
               exit 0
             fi
             sleep 1
+            attempt=$((attempt + 1))
           done
 
           echo "Backend did not become healthy in time."
@@ -91,11 +93,13 @@ jobs:
 
       - name: Wait for frontend
         run: |
-          for attempt in {1..120}; do
+          attempt=1
+          while [ "$attempt" -le 120 ]; do
             if curl --fail --silent --show-error http://localhost:4200 > /dev/null; then
               exit 0
             fi
             sleep 1
+            attempt=$((attempt + 1))
           done
 
           echo "Frontend did not become available in time."
