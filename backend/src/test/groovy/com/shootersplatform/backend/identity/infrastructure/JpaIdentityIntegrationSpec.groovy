@@ -9,14 +9,14 @@ import org.springframework.jdbc.core.simple.JdbcClient
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.postgresql.PostgreSQLContainer
 import spock.lang.Specification
 
 @ActiveProfiles("test")
 @SpringBootTest
 class JpaIdentityIntegrationSpec extends Specification {
 
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:18.3-alpine")
+    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:18.3-alpine")
 
     static {
         postgres.start()
