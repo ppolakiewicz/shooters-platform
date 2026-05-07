@@ -3,7 +3,6 @@ package com.shootersplatform.backend.identity.domain;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
-import java.util.UUID;
 
 @Service
 public class IdentityService {
@@ -32,7 +31,7 @@ public class IdentityService {
             throw new DuplicateEmailException();
         }
 
-        UserAccount account = UserAccount.register(UUID.randomUUID(), email, passwordHasher.hash(password), clock.instant());
+        UserAccount account = UserAccount.register(UserId.newId(), email, passwordHasher.hash(password), clock.instant());
         return userAccounts.save(account);
     }
 

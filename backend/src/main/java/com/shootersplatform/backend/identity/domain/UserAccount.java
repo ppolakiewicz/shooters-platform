@@ -2,10 +2,9 @@ package com.shootersplatform.backend.identity.domain;
 
 import java.time.Instant;
 import java.util.Set;
-import java.util.UUID;
 
 public record UserAccount(
-        UUID id,
+        UserId id,
         EmailAddress email,
         String passwordHash,
         boolean enabled,
@@ -14,7 +13,7 @@ public record UserAccount(
         Instant updatedAt
 ) {
 
-    public static UserAccount register(UUID id, EmailAddress email, String passwordHash, Instant now) {
+    public static UserAccount register(UserId id, EmailAddress email, String passwordHash, Instant now) {
         return new UserAccount(id, email, passwordHash, true, Set.of(UserRole.USER), now, now);
     }
 

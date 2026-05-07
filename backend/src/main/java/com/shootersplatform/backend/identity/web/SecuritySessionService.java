@@ -29,7 +29,7 @@ class SecuritySessionService {
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 user,
                 null,
-                user.roles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList()
+                user.roles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.name())).toList()
         );
 
         request.getSession(true);
@@ -44,7 +44,7 @@ class SecuritySessionService {
     void logout(HttpServletRequest request, HttpServletResponse response) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof AuthenticatedUser user) {
-            log.info("Logged out user {}", user.id());
+            log.info("Logged out user {}", user.id().value());
         }
         logoutHandler.logout(request, response, authentication);
     }

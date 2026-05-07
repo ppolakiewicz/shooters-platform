@@ -1,7 +1,6 @@
 package com.shootersplatform.backend.identity.domain;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public interface UserAccountRepository {
 
@@ -9,7 +8,7 @@ public interface UserAccountRepository {
 
     Optional<UserAccount> findByEmail(EmailAddress email);
 
-    Optional<UserAccount> findById(UUID id);
+    Optional<UserAccount> findById(UserId id);
 
     UserAccount save(UserAccount userAccount);
 }

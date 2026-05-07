@@ -1,9 +1,10 @@
 package com.shootersplatform.backend.identity.domain;
 
+import java.io.Serializable;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-public record EmailAddress(String value) {
+public record EmailAddress(String value) implements Serializable {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
 

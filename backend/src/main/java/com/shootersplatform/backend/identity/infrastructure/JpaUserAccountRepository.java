@@ -3,12 +3,12 @@ package com.shootersplatform.backend.identity.infrastructure;
 import com.shootersplatform.backend.identity.domain.EmailAddress;
 import com.shootersplatform.backend.identity.domain.UserAccount;
 import com.shootersplatform.backend.identity.domain.UserAccountRepository;
+import com.shootersplatform.backend.identity.domain.UserId;
 import com.shootersplatform.backend.identity.domain.UserRole;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Repository
@@ -33,14 +33,14 @@ class JpaUserAccountRepository implements UserAccountRepository {
     }
 
     @Override
-    public Optional<UserAccount> findById(UUID id) {
-        return userAccounts.findById(id).map(this::toDomain);
+    public Optional<UserAccount> findById(UserId id) {
+        return userAccounts.findById(id.value()).map(this::toDomain);
     }
 
     @Override
     public UserAccount save(UserAccount userAccount) {
         UserAccountEntity entity = new UserAccountEntity();
-        entity.setId(userAccount.id());
+        entity.setId(userAccount.id().value());
         entity.setEmail(userAccount.email().value());
         entity.setPasswordHash(userAccount.passwordHash());
         entity.setEnabled(userAccount.enabled());
@@ -60,7 +60,7 @@ class JpaUserAccountRepository implements UserAccountRepository {
                 .collect(Collectors.toUnmodifiableSet());
 
         return new UserAccount(
-                entity.getId(),
+                new UserId(entity.getId()),
                 new EmailAddress(entity.getEmail()),
                 entity.getPasswordHash(),
                 entity.isEnabled(),

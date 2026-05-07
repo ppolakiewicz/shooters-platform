@@ -3,15 +3,15 @@ package com.shootersplatform.backend.identity;
 import com.shootersplatform.backend.identity.domain.EmailAddress;
 import com.shootersplatform.backend.identity.domain.UserAccount;
 import com.shootersplatform.backend.identity.domain.UserAccountRepository;
+import com.shootersplatform.backend.identity.domain.UserId;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 public class InMemoryUserAccountRepository implements UserAccountRepository {
 
-    private final Map<UUID, UserAccount> byId = new HashMap<>();
+    private final Map<UserId, UserAccount> byId = new HashMap<>();
     private final Map<String, UserAccount> byEmail = new HashMap<>();
 
     @Override
@@ -25,7 +25,7 @@ public class InMemoryUserAccountRepository implements UserAccountRepository {
     }
 
     @Override
-    public Optional<UserAccount> findById(UUID id) {
+    public Optional<UserAccount> findById(UserId id) {
         return Optional.ofNullable(byId.get(id));
     }
 

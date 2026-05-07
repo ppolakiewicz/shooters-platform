@@ -35,7 +35,7 @@ public class LoginUserUseCase {
         try {
             UserAccount account = identity.authenticate(email, password);
             rateLimiter.clearLoginFailures(email, clientIp);
-            log.info("Successful login for user {}", account.id());
+            log.info("Successful login for user {}", account.id().value());
             return AuthenticatedUser.from(account);
         } catch (InvalidCredentialsException exception) {
             rateLimiter.recordLoginFailure(email, clientIp);

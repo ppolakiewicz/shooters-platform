@@ -1,6 +1,7 @@
 package com.shootersplatform.backend.identity.web;
 
 import com.shootersplatform.backend.identity.domain.AuthenticatedUser;
+import com.shootersplatform.backend.identity.domain.UserRole;
 import com.shootersplatform.backend.identity.usecase.LoginUserUseCase;
 import com.shootersplatform.backend.identity.usecase.RegisterUserUseCase;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Set;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -40,25 +44,25 @@ class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    AuthenticatedUser register(
+    AuthenticatedUserResponse register(
             @Valid @RequestBody RegisterRequest request,
             HttpServletRequest servletRequest,
             HttpServletResponse servletResponse
     ) {
         AuthenticatedUser user = registerUser.register(request.email(), request.password(), clientIpResolver.resolve(servletRequest));
         sessions.authenticate(user, servletRequest, servletResponse);
-        return user;
+        return AuthenticatedUserResponse.from(user);
     }
 
     @PostMapping("/login")
-    AuthenticatedUser login(
+    AuthenticatedUserResponse login(
             @Valid @RequestBody LoginRequest request,
             HttpServletRequest servletRequest,
             HttpServletResponse servletResponse
     ) {
         AuthenticatedUser user = loginUser.login(request.email(), request.password(), clientIpResolver.resolve(servletRequest));
         sessions.authenticate(user, servletRequest, servletResponse);
-        return user;
+        return AuthenticatedUserResponse.from(user);
     }
 
     @PostMapping("/logout")
@@ -68,8 +72,8 @@ class AuthController {
     }
 
     @GetMapping("/me")
-    AuthenticatedUser me() {
-        return sessions.currentUser();
+    AuthenticatedUserResponse me() {
+        return AuthenticatedUserResponse.from(sessions.currentUser());
     }
 
     @GetMapping("/csrf")
@@ -82,5 +86,16 @@ class AuthController {
     }
 
     record LoginRequest(@NotBlank @Email String email, @NotBlank String password) {
+    }
+
+    record AuthenticatedUserResponse(UUID id, String email, Set<UserRole> roles) {
+
+        static AuthenticatedUserResponse from(AuthenticatedUser user) {
+            return new AuthenticatedUserResponse(user.id().value(), user.email().value(), user.roles());
+        }
+
+        AuthenticatedUserResponse {
+            roles = Set.copyOf(roles);
+        }
     }
 }

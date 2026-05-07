@@ -36,8 +36,8 @@ class RegisterUserUseCaseSpec extends Specification {
         def registered = registerUser.register("  NEW.User@Example.COM  ", "correct horse battery", "127.0.0.1")
 
         then: "The returned user contains the normalized email and default role"
-        registered.email() == "new.user@example.com"
-        registered.roles() == ["USER"] as Set
+        registered.email().value() == "new.user@example.com"
+        registered.roles() == [UserRole.USER] as Set
         userAccounts.count() == 1
 
         and: "The persisted account is active, has USER role, and stores the hashed password"

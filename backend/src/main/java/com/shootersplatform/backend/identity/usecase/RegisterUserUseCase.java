@@ -30,7 +30,7 @@ public class RegisterUserUseCase {
         rateLimiter.recordRegistrationAttempt(clientIp);
 
         UserAccount saved = identity.register(rawEmail, password);
-        log.info("Registered user {}", saved.id());
+        log.info("Registered user {}", saved.id().value());
         return AuthenticatedUser.from(saved);
     }
 }

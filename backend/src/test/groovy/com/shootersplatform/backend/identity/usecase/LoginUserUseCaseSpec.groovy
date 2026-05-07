@@ -8,6 +8,8 @@ import com.shootersplatform.backend.identity.domain.IdentityService
 import com.shootersplatform.backend.identity.domain.InvalidCredentialsException
 import com.shootersplatform.backend.identity.domain.RateLimitExceededException
 import com.shootersplatform.backend.identity.domain.UserAccount
+import com.shootersplatform.backend.identity.domain.UserId
+import com.shootersplatform.backend.identity.domain.UserRole
 import spock.lang.Specification
 
 import java.time.Clock
@@ -37,7 +39,7 @@ class LoginUserUseCaseSpec extends Specification {
     def "logs in registered user"() {
         given: "An enabled user account exists in the identity domain"
         userAccounts.save(UserAccount.register(
-                UUID.randomUUID(),
+                new UserId(UUID.randomUUID()),
                 new EmailAddress("owner@example.com"),
                 "hashed:correct horse battery",
                 Instant.now()
@@ -47,14 +49,14 @@ class LoginUserUseCaseSpec extends Specification {
         def user = loginUser.login("OWNER@example.com", "correct horse battery", "127.0.0.1")
 
         then: "The authenticated user is returned with normalized email and USER role"
-        user.email() == "owner@example.com"
-        user.roles() == ["USER"] as Set
+        user.email().value() == "owner@example.com"
+        user.roles() == [UserRole.USER] as Set
     }
 
     def "rejects invalid password and records failure"() {
         given: "An enabled user account exists in the identity domain"
         userAccounts.save(UserAccount.register(
-                UUID.randomUUID(),
+                new UserId(UUID.randomUUID()),
                 new EmailAddress("owner@example.com"),
                 "hashed:correct horse battery",
                 Instant.now()

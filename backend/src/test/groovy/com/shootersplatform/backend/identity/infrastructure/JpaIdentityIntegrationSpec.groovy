@@ -58,7 +58,7 @@ class JpaIdentityIntegrationSpec extends Specification {
                         from user_account_roles
                         where user_account_id = :userId and role_name = 'USER'
                         """)
-                .param("userId", registered.id())
+                .param("userId", registered.id().value())
                 .query(Integer)
                 .single()
 

@@ -39,6 +39,10 @@ The domain package should expose domain services for module behavior instead of 
 directly. In the identity module, use cases call `IdentityService`; that service owns domain rules such as email
 normalization, password policy checks, authentication rules, and email uniqueness validation.
 
+Domain model objects should use domain-specific value objects and enums instead of primitive identifiers, email strings,
+or role strings. Convert those domain types to UUIDs, strings, or JSON-friendly DTO shapes at infrastructure and web
+boundaries, not inside domain records or services.
+
 Spring Security for the browser SPA uses server-side sessions and CSRF. Angular receives `XSRF-TOKEN` and sends
 `X-XSRF-TOKEN` for mutating `/api` requests. Keep session/authentication mechanics in web or shared security
 configuration, not in domain code.
