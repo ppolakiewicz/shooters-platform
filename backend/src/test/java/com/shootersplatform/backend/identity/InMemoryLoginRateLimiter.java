@@ -2,7 +2,9 @@ package com.shootersplatform.backend.identity;
 
 import com.shootersplatform.backend.identity.domain.EmailAddress;
 import com.shootersplatform.backend.identity.domain.LoginRateLimiter;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class InMemoryLoginRateLimiter implements LoginRateLimiter {
 
     private boolean registrationBlocked;

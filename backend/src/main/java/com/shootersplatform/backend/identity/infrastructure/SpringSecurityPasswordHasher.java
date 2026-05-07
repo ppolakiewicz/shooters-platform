@@ -1,11 +1,13 @@
 package com.shootersplatform.backend.identity.infrastructure;
 
 import com.shootersplatform.backend.identity.domain.PasswordHasher;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
+@NullMarked
 @Component
 class SpringSecurityPasswordHasher implements PasswordHasher {
 

@@ -1,0 +1,79 @@
+<main class="training-shell">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Shooters Platform</p>
+      <h1>Trainings</h1>
+    </div>
+    <div class="header-actions">
+      <a mat-stroked-button routerLink="/">
+        <mat-icon aria-hidden="true">home</mat-icon>
+        Home
+      </a>
+      <button mat-flat-button type="button" (click)="create()" [disabled]="creating()">
+        @if (creating()) {
+          <mat-spinner diameter="18" aria-hidden="true"></mat-spinner>
+        } @else {
+          <mat-icon aria-hidden="true">add</mat-icon>
+        }
+        New training
+      </button>
+    </div>
+  </header>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  <section class="list-panel" aria-label="Saved trainings">
+    @if (loading()) {
+      <div class="state">
+        <mat-spinner diameter="28" aria-hidden="true"></mat-spinner>
+        <span>Loading trainings</span>
+      </div>
+    } @else if (!items().length) {
+      <div class="state">
+        <mat-icon aria-hidden="true">target</mat-icon>
+        <span>No trainings yet</span>
+      </div>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Name</th>
+            <th>Place</th>
+            <th>Weapon</th>
+            <th>Scoring</th>
+            <th>Tasks</th>
+            <th aria-label="Actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (training of items(); track training.id) {
+            <tr>
+              <td>{{ training.performedOn }}</td>
+              <td>
+                <a [routerLink]="['/trainings', training.id]">{{ training.name }}</a>
+                @if (training.description) {
+                  <small>{{ training.description }}</small>
+                }
+              </td>
+              <td>{{ training.place }}</td>
+              <td>{{ training.weaponType }}</td>
+              <td>{{ training.scoringType }}</td>
+              <td>{{ training.taskCount }}</td>
+              <td class="row-actions">
+                <a mat-icon-button [routerLink]="['/trainings', training.id]" aria-label="Open training">
+                  <mat-icon aria-hidden="true">open_in_new</mat-icon>
+                </a>
+                <button mat-icon-button type="button" (click)="remove(training)" aria-label="Delete training">
+                  <mat-icon aria-hidden="true">delete</mat-icon>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </section>
+</main>

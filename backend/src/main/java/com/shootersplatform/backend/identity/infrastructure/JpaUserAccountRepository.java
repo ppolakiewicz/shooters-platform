@@ -5,12 +5,14 @@ import com.shootersplatform.backend.identity.domain.UserAccount;
 import com.shootersplatform.backend.identity.domain.UserAccountRepository;
 import com.shootersplatform.backend.identity.domain.UserId;
 import com.shootersplatform.backend.identity.domain.UserRole;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@NullMarked
 @Repository
 class JpaUserAccountRepository implements UserAccountRepository {
 

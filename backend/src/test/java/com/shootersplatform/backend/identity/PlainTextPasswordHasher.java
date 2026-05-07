@@ -1,7 +1,9 @@
 package com.shootersplatform.backend.identity;
 
 import com.shootersplatform.backend.identity.domain.PasswordHasher;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class PlainTextPasswordHasher implements PasswordHasher {
 
     @Override

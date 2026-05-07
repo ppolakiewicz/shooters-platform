@@ -3,6 +3,8 @@ package com.shootersplatform.backend.identity.infrastructure;
 import com.shootersplatform.backend.identity.domain.EmailAddress;
 import com.shootersplatform.backend.identity.domain.LoginRateLimiter;
 import com.shootersplatform.backend.identity.domain.RateLimitExceededException;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -16,6 +18,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@NullMarked
 @Component
 class InMemoryLoginRateLimiter implements LoginRateLimiter {
 
@@ -86,7 +89,7 @@ class InMemoryLoginRateLimiter implements LoginRateLimiter {
         return "login:%s:%s".formatted(email.value(), normalize(clientIp));
     }
 
-    private String normalize(String clientIp) {
+    private String normalize(@Nullable String clientIp) {
         return clientIp == null ? "unknown" : clientIp.toLowerCase(Locale.ROOT);
     }
 }

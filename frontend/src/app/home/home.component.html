@@ -7,13 +7,18 @@
     </div>
 
     <div class="actions">
+      <a mat-flat-button routerLink="/trainings">
+        <mat-icon aria-hidden="true">track_changes</mat-icon>
+        Trainings
+      </a>
+
       @if (loading()) {
-        <button mat-flat-button type="button" disabled>
+        <button mat-stroked-button type="button" disabled>
           <mat-spinner diameter="18" aria-hidden="true"></mat-spinner>
           Checking
         </button>
       } @else {
-        <button mat-flat-button type="button" (click)="refreshHealth()">
+        <button mat-stroked-button type="button" (click)="refreshHealth()">
           <mat-icon aria-hidden="true">refresh</mat-icon>
           Refresh
         </button>

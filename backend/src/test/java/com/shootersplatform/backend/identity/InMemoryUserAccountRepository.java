@@ -4,11 +4,14 @@ import com.shootersplatform.backend.identity.domain.EmailAddress;
 import com.shootersplatform.backend.identity.domain.UserAccount;
 import com.shootersplatform.backend.identity.domain.UserAccountRepository;
 import com.shootersplatform.backend.identity.domain.UserId;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
+@NullMarked
 public class InMemoryUserAccountRepository implements UserAccountRepository {
 
     private final Map<UserId, UserAccount> byId = new HashMap<>();
@@ -37,7 +40,7 @@ public class InMemoryUserAccountRepository implements UserAccountRepository {
     }
 
     public UserAccount savedByEmail(String email) {
-        return byEmail.get(new EmailAddress(email).value());
+        return Objects.requireNonNull(byEmail.get(new EmailAddress(email).value()));
     }
 
     public int count() {
