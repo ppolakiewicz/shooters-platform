@@ -4,6 +4,8 @@ import com.shootersplatform.backend.identity.domain.PasswordHasher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 @Component
 class SpringSecurityPasswordHasher implements PasswordHasher {
 
@@ -15,7 +17,7 @@ class SpringSecurityPasswordHasher implements PasswordHasher {
 
     @Override
     public String hash(String password) {
-        return passwordEncoder.encode(password);
+        return Objects.requireNonNull(passwordEncoder.encode(password), "Password encoder returned null");
     }
 
     @Override

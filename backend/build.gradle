@@ -3,6 +3,8 @@ plugins {
     id 'groovy'
     id 'org.springframework.boot' version '4.0.5'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'net.ltgt.errorprone' version '5.1.0'
+    id 'net.ltgt.nullaway' version '3.0.0'
 }
 
 group = 'com.shootersplatform'
@@ -34,8 +36,26 @@ dependencies {
     testImplementation 'org.spockframework:spock-core'
     testImplementation 'org.spockframework:spock-spring'
     testImplementation "org.testcontainers:testcontainers-postgresql:2.0.1"
+
+    errorprone 'com.google.errorprone:error_prone_core:2.49.0'
+    errorprone 'com.uber.nullaway:nullaway:0.13.4'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+nullaway {
+    onlyNullMarked = true
+    jspecifyMode = true
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.errorprone.disableWarningsInGeneratedCode = true
+    options.errorprone.nullaway {
+        error()
+        checkOptionalEmptiness = true
+        acknowledgeRestrictiveAnnotations = true
+        externalInitAnnotations.add('jakarta.persistence.Entity')
+    }
 }

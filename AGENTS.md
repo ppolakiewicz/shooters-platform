@@ -47,6 +47,9 @@ Spring Security for the browser SPA uses server-side sessions and CSRF. Angular 
 `X-XSRF-TOKEN` for mutating `/api` requests. Keep session/authentication mechanics in web or shared security
 configuration, not in domain code.
 
+Backend Java packages are JSpecify null-marked. When adding a new package under `src/main/java`, add a `package-info.java`
+with `@NullMarked` unless the package intentionally needs `@NullUnmarked`.
+
 Postgres 18 Docker images should mount persistent data at `/var/lib/postgresql`, not `/var/lib/postgresql/data`.
 
 ### Frontend
