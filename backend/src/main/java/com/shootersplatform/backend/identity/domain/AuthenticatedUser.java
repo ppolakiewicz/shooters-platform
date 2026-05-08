@@ -3,10 +3,10 @@ package com.shootersplatform.backend.identity.domain;
 import java.io.Serializable;
 import java.util.Set;
 
-public record AuthenticatedUser(UserId id, EmailAddress email, Set<UserRole> roles) implements Serializable {
+public record AuthenticatedUser(UserId id, EmailAddress email, Username username, Set<UserRole> roles) implements Serializable {
 
     public static AuthenticatedUser from(UserAccount account) {
-        return new AuthenticatedUser(account.id(), account.email(), account.roles());
+        return new AuthenticatedUser(account.id(), account.email(), account.username(), account.roles());
     }
 
     public AuthenticatedUser {

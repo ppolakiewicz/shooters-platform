@@ -10,6 +10,7 @@ import com.shootersplatform.backend.identity.domain.RateLimitExceededException
 import com.shootersplatform.backend.identity.domain.UserAccount
 import com.shootersplatform.backend.identity.domain.UserId
 import com.shootersplatform.backend.identity.domain.UserRole
+import com.shootersplatform.backend.identity.domain.Username
 import spock.lang.Specification
 
 import java.time.Clock
@@ -41,6 +42,7 @@ class LoginUserUseCaseSpec extends Specification {
         userAccounts.save(UserAccount.register(
                 new UserId(UUID.randomUUID()),
                 new EmailAddress("owner@example.com"),
+                new Username("OwnerOne"),
                 "hashed:correct horse battery",
                 Instant.now()
         ))
@@ -50,6 +52,7 @@ class LoginUserUseCaseSpec extends Specification {
 
         then: "The authenticated user is returned with normalized email and USER role"
         user.email().value() == "owner@example.com"
+        user.username().value() == "OwnerOne"
         user.roles() == [UserRole.USER] as Set
     }
 
@@ -58,6 +61,7 @@ class LoginUserUseCaseSpec extends Specification {
         userAccounts.save(UserAccount.register(
                 new UserId(UUID.randomUUID()),
                 new EmailAddress("owner@example.com"),
+                new Username("OwnerOne"),
                 "hashed:correct horse battery",
                 Instant.now()
         ))

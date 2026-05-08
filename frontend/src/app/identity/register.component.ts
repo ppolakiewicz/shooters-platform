@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { email, form, FormField, maxLength, minLength, required, submit } from '@angular/forms/signals';
+import { email, form, FormField, maxLength, minLength, pattern, required, submit } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -31,10 +31,14 @@ export class RegisterComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected readonly model = signal({ email: '', password: '' });
+  protected readonly model = signal({ email: '', username: '', password: '' });
   protected readonly registerForm = form(this.model, (path) => {
     required(path.email, { message: 'Email is required' });
     email(path.email, { message: 'Use a valid email address' });
+    required(path.username, { message: 'Username is required' });
+    minLength(path.username, 3, { message: 'Use at least 3 characters' });
+    maxLength(path.username, 32, { message: 'Use at most 32 characters' });
+    pattern(path.username, /^[A-Za-z0-9_-]+$/, { message: 'Use only letters, numbers, underscores, and hyphens' });
     required(path.password, { message: 'Password is required' });
     minLength(path.password, 12, { message: 'Use at least 12 characters' });
     maxLength(path.password, 128, { message: 'Use at most 128 characters' });

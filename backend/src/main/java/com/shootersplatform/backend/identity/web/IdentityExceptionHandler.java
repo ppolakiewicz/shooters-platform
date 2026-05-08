@@ -1,6 +1,7 @@
 package com.shootersplatform.backend.identity.web;
 
 import com.shootersplatform.backend.identity.domain.DuplicateEmailException;
+import com.shootersplatform.backend.identity.domain.DuplicateUsernameException;
 import com.shootersplatform.backend.identity.domain.IdentityValidationException;
 import com.shootersplatform.backend.identity.domain.InvalidCredentialsException;
 import com.shootersplatform.backend.identity.domain.RateLimitExceededException;
@@ -20,6 +21,13 @@ class IdentityExceptionHandler {
     ProblemDetail duplicateEmail(DuplicateEmailException exception) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
         problem.setTitle("Email is already registered");
+        return problem;
+    }
+
+    @ExceptionHandler(DuplicateUsernameException.class)
+    ProblemDetail duplicateUsername(DuplicateUsernameException exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
+        problem.setTitle("Username is already registered");
         return problem;
     }
 

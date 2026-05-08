@@ -25,6 +25,9 @@ class UserAccountEntity {
     @Column(name = "email", nullable = false, length = 320, unique = true)
     private String email;
 
+    @Column(name = "username", nullable = false, length = 32)
+    private String username;
+
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
@@ -59,6 +62,14 @@ class UserAccountEntity {
 
     void setEmail(String email) {
         this.email = email;
+    }
+
+    String getUsername() {
+        return username;
+    }
+
+    void setUsername(String username) {
+        this.username = username;
     }
 
     String getPasswordHash() {

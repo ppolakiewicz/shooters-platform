@@ -5,6 +5,7 @@ import com.shootersplatform.backend.identity.domain.UserAccount;
 import com.shootersplatform.backend.identity.domain.UserAccountRepository;
 import com.shootersplatform.backend.identity.domain.UserId;
 import com.shootersplatform.backend.identity.domain.UserRole;
+import com.shootersplatform.backend.identity.domain.Username;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Repository;
 
@@ -30,6 +31,11 @@ class JpaUserAccountRepository implements UserAccountRepository {
     }
 
     @Override
+    public boolean existsByUsername(Username username) {
+        return userAccounts.existsByUsernameIgnoreCase(username.value());
+    }
+
+    @Override
     public Optional<UserAccount> findByEmail(EmailAddress email) {
         return userAccounts.findByEmail(email.value()).map(this::toDomain);
     }
@@ -44,6 +50,7 @@ class JpaUserAccountRepository implements UserAccountRepository {
         UserAccountEntity entity = new UserAccountEntity();
         entity.setId(userAccount.id().value());
         entity.setEmail(userAccount.email().value());
+        entity.setUsername(userAccount.username().value());
         entity.setPasswordHash(userAccount.passwordHash());
         entity.setEnabled(userAccount.enabled());
         entity.setCreatedAt(userAccount.createdAt());
@@ -64,6 +71,7 @@ class JpaUserAccountRepository implements UserAccountRepository {
         return new UserAccount(
                 new UserId(entity.getId()),
                 new EmailAddress(entity.getEmail()),
+                new Username(entity.getUsername()),
                 entity.getPasswordHash(),
                 entity.isEnabled(),
                 roleNames,

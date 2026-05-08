@@ -5,12 +5,17 @@ import { firstValueFrom } from 'rxjs';
 export interface AuthUser {
   id: string;
   email: string;
+  username: string;
   roles: string[];
 }
 
-interface Credentials {
+interface LoginCredentials {
   email: string;
   password: string;
+}
+
+interface RegistrationCredentials extends LoginCredentials {
+  username: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -43,11 +48,11 @@ export class AuthService {
     }
   }
 
-  async register(credentials: Credentials): Promise<AuthUser> {
+  async register(credentials: RegistrationCredentials): Promise<AuthUser> {
     return this.submitWithCsrf('/api/auth/register', credentials);
   }
 
-  async login(credentials: Credentials): Promise<AuthUser> {
+  async login(credentials: LoginCredentials): Promise<AuthUser> {
     return this.submitWithCsrf('/api/auth/login', credentials);
   }
 
@@ -58,7 +63,7 @@ export class AuthService {
     this.error.set(null);
   }
 
-  private async submitWithCsrf(url: string, credentials: Credentials): Promise<AuthUser> {
+  private async submitWithCsrf(url: string, credentials: LoginCredentials | RegistrationCredentials): Promise<AuthUser> {
     this.loading.set(true);
     this.error.set(null);
     try {

@@ -4,6 +4,10 @@
 
 Project is split into three modules:
 
+## Git workflow
+
+All newly created files should be added to the Git stage before finishing the task.
+
 ### Backend
 Backend is Spring Boot 4 Gradle application build with Java 25 and Postgres database.
 For maintaining database Flyway migrations are used.

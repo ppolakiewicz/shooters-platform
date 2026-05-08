@@ -157,12 +157,16 @@ class TrainingControllerSecuritySpec extends Specification {
     }
 
     private MockHttpSession registerSession() {
-        def result = auth.register(uniqueEmail(), "correct horse battery").andExpect(status().isCreated()).andReturn()
+        def result = auth.register(uniqueEmail(), uniqueUsername(), "correct horse battery").andExpect(status().isCreated()).andReturn()
         result.request.getSession(false) as MockHttpSession
     }
 
     private static String uniqueEmail() {
         "training-${UUID.randomUUID()}@example.com"
+    }
+
+    private static String uniqueUsername() {
+        "Training_${UUID.randomUUID().toString().replace("-", "").substring(0, 12)}"
     }
 
     private static Object json(result, String path) {

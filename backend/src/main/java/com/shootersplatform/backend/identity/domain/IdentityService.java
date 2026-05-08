@@ -23,15 +23,20 @@ public class IdentityService {
         this.clock = clock;
     }
 
-    public UserAccount register(String rawEmail, String password) {
+    public UserAccount register(String rawEmail, String rawUsername, String password) {
         EmailAddress email = new EmailAddress(rawEmail);
+        Username username = new Username(rawUsername);
         passwordPolicy.validate(password);
 
         if (userAccounts.existsByEmail(email)) {
             throw new DuplicateEmailException();
         }
 
-        UserAccount account = UserAccount.register(UserId.newId(), email, passwordHasher.hash(password), clock.instant());
+        if (userAccounts.existsByUsername(username)) {
+            throw new DuplicateUsernameException();
+        }
+
+        UserAccount account = UserAccount.register(UserId.newId(), email, username, passwordHasher.hash(password), clock.instant());
         return userAccounts.save(account);
     }
 

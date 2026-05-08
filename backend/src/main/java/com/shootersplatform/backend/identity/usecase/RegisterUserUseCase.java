@@ -26,10 +26,10 @@ public class RegisterUserUseCase {
     }
 
     @Transactional
-    public AuthenticatedUser register(String rawEmail, String password, String clientIp) {
+    public AuthenticatedUser register(String rawEmail, String rawUsername, String password, String clientIp) {
         rateLimiter.recordRegistrationAttempt(clientIp);
 
-        UserAccount saved = identity.register(rawEmail, password);
+        UserAccount saved = identity.register(rawEmail, rawUsername, password);
         log.info("Registered user {}", saved.id().value());
         return AuthenticatedUser.from(saved);
     }

@@ -7,24 +7,37 @@ import { AuthService } from './auth.service';
 import { RegisterComponent } from './register.component';
 
 describe('RegisterComponent', () => {
-  it('requires a valid email and at least 12 password characters', async () => {
+  it('requires a valid email username and at least 12 password characters', async () => {
     const { component } = await createComponent();
 
-    component.model.set({ email: 'not-an-email', password: 'short' });
+    component.model.set({ email: 'not-an-email', username: 'bad.name', password: 'short' });
     expect(component.registerForm().invalid()).toBe(true);
 
-    component.model.set({ email: 'owner@example.com', password: 'correct horse battery' });
+    component.model.set({ email: 'owner@example.com', username: 'Owner_One', password: 'correct horse battery' });
     expect(component.registerForm().valid()).toBe(true);
   });
 
   it('registers and navigates home on submit', async () => {
-    const auth = { register: vi.fn().mockResolvedValue({ id: 'user-id', email: 'owner@example.com', roles: ['USER'] }), error: vi.fn() };
+    const auth = {
+      register: vi.fn().mockResolvedValue({
+        id: 'user-id',
+        email: 'owner@example.com',
+        username: 'OwnerOne',
+        roles: ['USER']
+      }),
+      error: vi.fn()
+    };
     const { component, router } = await createComponent(auth);
 
-    component.model.set({ email: 'owner@example.com', password: 'correct horse battery' });
+    component.model.set({ email: 'owner@example.com', username: 'OwnerOne', password: 'correct horse battery' });
     component.onSubmit();
     await vi.waitFor(() => expect(auth.register).toHaveBeenCalled());
 
+    expect(auth.register).toHaveBeenCalledWith({
+      email: 'owner@example.com',
+      username: 'OwnerOne',
+      password: 'correct horse battery'
+    });
     expect(router.navigateByUrl).toHaveBeenCalledWith('/');
   });
 });

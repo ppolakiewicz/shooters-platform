@@ -20,6 +20,14 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
+          <mat-label>Username</mat-label>
+          <input matInput type="text" autocomplete="username" [formField]="registerForm.username">
+          @if (registerForm.username().touched() && registerForm.username().errors().length) {
+            <mat-error>{{ registerForm.username().errors()[0].message }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
           <mat-label>Password</mat-label>
           <input matInput type="password" autocomplete="new-password" [formField]="registerForm.password">
           @if (registerForm.password().touched() && registerForm.password().errors().length) {

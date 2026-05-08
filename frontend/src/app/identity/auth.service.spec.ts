@@ -32,13 +32,22 @@ describe('AuthService', () => {
   });
 
   it('registers with csrf and stores current user', async () => {
-    const user: AuthUser = { id: 'user-id', email: 'owner@example.com', roles: ['USER'] };
+    const user: AuthUser = { id: 'user-id', email: 'owner@example.com', username: 'OwnerOne', roles: ['USER'] };
 
-    const registration = service.register({ email: 'owner@example.com', password: 'correct horse battery' });
+    const registration = service.register({
+      email: 'owner@example.com',
+      username: 'OwnerOne',
+      password: 'correct horse battery'
+    });
 
     http.expectOne('/api/auth/csrf').flush('');
     const request = await nextRequest('/api/auth/register');
     expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({
+      email: 'owner@example.com',
+      username: 'OwnerOne',
+      password: 'correct horse battery'
+    });
     request.flush(user);
 
     await expect(registration).resolves.toEqual(user);

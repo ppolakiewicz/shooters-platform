@@ -9,5 +9,7 @@ interface SpringDataUserAccountRepository extends JpaRepository<UserAccountEntit
 
     boolean existsByEmail(String email);
 
+    boolean existsByUsernameIgnoreCase(String username);
+
     Optional<UserAccountEntity> findByEmail(String email);
 }

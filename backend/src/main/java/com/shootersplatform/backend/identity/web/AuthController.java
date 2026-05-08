@@ -1,14 +1,11 @@
 package com.shootersplatform.backend.identity.web;
 
 import com.shootersplatform.backend.identity.domain.AuthenticatedUser;
-import com.shootersplatform.backend.identity.domain.UserRole;
 import com.shootersplatform.backend.identity.usecase.LoginUserUseCase;
 import com.shootersplatform.backend.identity.usecase.RegisterUserUseCase;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,9 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Set;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -49,7 +43,12 @@ class AuthController {
             HttpServletRequest servletRequest,
             HttpServletResponse servletResponse
     ) {
-        AuthenticatedUser user = registerUser.register(request.email(), request.password(), clientIpResolver.resolve(servletRequest));
+        AuthenticatedUser user = registerUser.register(
+                request.email(),
+                request.username(),
+                request.password(),
+                clientIpResolver.resolve(servletRequest)
+        );
         sessions.authenticate(user, servletRequest, servletResponse);
         return AuthenticatedUserResponse.from(user);
     }
@@ -80,22 +79,5 @@ class AuthController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void csrf(CsrfToken csrfToken) {
         csrfToken.getToken();
-    }
-
-    record RegisterRequest(@NotBlank @Email String email, @NotBlank String password) {
-    }
-
-    record LoginRequest(@NotBlank @Email String email, @NotBlank String password) {
-    }
-
-    record AuthenticatedUserResponse(UUID id, String email, Set<UserRole> roles) {
-
-        static AuthenticatedUserResponse from(AuthenticatedUser user) {
-            return new AuthenticatedUserResponse(user.id().value(), user.email().value(), user.roles());
-        }
-
-        AuthenticatedUserResponse {
-            roles = Set.copyOf(roles);
-        }
     }
 }

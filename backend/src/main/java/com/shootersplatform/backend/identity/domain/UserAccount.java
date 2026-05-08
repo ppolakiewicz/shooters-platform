@@ -6,6 +6,7 @@ import java.util.Set;
 public record UserAccount(
         UserId id,
         EmailAddress email,
+        Username username,
         String passwordHash,
         boolean enabled,
         Set<UserRole> roles,
@@ -13,8 +14,8 @@ public record UserAccount(
         Instant updatedAt
 ) {
 
-    public static UserAccount register(UserId id, EmailAddress email, String passwordHash, Instant now) {
-        return new UserAccount(id, email, passwordHash, true, Set.of(UserRole.USER), now, now);
+    public static UserAccount register(UserId id, EmailAddress email, Username username, String passwordHash, Instant now) {
+        return new UserAccount(id, email, username, passwordHash, true, Set.of(UserRole.USER), now, now);
     }
 
     public UserAccount {

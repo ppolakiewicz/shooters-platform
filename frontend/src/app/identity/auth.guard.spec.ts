@@ -29,7 +29,7 @@ describe('authGuard', () => {
   });
 
   it('allows an already authenticated user', async () => {
-    currentUser.set({ id: 'user-id', email: 'owner@example.com', roles: ['USER'] });
+    currentUser.set({ id: 'user-id', email: 'owner@example.com', username: 'OwnerOne', roles: ['USER'] });
 
     const result = await TestBed.runInInjectionContext(() => authGuard({} as never, {} as never));
 

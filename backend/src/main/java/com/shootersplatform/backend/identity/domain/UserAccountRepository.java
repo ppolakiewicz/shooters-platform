@@ -6,6 +6,8 @@ public interface UserAccountRepository {
 
     boolean existsByEmail(EmailAddress email);
 
+    boolean existsByUsername(Username username);
+
     Optional<UserAccount> findByEmail(EmailAddress email);
 
     Optional<UserAccount> findById(UserId id);

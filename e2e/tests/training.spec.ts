@@ -3,12 +3,14 @@ import { expect, test } from '@playwright/test';
 test('manages planned training and shooting tasks', async ({ page }) => {
   // given: a registered user is needed to manage trainings
   const email = `training-${Date.now()}-${crypto.randomUUID()}@example.com`;
+  const username = `Training_${crypto.randomUUID().replaceAll('-', '').slice(0, 12)}`;
   const password = 'correct horse battery';
 
   // when: the user registers and enters the authenticated application
   await page.goto('/');
   await page.getByRole('link', { name: 'Create account' }).click();
   await page.getByLabel('Email').fill(email);
+  await page.getByLabel('Username').fill(username);
   await page.getByLabel('Password').fill(password);
   await page.getByRole('button', { name: 'Create account' }).click();
 
