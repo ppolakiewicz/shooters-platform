@@ -29,6 +29,9 @@ using hash map to store information and provide assertion methods to be used in 
 
 Backend tests should be written with Spock specifications in `src/test/groovy`, not JUnit test classes. Spock tests should
 use descriptive English labels for `given:`, `when:`, `then:` and `and:` blocks.
+Format Spock specifications with two-space indentation for class members and helper methods. Spock block labels should
+be indented one level inside the feature method, and statements inside those blocks should be indented one additional
+level deeper.
 
 Use case logic should be tested with spring boot integration tests.
 
