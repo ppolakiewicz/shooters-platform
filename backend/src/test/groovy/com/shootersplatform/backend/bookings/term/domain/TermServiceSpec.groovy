@@ -1,6 +1,6 @@
 package com.shootersplatform.backend.bookings.term.domain
 
-import com.shootersplatform.backend.bookings.InMemoryTermRepository
+
 import com.shootersplatform.backend.bookings.location.domain.Location
 import com.shootersplatform.backend.identity.domain.UserId
 import spock.lang.Specification

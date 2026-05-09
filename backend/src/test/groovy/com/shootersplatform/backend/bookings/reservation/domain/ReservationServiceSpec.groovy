@@ -1,9 +1,8 @@
 package com.shootersplatform.backend.bookings.reservation.domain
 
-import com.shootersplatform.backend.bookings.InMemoryReservationNotificationPort
-import com.shootersplatform.backend.bookings.InMemoryReservationRepository
-import com.shootersplatform.backend.bookings.InMemoryTermRepository
-import com.shootersplatform.backend.bookings.InMemoryTrainingEnrollmentRepository
+
+import com.shootersplatform.backend.bookings.term.domain.InMemoryTermRepository
+import com.shootersplatform.backend.bookings.trainingenrollment.domain.InMemoryTrainingEnrollmentRepository
 import com.shootersplatform.backend.bookings.location.domain.Location
 import com.shootersplatform.backend.bookings.term.domain.Term
 import com.shootersplatform.backend.bookings.trainingenrollment.domain.TrainingEnrollment

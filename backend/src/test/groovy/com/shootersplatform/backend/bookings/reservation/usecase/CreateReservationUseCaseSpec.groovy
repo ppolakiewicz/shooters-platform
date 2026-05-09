@@ -1,8 +1,8 @@
 package com.shootersplatform.backend.bookings.reservation.usecase
 
-import com.shootersplatform.backend.bookings.InMemoryReservationNotificationPort
-import com.shootersplatform.backend.bookings.InMemoryReservationRepository
-import com.shootersplatform.backend.bookings.InMemoryTermRepository
+import com.shootersplatform.backend.bookings.reservation.domain.InMemoryReservationNotificationPort
+import com.shootersplatform.backend.bookings.reservation.domain.InMemoryReservationRepository
+import com.shootersplatform.backend.bookings.term.domain.InMemoryTermRepository
 import com.shootersplatform.backend.bookings.location.domain.Location
 import com.shootersplatform.backend.bookings.reservation.domain.ReservationService
 import com.shootersplatform.backend.bookings.reservation.domain.ReservationValidationException

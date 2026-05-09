@@ -1,9 +1,5 @@
-package com.shootersplatform.backend.bookings;
+package com.shootersplatform.backend.bookings.reservation.domain;
 
-import com.shootersplatform.backend.bookings.reservation.domain.Reservation;
-import com.shootersplatform.backend.bookings.reservation.domain.ReservationId;
-import com.shootersplatform.backend.bookings.reservation.domain.ReservationRepository;
-import com.shootersplatform.backend.bookings.reservation.domain.ReservationStatus;
 import com.shootersplatform.backend.bookings.term.domain.TermId;
 import com.shootersplatform.backend.identity.domain.EmailAddress;
 import org.jspecify.annotations.NullMarked;

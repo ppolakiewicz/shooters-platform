@@ -1,8 +1,5 @@
-package com.shootersplatform.backend.bookings;
+package com.shootersplatform.backend.bookings.trainingenrollment.domain;
 
-import com.shootersplatform.backend.bookings.trainingenrollment.domain.TrainingEnrollment;
-import com.shootersplatform.backend.bookings.trainingenrollment.domain.TrainingEnrollmentId;
-import com.shootersplatform.backend.bookings.trainingenrollment.domain.TrainingEnrollmentRepository;
 import com.shootersplatform.backend.identity.domain.UserId;
 import org.jspecify.annotations.NullMarked;
 
