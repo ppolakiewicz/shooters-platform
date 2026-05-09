@@ -1,0 +1,68 @@
+package com.shootersplatform.backend.bookings.term.domain
+
+import com.shootersplatform.backend.bookings.InMemoryTermRepository
+import com.shootersplatform.backend.bookings.location.domain.Location
+import com.shootersplatform.backend.identity.domain.UserId
+import spock.lang.Specification
+
+import java.time.Clock
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+
+class TermServiceSpec extends Specification {
+
+    private UserId owner = UserId.newId()
+    private InMemoryTermRepository terms
+    private TermService service
+
+    def setup() {
+        terms = new InMemoryTermRepository()
+        service = new TermService(terms, Clock.fixed(Instant.parse("2026-05-08T10:00:00Z"), ZoneOffset.UTC))
+    }
+
+    def "creates term from provided draft snapshot"() {
+        when: "The instructor creates a concrete term from a draft"
+        def term = createTerm()
+
+        then: "The term stores copied editable fields"
+        term.name() == "Basic pistol"
+        term.description() == "Safety"
+        term.location().address() == "Range Street 1"
+        term.capacity() == 8
+        term.cancellationDeadlineDays() == 2
+        term.durationMinutes() == 90
+        term.ownerId() == owner
+    }
+
+    def "rejects invalid term capacity during update"() {
+        given: "A term exists"
+        def term = createTerm()
+
+        when: "The instructor updates it with invalid capacity"
+        service.update(owner, term.id(), "Basic pistol", "", location(), 0, 2, 90, LocalDateTime.parse("2026-06-01T12:30:00"))
+
+        then: "The term module rejects the request"
+        thrown(TermValidationException)
+    }
+
+    def "lists only public terms that start in the future"() {
+        given: "Past and future terms exist"
+        service.create(owner, "Past pistol", "", location(), 8, 2, 90, LocalDateTime.parse("2026-05-08T11:59:59"))
+        def future = service.create(owner, "Future pistol", "", location(), 8, 2, 90, LocalDateTime.parse("2026-05-08T12:00:01"))
+
+        when: "Public terms are listed"
+        def publicTerms = service.listPublic()
+
+        then: "Only the future term is returned"
+        publicTerms*.id() == [future.id()]
+    }
+
+    private static Location location() {
+        new Location("Range A", "Range Street 1", 52.2297d, 21.0122d)
+    }
+
+    private Term createTerm() {
+        service.create(owner, "Basic pistol", "Safety", location(), 8, 2, 90, LocalDateTime.parse("2026-06-01T12:30:00"))
+    }
+}

@@ -1,0 +1,21 @@
+<main class="token-shell">
+  <section class="panel">
+    @if (loading()) {
+      <mat-spinner diameter="32" aria-hidden="true"></mat-spinner>
+      <h1>Processing</h1>
+    } @else if (reservation()) {
+      <mat-icon aria-hidden="true">check_circle</mat-icon>
+      <h1>{{ title }}</h1>
+      <p>Status: {{ reservation()?.status }}</p>
+    } @else {
+      <mat-icon aria-hidden="true">error</mat-icon>
+      <h1>Booking link failed</h1>
+      <p>{{ error() }}</p>
+    }
+
+    <a mat-flat-button routerLink="/booking-terms">
+      <mat-icon aria-hidden="true">event</mat-icon>
+      Available terms
+    </a>
+  </section>
+</main>

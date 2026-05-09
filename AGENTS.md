@@ -1,5 +1,10 @@
 # Shooters Platform Agent Notes
 
+### General info
+Always use `caveman` skill for communication.
+When working use `grill-me` skill to get more context about changes.
+When implementing use `tdd` skill.
+
 ## Project Structure
 
 Project is split into three modules:

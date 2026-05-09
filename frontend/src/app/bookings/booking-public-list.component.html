@@ -1,0 +1,49 @@
+<main class="booking-shell">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Shooters Platform</p>
+      <h1>Available training terms</h1>
+    </div>
+    <div class="header-actions">
+      <a mat-stroked-button routerLink="/login">
+        <mat-icon aria-hidden="true">login</mat-icon>
+        Log in
+      </a>
+    </div>
+  </header>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  <section class="list-panel" aria-label="Available terms">
+    @if (loading()) {
+      <div class="state">
+        <mat-spinner diameter="28" aria-hidden="true"></mat-spinner>
+        <span>Loading terms</span>
+      </div>
+    } @else if (!terms().length) {
+      <div class="state">
+        <mat-icon aria-hidden="true">event_busy</mat-icon>
+        <span>No terms available</span>
+      </div>
+    } @else {
+      <div class="term-grid">
+        @for (term of terms(); track term.id) {
+          <article class="term-card">
+            <div>
+              <p class="term-date">{{ term.startsAt | date:'medium' }}</p>
+              <h2>{{ term.name }}</h2>
+              <p>{{ term.location.placeName }}</p>
+              <small>{{ term.durationMinutes }} min · {{ term.capacity }} places</small>
+            </div>
+            <a mat-flat-button [routerLink]="['/booking-terms', term.id]">
+              <mat-icon aria-hidden="true">event_available</mat-icon>
+              Reserve
+            </a>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</main>

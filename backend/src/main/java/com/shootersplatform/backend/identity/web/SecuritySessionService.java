@@ -18,14 +18,14 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
 @Component
-class SecuritySessionService {
+public class SecuritySessionService {
 
     private static final Logger log = LoggerFactory.getLogger(SecuritySessionService.class);
 
     private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
     private final SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
 
-    void authenticate(AuthenticatedUser user, HttpServletRequest request, HttpServletResponse response) {
+    public void authenticate(AuthenticatedUser user, HttpServletRequest request, HttpServletResponse response) {
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 user,
                 null,
@@ -41,7 +41,7 @@ class SecuritySessionService {
         securityContextRepository.saveContext(context, request, response);
     }
 
-    void logout(HttpServletRequest request, HttpServletResponse response) {
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof AuthenticatedUser user) {
             log.info("Logged out user {}", user.id().value());
@@ -49,7 +49,7 @@ class SecuritySessionService {
         logoutHandler.logout(request, response, authentication);
     }
 
-    AuthenticatedUser currentUser() {
+    public AuthenticatedUser currentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof AuthenticatedUser user)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication is required");

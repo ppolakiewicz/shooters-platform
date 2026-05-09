@@ -27,17 +27,26 @@ import java.util.Map;
 class SecurityConfiguration {
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, ObjectMapper objectMapper) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, ObjectMapper objectMapper) {
         CsrfTokenRequestAttributeHandler csrfTokenRequestHandler = new CsrfTokenRequestAttributeHandler();
 
         http
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .csrfTokenRequestHandler(csrfTokenRequestHandler)
+                        .ignoringRequestMatchers(
+                                "/api/bookings/reservations/confirm-waitlist-offer",
+                                "/api/bookings/reservations/cancel-by-participant"
+                        )
                 )
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.GET, "/api/health", "/api/auth/csrf").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/bookings/public/terms/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/bookings/reservations/reserve").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/bookings/reservations/confirm-waitlist-offer").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/bookings/reservations/cancel-by-participant").permitAll()
+                        .requestMatchers("/api/bookings/**").hasRole("USER")
                         .requestMatchers("/api/trainings/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )
@@ -45,14 +54,14 @@ class SecurityConfiguration {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint((request, response, exception) -> writeProblem(
+                        .authenticationEntryPoint((_, response, _) -> writeProblem(
                                 response,
                                 objectMapper,
                                 HttpStatus.UNAUTHORIZED,
                                 "Authentication required",
                                 "Authentication is required to access this resource"
                         ))
-                        .accessDeniedHandler((request, response, exception) -> writeProblem(
+                        .accessDeniedHandler((_, response, _) -> writeProblem(
                                 response,
                                 objectMapper,
                                 HttpStatus.FORBIDDEN,

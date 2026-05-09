@@ -12,6 +12,11 @@
         Trainings
       </a>
 
+      <a mat-flat-button routerLink="/bookings">
+        <mat-icon aria-hidden="true">event_available</mat-icon>
+        Bookings
+      </a>
+
       @if (loading()) {
         <button mat-stroked-button type="button" disabled>
           <mat-spinner diameter="18" aria-hidden="true"></mat-spinner>

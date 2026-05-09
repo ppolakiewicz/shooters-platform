@@ -1,0 +1,92 @@
+import { provideZonelessChangeDetection } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { describe, expect, it, vi } from 'vitest';
+
+import { BookingAdminComponent } from './booking-admin.component';
+import { BookingService } from './booking.service';
+import { Term, TrainingEnrollment } from './booking.models';
+
+describe('BookingAdminComponent', () => {
+  it('loads enrollments and terms for management', async () => {
+    const service = serviceMock();
+
+    const { component } = await createComponent(service);
+
+    await vi.waitFor(() => expect(component.enrollments()).toHaveLength(1));
+    expect(component.terms()[0].name).toBe('Basic pistol');
+  });
+
+  it('opens reservations for selected term', async () => {
+    const service = serviceMock();
+    const { component } = await createComponent(service);
+
+    await component.openReservations(sampleTerm());
+
+    expect(service.reservations).toHaveBeenCalledWith('term-id');
+    expect(component.reservations()[0].status).toBe('CONFIRMED');
+  });
+});
+
+async function createComponent(service: unknown) {
+  await TestBed.configureTestingModule({
+    imports: [BookingAdminComponent],
+    providers: [
+      provideZonelessChangeDetection(),
+      provideRouter([]),
+      { provide: BookingService, useValue: service }
+    ]
+  }).compileComponents();
+
+  const fixture = TestBed.createComponent(BookingAdminComponent);
+  await fixture.whenStable();
+  return { component: fixture.componentInstance as any };
+}
+
+function serviceMock() {
+  return {
+    enrollments: vi.fn().mockResolvedValue([sampleEnrollment()]),
+    ownerTerms: vi.fn().mockResolvedValue([sampleTerm()]),
+    createEnrollment: vi.fn(),
+    createTerm: vi.fn(),
+    reservations: vi.fn().mockResolvedValue([{
+      id: 'reservation-id',
+      termId: 'term-id',
+      participantUserId: null,
+      firstName: 'Anna',
+      lastName: 'Nowak',
+      email: 'anna@example.com',
+      phoneNumber: '+48111111111',
+      status: 'CONFIRMED',
+      waitlistPosition: 0,
+      waitlistOfferExpiresAt: null,
+      createdAt: '2026-05-08T10:00:00Z',
+      updatedAt: '2026-05-08T10:00:00Z'
+    }]),
+    cancelReservation: vi.fn(),
+    expireOffers: vi.fn(),
+    error: vi.fn()
+  };
+}
+
+function sampleEnrollment(): TrainingEnrollment {
+  return {
+    id: 'enrollment-id',
+    name: 'Basic pistol',
+    description: '',
+    location: { placeName: 'Range A', address: 'Range Street 1', latitude: 52.2297, longitude: 21.0122 },
+    capacity: 8,
+    cancellationDeadlineDays: 2,
+    durationMinutes: 90,
+    createdAt: '2026-05-08T10:00:00Z',
+    updatedAt: '2026-05-08T10:00:00Z'
+  };
+}
+
+function sampleTerm(): Term {
+  return {
+    ...sampleEnrollment(),
+    id: 'term-id',
+    startsAt: '2026-06-01T12:00:00'
+  };
+}

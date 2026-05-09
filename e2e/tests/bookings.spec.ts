@@ -1,0 +1,97 @@
+import { expect, test } from '@playwright/test';
+
+test('creates a booking term and promotes waitlisted participant after cancellation', async ({ page }) => {
+  // given: a registered instructor manages booking terms
+  const instructorEmail = `booking-owner-${Date.now()}-${crypto.randomUUID()}@example.com`;
+  const username = `Booking_${crypto.randomUUID().replaceAll('-', '').slice(0, 12)}`;
+  const password = 'correct horse battery';
+
+  // when: the instructor registers and opens booking management
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Create account' }).click();
+  await page.getByLabel('Email').fill(instructorEmail);
+  await page.getByLabel('Username').fill(username);
+  await page.getByLabel('Password').fill(password);
+  await page.getByRole('button', { name: 'Create account' }).click();
+  await page.getByRole('link', { name: 'Bookings' }).click();
+
+  // when: the instructor creates a one-seat training enrollment and term
+  await expect(page.getByRole('heading', { name: 'Booking management' })).toBeVisible();
+  const enrollmentForm = page.locator('form').filter({ has: page.getByRole('heading', { name: 'New TrainingEnrollment' }) });
+  const termForm = page.locator('form').filter({ has: page.getByRole('heading', { name: 'New Term' }) });
+  await enrollmentForm.getByLabel('Name').fill('Intro pistol');
+  await enrollmentForm.getByLabel('Capacity').fill('1');
+  const enrollmentResponse = page.waitForResponse((response) =>
+    response.url().endsWith('/api/bookings/enrollments') && response.request().method() === 'POST'
+  );
+  await page.getByRole('button', { name: 'Create enrollment' }).click();
+  expect((await enrollmentResponse).ok()).toBeTruthy();
+
+  const termResponse = page.waitForResponse((response) =>
+    response.url().endsWith('/api/bookings/terms') && response.request().method() === 'POST'
+  );
+  await termForm.getByRole('button', { name: 'Create term' }).click();
+  const term = await (await termResponse).json() as { id: string };
+
+  // when: the instructor logs out and the first guest reserves the only place
+  await page.getByRole('link', { name: 'Home' }).click();
+  await page.getByRole('button', { name: 'Logout' }).click();
+  await page.goto(`/booking-terms/${term.id}`);
+  await page.getByLabel('First name').fill('Anna');
+  await page.getByLabel('Last name').fill('Nowak');
+  await page.getByLabel('Email').fill(`anna-${Date.now()}@example.com`);
+  await page.getByLabel('Phone number').fill('+48111111111');
+  const firstReservationResponse = page.waitForResponse((response) =>
+    response.url().endsWith('/api/bookings/reservations/reserve') && response.request().method() === 'POST'
+  );
+  await page.getByRole('button', { name: 'Reserve' }).click();
+  const firstReservation = await (await firstReservationResponse).json() as { status: string; cancellationToken: string };
+
+  // then: the first reservation is confirmed
+  expect(firstReservation.status).toBe('CONFIRMED');
+  await expect(page.getByRole('heading', { name: 'Reservation CONFIRMED' })).toBeVisible();
+
+  // when: the second guest registers for the full term
+  await page.getByLabel('First name').fill('Jan');
+  await page.getByLabel('Last name').fill('Kowalski');
+  await page.getByLabel('Email').fill(`jan-${Date.now()}@example.com`);
+  await page.getByLabel('Phone number').fill('+48222222222');
+  const secondReservationResponse = page.waitForResponse((response) =>
+    response.url().endsWith('/api/bookings/reservations/reserve') && response.request().method() === 'POST'
+  );
+  await page.getByRole('button', { name: 'Reserve' }).click();
+  const secondReservation = await (await secondReservationResponse).json() as { status: string };
+
+  // then: the second reservation enters the waitlist
+  expect(secondReservation.status).toBe('WAITLISTED');
+  await expect(page.getByRole('heading', { name: 'Reservation WAITLISTED' })).toBeVisible();
+
+  // when: the first guest cancels through the token link
+  const cancellationResponse = await page.request.post('/api/bookings/reservations/cancel-by-participant', {
+    data: { token: firstReservation.cancellationToken }
+  });
+  expect(cancellationResponse.ok()).toBeTruthy();
+
+  // when: the instructor logs in and reads the promoted waitlist reservation from the management API
+  await page.goto('/login');
+  await page.getByLabel('Email').fill(instructorEmail);
+  await page.getByLabel('Password').fill(password);
+  await page.getByRole('button', { name: 'Log in' }).click();
+  await expect(page.getByText(username)).toBeVisible();
+  const csrfResponse = await page.request.get('/api/auth/csrf');
+  expect(csrfResponse.ok()).toBeTruthy();
+  const csrfCookie = (await page.context().cookies()).find((cookie) => cookie.name === 'XSRF-TOKEN');
+  expect(csrfCookie?.value).toBeTruthy();
+  const reservationsResponse = await page.request.post('/api/bookings/reservations/list', {
+    data: { termId: term.id },
+    headers: { 'X-XSRF-TOKEN': csrfCookie?.value ?? '' }
+  });
+  expect(reservationsResponse.ok()).toBeTruthy();
+  const reservations = await reservationsResponse.json() as Array<{ email: string; status: string; waitlistConfirmationToken?: string; cancellationToken?: string }>;
+  const offered = reservations.find((reservation) => reservation.status === 'WAITLIST_OFFERED');
+
+  // then: the waitlisted participant receives an offer without leaking secret tokens through management API
+  expect(offered).toBeTruthy();
+  expect(offered).not.toHaveProperty('waitlistConfirmationToken');
+  expect(offered).not.toHaveProperty('cancellationToken');
+});

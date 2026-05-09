@@ -1,8 +1,8 @@
 import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
 
-export default async function globalTeardown(): Promise<void> {
-  if (process.env.E2E_SKIP_WEBSERVER) {
+async function globalTeardown(): Promise<void> {
+  if (process.env["E2E_SKIP_WEBSERVER"]) {
     return;
   }
 
@@ -16,3 +16,5 @@ export default async function globalTeardown(): Promise<void> {
     throw new Error('Failed to stop Docker Compose services after E2E tests');
   }
 }
+
+export default globalTeardown;

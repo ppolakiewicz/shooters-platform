@@ -1,0 +1,105 @@
+<main class="booking-shell">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Shooters Platform</p>
+      <h1>{{ term()?.name ?? 'Training term' }}</h1>
+    </div>
+    <a mat-stroked-button routerLink="/booking-terms">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Terms
+    </a>
+  </header>
+
+  @if (loading()) {
+    <section class="state">
+      <mat-spinner diameter="30" aria-hidden="true"></mat-spinner>
+      <span>Loading term</span>
+    </section>
+  } @else if (term()) {
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+
+    @if (reservation()) {
+      <section class="result-panel">
+        <mat-icon aria-hidden="true">check_circle</mat-icon>
+        <div>
+          <h2>Reservation {{ reservation()?.status }}</h2>
+          <p>Your cancellation token is {{ reservation()?.cancellationToken }}</p>
+        </div>
+      </section>
+    }
+
+    <section class="detail-grid">
+      <article class="panel">
+        <p class="term-date">{{ term()?.startsAt | date:'medium' }}</p>
+        <p>{{ term()?.description || 'No description provided.' }}</p>
+        <dl>
+          <div>
+            <dt>Place</dt>
+            <dd>{{ term()?.location?.placeName }}</dd>
+          </div>
+          <div>
+            <dt>Address</dt>
+            <dd>{{ term()?.location?.address }}</dd>
+          </div>
+          <div>
+            <dt>Duration</dt>
+            <dd>{{ term()?.durationMinutes }} min</dd>
+          </div>
+          <div>
+            <dt>Cancellation</dt>
+            <dd>{{ term()?.cancellationDeadlineDays }} days before start</dd>
+          </div>
+        </dl>
+        @if (mapUrl()) {
+          <iframe class="map" title="Training place map" [src]="mapUrl()"></iframe>
+        }
+      </article>
+
+      <form class="panel reservation-form" (submit)="reserve(); $event.preventDefault()">
+        <h2>Reserve a place</h2>
+        <mat-form-field appearance="outline">
+          <mat-label>First name</mat-label>
+          <input matInput autocomplete="given-name" [formField]="reservationForm.firstName">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Last name</mat-label>
+          <input matInput autocomplete="family-name" [formField]="reservationForm.lastName">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" autocomplete="email" [formField]="reservationForm.email">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Phone number</mat-label>
+          <input matInput autocomplete="tel" [formField]="reservationForm.phoneNumber">
+        </mat-form-field>
+
+        <mat-checkbox [formField]="reservationForm.createAccount">Create account</mat-checkbox>
+
+        @if (model().createAccount) {
+          <mat-form-field appearance="outline">
+            <mat-label>Username</mat-label>
+            <input matInput autocomplete="username" [formField]="reservationForm.username">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" autocomplete="new-password" [formField]="reservationForm.password">
+          </mat-form-field>
+        }
+
+        <button mat-flat-button type="submit" [disabled]="reservationForm().invalid() || submitting()">
+          @if (submitting()) {
+            <mat-spinner diameter="18" aria-hidden="true"></mat-spinner>
+          } @else {
+            <mat-icon aria-hidden="true">event_available</mat-icon>
+          }
+          Reserve
+        </button>
+      </form>
+    </section>
+  } @else if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+</main>
