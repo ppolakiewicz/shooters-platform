@@ -24,12 +24,24 @@ public class TermApiClient {
         return mockMvc.perform(get("/api/bookings/public/terms"));
     }
 
+    public ResultActions publicTerm(UUID termId) throws Exception {
+        return mockMvc.perform(get("/api/bookings/public/terms/{termId}", termId));
+    }
+
+    public ResultActions list(MockHttpSession session) throws Exception {
+        return mockMvc.perform(get("/api/bookings/terms").session(session));
+    }
+
     public ResultActions create(MockHttpSession session, String name, int capacity, LocalDateTime startsAt) throws Exception {
+        return create(session, termBody(name, capacity, startsAt));
+    }
+
+    public ResultActions create(MockHttpSession session, String body) throws Exception {
         return mockMvc.perform(post("/api/bookings/terms")
                 .session(session)
                 .with(csrf())
                 .contentType("application/json")
-                .content(termBody(name, capacity, startsAt)));
+                .content(body));
     }
 
     public ResultActions createWithoutCsrf(MockHttpSession session) throws Exception {
@@ -40,29 +52,48 @@ public class TermApiClient {
     }
 
     public ResultActions update(MockHttpSession session, UUID termId, String name, int capacity, LocalDateTime startsAt) throws Exception {
+        return update(session, termId, termBody(name, capacity, startsAt));
+    }
+
+    public ResultActions update(MockHttpSession session, UUID termId, String body) throws Exception {
         return mockMvc.perform(put("/api/bookings/terms/{termId}", termId)
                 .session(session)
                 .with(csrf())
                 .contentType("application/json")
-                .content(termBody(name, capacity, startsAt)));
+                .content(body));
     }
 
-    private static String termBody(String name, int capacity, LocalDateTime startsAt) {
+    public static String termBody(String name, int capacity, LocalDateTime startsAt) {
+        return termBody(name, "", "Range A", "Range Street 1", 52.2297d, 21.0122d, capacity, 1, 60, startsAt);
+    }
+
+    public static String termBody(
+            String name,
+            String description,
+            String placeName,
+            String address,
+            double latitude,
+            double longitude,
+            int capacity,
+            int cancellationDeadlineDays,
+            int durationMinutes,
+            LocalDateTime startsAt
+    ) {
         return """
                 {
                   "name": "%s",
-                  "description": "",
+                  "description": "%s",
                   "location": {
-                    "placeName": "Range A",
-                    "address": "Range Street 1",
-                    "latitude": 52.2297,
-                    "longitude": 21.0122
+                    "placeName": "%s",
+                    "address": "%s",
+                    "latitude": %s,
+                    "longitude": %s
                   },
                   "capacity": %d,
-                  "cancellationDeadlineDays": 1,
-                  "durationMinutes": 60,
+                  "cancellationDeadlineDays": %d,
+                  "durationMinutes": %d,
                   "startsAt": "%s"
                 }
-                """.formatted(name, capacity, startsAt);
+                """.formatted(name, description, placeName, address, latitude, longitude, capacity, cancellationDeadlineDays, durationMinutes, startsAt);
     }
 }
