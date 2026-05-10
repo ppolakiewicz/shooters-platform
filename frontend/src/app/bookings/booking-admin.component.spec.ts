@@ -101,6 +101,7 @@ function sampleTerm(): Term {
   return {
     ...sampleEnrollment(),
     id: 'term-id',
+    availablePlaces: 5,
     startsAt: '2026-06-01T12:00:00'
   };
 }

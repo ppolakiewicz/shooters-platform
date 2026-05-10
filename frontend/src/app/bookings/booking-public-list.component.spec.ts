@@ -35,7 +35,7 @@ describe('BookingPublicListComponent', () => {
     expect(content).toContain('Range A');
     expect(content).toContain('Range Street 1');
     expect(content).toContain('90 min');
-    expect(content).toContain('8 places');
+    expect(content).toContain('5 places');
     expect(content).toContain('Cancel up to 2 days before start');
     expect(reserveLink).not.toBeNull();
   });
@@ -50,6 +50,7 @@ describe('BookingPublicListComponent', () => {
           description: 'Second description',
           location: { placeName: 'Range B', address: 'Range Street 2', latitude: 52.2297, longitude: 21.0122 },
           capacity: 12,
+          availablePlaces: 9,
           cancellationDeadlineDays: 3,
           durationMinutes: 120
         })
@@ -70,7 +71,7 @@ describe('BookingPublicListComponent', () => {
     expect(fieldText(firstRow, 'Place')).toContain('Range A');
     expect(fieldText(firstRow, 'Place')).toContain('Range Street 1');
     expect(fieldText(firstRow, 'Duration')).toContain('90 min');
-    expect(fieldText(firstRow, 'Capacity')).toContain('8 places');
+    expect(fieldText(firstRow, 'Available')).toContain('5 places');
     expect(fieldText(firstRow, 'Cancellation')).toContain('Cancel up to 2 days before start');
     expect(firstRow.querySelector('a[href="/booking-terms/first-term-id"]')?.textContent).toContain('Reserve');
   });
@@ -121,6 +122,7 @@ function sampleTerm(overrides: Partial<Term> = {}): Term {
     description: '',
     location: { placeName: 'Range A', address: 'Range Street 1', latitude: 52.2297, longitude: 21.0122 },
     capacity: 8,
+    availablePlaces: 5,
     cancellationDeadlineDays: 2,
     durationMinutes: 90,
     startsAt: '2026-06-01T12:00:00',

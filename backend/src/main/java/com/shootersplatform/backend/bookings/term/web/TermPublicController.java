@@ -1,7 +1,7 @@
 package com.shootersplatform.backend.bookings.term.web;
 
 import com.shootersplatform.backend.bookings.term.domain.TermId;
-import com.shootersplatform.backend.bookings.term.domain.TermService;
+import com.shootersplatform.backend.bookings.term.usecase.TermAvailabilityUseCase;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,19 +14,19 @@ import java.util.UUID;
 @RequestMapping("/api/bookings/public/terms")
 class TermPublicController {
 
-    private final TermService terms;
+    private final TermAvailabilityUseCase termAvailability;
 
-    TermPublicController(TermService terms) {
-        this.terms = terms;
+    TermPublicController(TermAvailabilityUseCase termAvailability) {
+        this.termAvailability = termAvailability;
     }
 
     @GetMapping
     List<TermResponse> list() {
-        return terms.listPublic().stream().map(TermResponse::from).toList();
+        return termAvailability.listPublic().stream().map(TermResponse::from).toList();
     }
 
     @GetMapping("/{termId}")
     TermResponse get(@PathVariable UUID termId) {
-        return TermResponse.from(terms.getPublic(new TermId(termId)));
+        return TermResponse.from(termAvailability.getPublic(new TermId(termId)));
     }
 }

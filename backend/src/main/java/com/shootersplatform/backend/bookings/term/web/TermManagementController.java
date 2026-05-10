@@ -1,7 +1,9 @@
 package com.shootersplatform.backend.bookings.term.web;
 
+import com.shootersplatform.backend.bookings.term.domain.Term;
 import com.shootersplatform.backend.bookings.term.domain.TermId;
 import com.shootersplatform.backend.bookings.term.domain.TermService;
+import com.shootersplatform.backend.bookings.term.usecase.TermAvailabilityUseCase;
 import com.shootersplatform.backend.bookings.term.usecase.UpdateTermUseCase;
 import com.shootersplatform.backend.identity.domain.AuthenticatedUser;
 import jakarta.validation.Valid;
@@ -29,16 +31,18 @@ class TermManagementController {
 
     private final TermService terms;
     private final UpdateTermUseCase updateTerm;
+    private final TermAvailabilityUseCase termAvailability;
 
-    TermManagementController(TermService terms, UpdateTermUseCase updateTerm) {
+    TermManagementController(TermService terms, UpdateTermUseCase updateTerm, TermAvailabilityUseCase termAvailability) {
         this.terms = terms;
         this.updateTerm = updateTerm;
+        this.termAvailability = termAvailability;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     TermResponse create(@Valid @RequestBody UpsertTermRequest request, Authentication authentication) {
-        return TermResponse.from(terms.create(
+        return toResponse(terms.create(
                 currentUser(authentication).id(),
                 request.name(),
                 request.description(),
@@ -52,12 +56,12 @@ class TermManagementController {
 
     @GetMapping
     List<TermResponse> list(Authentication authentication) {
-        return terms.listOwner(currentUser(authentication).id()).stream().map(TermResponse::from).toList();
+        return termAvailability.listOwner(currentUser(authentication).id()).stream().map(TermResponse::from).toList();
     }
 
     @PutMapping("/{termId}")
     TermResponse update(@PathVariable UUID termId, @Valid @RequestBody UpsertTermRequest request, Authentication authentication) {
-        return TermResponse.from(updateTerm.update(
+        return toResponse(updateTerm.update(
                 currentUser(authentication).id(),
                 new TermId(termId),
                 request.name(),
@@ -68,6 +72,10 @@ class TermManagementController {
                 request.durationMinutes(),
                 request.startsAt()
         ));
+    }
+
+    private TermResponse toResponse(Term term) {
+        return TermResponse.from(termAvailability.withAvailability(term));
     }
 
     private static AuthenticatedUser currentUser(@Nullable Authentication authentication) {

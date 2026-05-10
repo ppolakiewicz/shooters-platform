@@ -31,6 +31,7 @@ export interface Term {
   description: string;
   location: BookingLocation;
   capacity: number;
+  availablePlaces: number;
   cancellationDeadlineDays: number;
   durationMinutes: number;
   startsAt: string;

@@ -42,6 +42,11 @@ public class ReservationService {
         return reservations.findByTerm(term.id());
     }
 
+    @Transactional(readOnly = true)
+    public long countOccupiedPlaces(TermId termId) {
+        return reservations.countOccupiedPlaces(termId);
+    }
+
     public Reservation createReservation(
             TermId termId,
             @Nullable UserId participantUserId,

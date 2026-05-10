@@ -100,6 +100,7 @@ function sampleTerm() {
     description: '',
     location: { placeName: 'Range A', address: 'Range Street 1', latitude: 52.2297, longitude: 21.0122 },
     capacity: 8,
+    availablePlaces: 5,
     cancellationDeadlineDays: 2,
     durationMinutes: 90,
     startsAt: '2026-06-01T12:00:00',

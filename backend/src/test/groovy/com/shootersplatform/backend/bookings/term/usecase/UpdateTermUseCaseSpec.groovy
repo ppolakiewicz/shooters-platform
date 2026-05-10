@@ -29,7 +29,7 @@ class UpdateTermUseCaseSpec extends Specification {
     terms = new InMemoryTermRepository()
     reservations = new InMemoryReservationRepository()
     reservationService = new ReservationService(terms, reservations, new InMemoryReservationNotificationPort(), clock)
-    updateTerm = new UpdateTermUseCase(new TermService(terms, clock), reservations)
+    updateTerm = new UpdateTermUseCase(new TermService(terms, clock), reservationService)
   }
 
   def "updates term when capacity still covers occupied places"() {

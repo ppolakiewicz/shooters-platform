@@ -2,6 +2,7 @@ package com.shootersplatform.backend.bookings.term.web
 
 import com.jayway.jsonpath.JsonPath
 import com.shootersplatform.backend.AbstractIntegrationSpec
+import com.shootersplatform.backend.bookings.reservation.web.ReservationApiClient
 import com.shootersplatform.backend.identity.web.AuthApiClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.mock.web.MockHttpSession
@@ -33,12 +34,14 @@ class TermUserPathIntegrationSpec extends AbstractIntegrationSpec {
   MockMvc mockMvc
   AuthApiClient auth
   TermApiClient terms
+  ReservationApiClient reservations
 
   def setup() {
     clock.setInstant(BASE_TIME)
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build()
     auth = new AuthApiClient(mockMvc)
     terms = new TermApiClient(mockMvc)
+    reservations = new ReservationApiClient(mockMvc)
   }
 
   def "creates term and exposes it to owner and public users"() {
@@ -140,6 +143,26 @@ class TermUserPathIntegrationSpec extends AbstractIntegrationSpec {
     then: "Only the future term is returned"
         termByIdOrNull(result, pastId) == null
         termById(result, futureId) != null
+  }
+
+  def "public term view reports available places after confirmed reservations"() {
+    given: "An instructor owns a term with three places"
+        def session = registerSession()
+        def termId = createTerm(session, uniqueLabel("Available term"), 3, FUTURE_START)
+
+    when: "A participant reserves one place"
+        reservations.reserve(termId, "Anna", "Nowak", uniqueEmail()).andExpect(status().isCreated())
+
+    then: "Public users see remaining places instead of only maximum capacity"
+        def publicTerms = terms.publicTerms().andExpect(status().isOk()).andReturn()
+        termById(publicTerms, termId).capacity == 3
+        termById(publicTerms, termId).availablePlaces == 2
+
+    and: "The public term details expose the same availability"
+        terms.publicTerm(termId)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath('$.capacity').value(3))
+        .andExpect(jsonPath('$.availablePlaces').value(2))
   }
 
   def "non-owner cannot update another instructor term"() {

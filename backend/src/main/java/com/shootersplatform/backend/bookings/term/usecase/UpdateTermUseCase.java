@@ -1,7 +1,7 @@
 package com.shootersplatform.backend.bookings.term.usecase;
 
 import com.shootersplatform.backend.bookings.location.domain.Location;
-import com.shootersplatform.backend.bookings.reservation.domain.ReservationRepository;
+import com.shootersplatform.backend.bookings.reservation.domain.ReservationService;
 import com.shootersplatform.backend.bookings.term.domain.Term;
 import com.shootersplatform.backend.bookings.term.domain.TermId;
 import com.shootersplatform.backend.bookings.term.domain.TermService;
@@ -16,9 +16,9 @@ import java.time.LocalDateTime;
 public class UpdateTermUseCase {
 
     private final TermService terms;
-    private final ReservationRepository reservations;
+    private final ReservationService reservations;
 
-    public UpdateTermUseCase(TermService terms, ReservationRepository reservations) {
+    public UpdateTermUseCase(TermService terms, ReservationService reservations) {
         this.terms = terms;
         this.reservations = reservations;
     }

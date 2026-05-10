@@ -2,6 +2,7 @@ package com.shootersplatform.backend.bookings.term.web;
 
 import com.shootersplatform.backend.bookings.term.domain.Term;
 import com.shootersplatform.backend.bookings.location.web.LocationResponse;
+import com.shootersplatform.backend.bookings.term.usecase.AvailableTerm;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ record TermResponse(
         String description,
         LocationResponse location,
         int capacity,
+        int availablePlaces,
         int cancellationDeadlineDays,
         int durationMinutes,
         LocalDateTime startsAt,
@@ -20,18 +22,23 @@ record TermResponse(
         Instant updatedAt
 ) {
 
-    static TermResponse from(Term term) {
+    static TermResponse from(Term term, int availablePlaces) {
         return new TermResponse(
                 term.id().value(),
                 term.name(),
                 term.description(),
                 LocationResponse.from(term.location()),
                 term.capacity(),
+                availablePlaces,
                 term.cancellationDeadlineDays(),
                 term.durationMinutes(),
                 term.startsAt(),
                 term.createdAt(),
                 term.updatedAt()
         );
+    }
+
+    static TermResponse from(AvailableTerm availableTerm) {
+        return from(availableTerm.term(), availableTerm.availablePlaces());
     }
 }
