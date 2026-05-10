@@ -1,6 +1,6 @@
 .booking-shell {
   min-height: 100vh;
-  padding: 32px;
+  padding: 20px;
   background: #f7f8fa;
   color: #1c1f24;
 }
@@ -14,10 +14,17 @@
 
 .page-header {
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  flex-direction: column;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+}
+
+.header-actions a,
+.term-card a {
+  width: 100%;
+  min-height: 44px;
 }
 
 .eyebrow,
@@ -34,11 +41,16 @@ p {
   margin-top: 0;
 }
 
+h1 {
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
 .list-panel {
   background: #ffffff;
   border: 1px solid #d9dee8;
   border-radius: 8px;
-  padding: 16px;
+  padding: 12px;
 }
 
 .term-grid {
@@ -48,7 +60,8 @@ p {
 
 .term-card {
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  flex-direction: column;
   justify-content: space-between;
   gap: 16px;
   border: 1px solid #e0e4ec;
@@ -71,14 +84,33 @@ p {
   color: #b42318;
 }
 
-@media (max-width: 700px) {
+@media (min-width: 520px) {
+  .header-actions a,
+  .term-card a {
+    width: auto;
+  }
+}
+
+@media (min-width: 700px) {
   .booking-shell {
-    padding: 20px;
+    padding: 32px;
   }
 
   .page-header,
   .term-card {
-    align-items: stretch;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .page-header {
+    margin-bottom: 24px;
+  }
+
+  h1 {
+    font-size: 2.35rem;
+  }
+
+  .list-panel {
+    padding: 16px;
   }
 }

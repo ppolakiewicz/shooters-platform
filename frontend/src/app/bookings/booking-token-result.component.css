@@ -2,7 +2,7 @@
   min-height: 100vh;
   display: grid;
   place-items: center;
-  padding: 24px;
+  padding: 16px;
   background: #f7f8fa;
 }
 
@@ -15,10 +15,39 @@
   background: #ffffff;
   border: 1px solid #d9dee8;
   border-radius: 8px;
-  padding: 28px;
+  padding: 22px;
 }
 
 h1,
 p {
   margin: 0;
+  overflow-wrap: anywhere;
+}
+
+h1 {
+  font-size: 1.75rem;
+  line-height: 1.15;
+}
+
+a {
+  width: 100%;
+  min-height: 44px;
+}
+
+@media (min-width: 480px) {
+  .token-shell {
+    padding: 24px;
+  }
+
+  .panel {
+    padding: 28px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  a {
+    width: auto;
+  }
 }

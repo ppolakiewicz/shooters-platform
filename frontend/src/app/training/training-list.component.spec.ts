@@ -21,6 +21,21 @@ describe('TrainingListComponent', () => {
     expect(component.items()[0].name).toBe('Practice');
   });
 
+  it('labels summary cells for compact mobile presentation', async () => {
+    const service = {
+      list: vi.fn().mockResolvedValue([summary()]),
+      create: vi.fn(),
+      delete: vi.fn(),
+      error: vi.fn()
+    };
+
+    const { fixture } = await createComponent(service);
+
+    await vi.waitFor(() => expect(fixture.nativeElement.querySelector('td[data-label="Date"]')).not.toBeNull());
+    expect(fixture.nativeElement.querySelector('td[data-label="Name"]')?.textContent).toContain('Practice');
+    expect(fixture.nativeElement.querySelector('td[data-label="Actions"]')).not.toBeNull();
+  });
+
   it('creates a default draft and navigates to details', async () => {
     const service = {
       list: vi.fn().mockResolvedValue([]),
@@ -55,7 +70,7 @@ async function createComponent(service: unknown) {
   vi.spyOn(router, 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(TrainingListComponent);
   await fixture.whenStable();
-  return { component: fixture.componentInstance as any, router };
+  return { component: fixture.componentInstance as any, fixture, router };
 }
 
 function summary() {

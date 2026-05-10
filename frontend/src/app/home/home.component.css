@@ -1,18 +1,18 @@
 .shell {
   min-height: 100vh;
-  padding: 48px;
+  padding: 20px;
   background: #f6f7f9;
   color: #17202a;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .status-panel {
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  flex-direction: column;
   justify-content: space-between;
-  gap: 24px;
+  gap: 20px;
   max-width: 960px;
-  margin: 0 auto 24px;
+  margin: 0 auto 20px;
 }
 
 .eyebrow {
@@ -25,40 +25,42 @@
 
 h1 {
   margin: 0;
-  font-size: 2.5rem;
+  font-size: 2rem;
   line-height: 1.1;
 }
 
 .signed-in {
   margin: 10px 0 0;
   color: #4b5c6b;
+  overflow-wrap: anywhere;
 }
 
 .actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 12px;
-  justify-content: flex-end;
 }
 
+.actions a,
 .actions button {
-  min-width: 120px;
+  width: 100%;
+  min-height: 44px;
 }
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: 1fr;
+  gap: 14px;
   max-width: 960px;
   margin: 0 auto;
 }
 
 mat-card {
-  min-height: 120px;
+  min-height: 112px;
 }
 
 mat-card-content {
-  padding: 20px;
+  padding: 18px;
 }
 
 span {
@@ -71,8 +73,9 @@ span {
 
 strong {
   color: #9f1239;
-  font-size: 1.8rem;
+  font-size: 1.65rem;
   line-height: 1;
+  overflow-wrap: anywhere;
 }
 
 strong.ok {
@@ -99,26 +102,55 @@ mat-spinner {
   color: #607080;
 }
 
-@media (max-width: 720px) {
+@media (min-width: 520px) {
+  .actions {
+    flex-flow: row wrap;
+  }
+
+  .actions a,
+  .actions button {
+    width: auto;
+  }
+}
+
+@media (min-width: 720px) {
   .shell {
-    padding: 24px;
+    padding: 48px;
   }
 
   .status-panel {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
+    gap: 24px;
+    margin-bottom: 24px;
   }
 
   h1 {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
 
   .actions {
-    justify-content: flex-start;
-    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .actions button {
+    min-width: 120px;
   }
 
   .metrics {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  mat-card {
+    min-height: 120px;
+  }
+
+  mat-card-content {
+    padding: 20px;
+  }
+
+  strong {
+    font-size: 1.8rem;
   }
 }

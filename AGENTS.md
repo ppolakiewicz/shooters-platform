@@ -87,6 +87,8 @@ Postgres 18 Docker images should mount persistent data at `/var/lib/postgresql`,
 ### Frontend
 Angular application that uses angular material components.
 Should follow latest angular best practices: standalone components, communication through signals, on push change detection
+All frontend changes should be designed and implemented mobile first. Start with small-screen layout and behavior,
+then add larger viewport enhancements with `min-width` media queries.
 Each component should have unit tests that validate its expected behaviors.
 
 For Angular 21 forms, prefer Signal Forms from `@angular/forms/signals` for new forms. Keep form models non-null, use

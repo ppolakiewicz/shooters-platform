@@ -45,6 +45,26 @@ describe('TrainingDetailComponent', () => {
       score: expect.objectContaining({ '0': 1, '10': 2 })
     }));
   });
+
+  it('labels task rows for compact mobile presentation', async () => {
+    const service = serviceMock({
+      ...sampleTraining(),
+      tasks: [{
+        id: 'task-id',
+        runNumber: 1,
+        weaponType: 'RIFLE',
+        scoringType: 'TARGET',
+        durationTenths: 623,
+        score: { '10': 2 }
+      }]
+    });
+
+    const { fixture } = await createComponent(service);
+
+    await vi.waitFor(() => expect(fixture.nativeElement.querySelector('td[data-label="Run"]')).not.toBeNull());
+    expect(fixture.nativeElement.querySelector('td[data-label="Time"]')?.textContent).toContain('1:02.3');
+    expect(fixture.nativeElement.querySelector('td[data-label="Actions"]')).not.toBeNull();
+  });
 });
 
 async function createComponent(service: unknown) {
@@ -63,7 +83,7 @@ async function createComponent(service: unknown) {
 
   const fixture = TestBed.createComponent(TrainingDetailComponent);
   await fixture.whenStable();
-  return { component: fixture.componentInstance as any };
+  return { component: fixture.componentInstance as any, fixture };
 }
 
 function serviceMock(training: Training) {

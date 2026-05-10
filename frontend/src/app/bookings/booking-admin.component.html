@@ -158,11 +158,11 @@
           <tbody>
             @for (term of terms(); track term.id) {
               <tr>
-                <td>{{ term.startsAt | date:'medium' }}</td>
-                <td>{{ term.name }}</td>
-                <td>{{ term.location.placeName }}</td>
-                <td>{{ term.capacity }}</td>
-                <td class="row-actions">
+                <td data-label="Start">{{ term.startsAt | date:'medium' }}</td>
+                <td data-label="Name">{{ term.name }}</td>
+                <td data-label="Place">{{ term.location.placeName }}</td>
+                <td data-label="Capacity">{{ term.capacity }}</td>
+                <td class="row-actions" data-label="Actions">
                   <button mat-icon-button type="button" (click)="openReservations(term)" aria-label="Open reservations">
                     <mat-icon aria-hidden="true">group</mat-icon>
                   </button>
@@ -204,11 +204,11 @@
             <tbody>
               @for (reservation of reservations(); track reservation.id) {
                 <tr>
-                  <td>{{ reservation.firstName }} {{ reservation.lastName }}</td>
-                  <td>{{ reservation.email }}</td>
-                  <td>{{ reservation.phoneNumber }}</td>
-                  <td>{{ reservation.status }}</td>
-                  <td class="row-actions">
+                  <td data-label="Participant">{{ reservation.firstName }} {{ reservation.lastName }}</td>
+                  <td data-label="Email">{{ reservation.email }}</td>
+                  <td data-label="Phone">{{ reservation.phoneNumber }}</td>
+                  <td data-label="Status">{{ reservation.status }}</td>
+                  <td class="row-actions" data-label="Actions">
                     <button mat-icon-button type="button" (click)="cancelReservation(reservation)" aria-label="Cancel reservation">
                       <mat-icon aria-hidden="true">cancel</mat-icon>
                     </button>

@@ -197,12 +197,12 @@
           <tbody>
             @for (task of training()?.tasks; track task.id) {
               <tr>
-                <td>{{ task.runNumber }}</td>
-                <td>{{ task.weaponType }}</td>
-                <td>{{ task.scoringType }}</td>
-                <td>{{ scoreSummary(task) }}</td>
-                <td>{{ durationLabel(task.durationTenths) }}</td>
-                <td class="row-actions">
+                <td data-label="Run">{{ task.runNumber }}</td>
+                <td data-label="Weapon">{{ task.weaponType }}</td>
+                <td data-label="Scoring">{{ task.scoringType }}</td>
+                <td data-label="Score">{{ scoreSummary(task) }}</td>
+                <td data-label="Time">{{ durationLabel(task.durationTenths) }}</td>
+                <td class="row-actions" data-label="Actions">
                   <button mat-icon-button type="button" (click)="editTask(task)" aria-label="Edit task">
                     <mat-icon aria-hidden="true">edit</mat-icon>
                   </button>

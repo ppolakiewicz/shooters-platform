@@ -51,18 +51,18 @@
         <tbody>
           @for (training of items(); track training.id) {
             <tr>
-              <td>{{ training.performedOn }}</td>
-              <td>
+              <td data-label="Date">{{ training.performedOn }}</td>
+              <td data-label="Name">
                 <a [routerLink]="['/trainings', training.id]">{{ training.name }}</a>
                 @if (training.description) {
                   <small>{{ training.description }}</small>
                 }
               </td>
-              <td>{{ training.place }}</td>
-              <td>{{ training.weaponType }}</td>
-              <td>{{ training.scoringType }}</td>
-              <td>{{ training.taskCount }}</td>
-              <td class="row-actions">
+              <td data-label="Place">{{ training.place }}</td>
+              <td data-label="Weapon">{{ training.weaponType }}</td>
+              <td data-label="Scoring">{{ training.scoringType }}</td>
+              <td data-label="Tasks">{{ training.taskCount }}</td>
+              <td class="row-actions" data-label="Actions">
                 <a mat-icon-button [routerLink]="['/trainings', training.id]" aria-label="Open training">
                   <mat-icon aria-hidden="true">open_in_new</mat-icon>
                 </a>

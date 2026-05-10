@@ -26,6 +26,20 @@ describe('BookingAdminComponent', () => {
     expect(service.reservations).toHaveBeenCalledWith('term-id');
     expect(component.reservations()[0].status).toBe('CONFIRMED');
   });
+
+  it('labels management tables for compact mobile presentation', async () => {
+    const service = serviceMock();
+    const { component, fixture } = await createComponent(service);
+
+    await vi.waitFor(() => expect(fixture.nativeElement.querySelector('td[data-label="Start"]')).not.toBeNull());
+    expect(fixture.nativeElement.querySelector('td[data-label="Name"]')?.textContent).toContain('Basic pistol');
+
+    await component.openReservations(sampleTerm());
+    fixture.detectChanges();
+
+    await vi.waitFor(() => expect(fixture.nativeElement.querySelector('td[data-label="Participant"]')).not.toBeNull());
+    expect(fixture.nativeElement.querySelector('td[data-label="Status"]')?.textContent).toContain('CONFIRMED');
+  });
 });
 
 async function createComponent(service: unknown) {
@@ -40,7 +54,7 @@ async function createComponent(service: unknown) {
 
   const fixture = TestBed.createComponent(BookingAdminComponent);
   await fixture.whenStable();
-  return { component: fixture.componentInstance as any };
+  return { component: fixture.componentInstance as any, fixture };
 }
 
 function serviceMock() {
