@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
+import { TranslatePipe } from '../shared/i18n/translate.pipe';
 import { AuthService } from './auth.service';
 
 @Component({
@@ -21,7 +22,8 @@ import { AuthService } from './auth.service';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    TranslatePipe
   ],
   templateUrl: './login.component.html',
   styleUrl: './auth-form.component.css',
@@ -33,9 +35,9 @@ export class LoginComponent {
 
   protected readonly model = signal({ email: '', password: '' });
   protected readonly loginForm = form(this.model, (path) => {
-    required(path.email, { message: 'Email is required' });
-    email(path.email, { message: 'Use a valid email address' });
-    required(path.password, { message: 'Password is required' });
+    required(path.email, { message: 'validation.emailRequired' });
+    email(path.email, { message: 'validation.emailValid' });
+    required(path.password, { message: 'validation.passwordRequired' });
   });
   protected readonly submitting = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -48,7 +50,7 @@ export class LoginComponent {
         await this.auth.login(this.model());
         await this.router.navigateByUrl('/');
       } catch {
-        this.error.set(this.auth.error() ?? 'Invalid email or password');
+        this.error.set(this.auth.error() ?? 'errors.invalidCredentials');
       } finally {
         this.submitting.set(false);
       }

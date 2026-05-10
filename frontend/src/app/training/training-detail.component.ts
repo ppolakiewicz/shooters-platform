@@ -9,6 +9,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 
+import { TranslatePipe } from '../shared/i18n/translate.pipe';
+import { TranslationService } from '../shared/i18n/translation.service';
 import { emptyScore, HitScore, ScoringType, ShootingTask, Training, UpsertTask, WeaponType } from './training.models';
 import { TrainingService } from './training.service';
 
@@ -24,7 +26,8 @@ import { TrainingService } from './training.service';
     MatIconModule,
     MatInputModule,
     MatProgressSpinnerModule,
-    MatSelectModule
+    MatSelectModule,
+    TranslatePipe
   ],
   templateUrl: './training-detail.component.html',
   styleUrl: './training-detail.component.css',
@@ -34,6 +37,7 @@ export class TrainingDetailComponent {
   private readonly trainings = inject(TrainingService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  protected readonly i18n = inject(TranslationService);
   private readonly trainingId = this.route.snapshot.paramMap.get('id') ?? '';
 
   protected readonly weaponTypes: WeaponType[] = ['PISTOL', 'RIFLE', 'SHOTGUN'];
@@ -49,7 +53,9 @@ export class TrainingDetailComponent {
   protected readonly editingTaskId = signal<string | null>(null);
   protected readonly editingTaskLabel = computed(() => {
     const taskId = this.editingTaskId();
-    return taskId ? `Run ${this.training()?.tasks.find((task) => task.id === taskId)?.runNumber ?? ''}` : 'New task';
+    return taskId
+      ? this.i18n.translate('training.editRun', { run: this.training()?.tasks.find((task) => task.id === taskId)?.runNumber ?? '' })
+      : this.i18n.translate('training.newTask');
   });
 
   protected readonly trainingModel = signal({
@@ -61,14 +67,14 @@ export class TrainingDetailComponent {
     scoringType: 'IDPA' as ScoringType
   });
   protected readonly trainingForm = form(this.trainingModel, (path) => {
-    required(path.name, { message: 'Name is required' });
-    maxLength(path.name, 120, { message: 'Use at most 120 characters' });
-    required(path.place, { message: 'Place is required' });
-    maxLength(path.place, 120, { message: 'Use at most 120 characters' });
-    maxLength(path.description, 2048, { message: 'Use at most 2048 characters' });
-    required(path.performedOn, { message: 'Date is required' });
-    required(path.weaponType, { message: 'Weapon is required' });
-    required(path.scoringType, { message: 'Scoring is required' });
+    required(path.name, { message: 'validation.nameRequired' });
+    maxLength(path.name, 120, { message: 'validation.useAtMost' });
+    required(path.place, { message: 'validation.placeRequired' });
+    maxLength(path.place, 120, { message: 'validation.useAtMost' });
+    maxLength(path.description, 2048, { message: 'validation.useAtMost' });
+    required(path.performedOn, { message: 'validation.dateRequired' });
+    required(path.weaponType, { message: 'validation.weaponRequired' });
+    required(path.scoringType, { message: 'validation.scoringRequired' });
   });
 
   protected readonly taskModel = signal({
@@ -92,24 +98,24 @@ export class TrainingDetailComponent {
     score10: 0
   });
   protected readonly taskForm = form(this.taskModel, (path) => {
-    required(path.weaponType, { message: 'Weapon is required' });
-    required(path.scoringType, { message: 'Scoring is required' });
-    required(path.duration, { message: 'Duration is required' });
-    min(path.alpha, 0, { message: 'Alpha cannot be negative' });
-    min(path.charlie, 0, { message: 'Charlie cannot be negative' });
-    min(path.delta, 0, { message: 'Delta cannot be negative' });
-    min(path.miss, 0, { message: 'Miss cannot be negative' });
-    min(path.score0, 0, { message: 'Score 0 cannot be negative' });
-    min(path.score1, 0, { message: 'Score 1 cannot be negative' });
-    min(path.score2, 0, { message: 'Score 2 cannot be negative' });
-    min(path.score3, 0, { message: 'Score 3 cannot be negative' });
-    min(path.score4, 0, { message: 'Score 4 cannot be negative' });
-    min(path.score5, 0, { message: 'Score 5 cannot be negative' });
-    min(path.score6, 0, { message: 'Score 6 cannot be negative' });
-    min(path.score7, 0, { message: 'Score 7 cannot be negative' });
-    min(path.score8, 0, { message: 'Score 8 cannot be negative' });
-    min(path.score9, 0, { message: 'Score 9 cannot be negative' });
-    min(path.score10, 0, { message: 'Score 10 cannot be negative' });
+    required(path.weaponType, { message: 'validation.weaponRequired' });
+    required(path.scoringType, { message: 'validation.scoringRequired' });
+    required(path.duration, { message: 'validation.durationRequired' });
+    min(path.alpha, 0, { message: 'validation.alphaNonNegative' });
+    min(path.charlie, 0, { message: 'validation.charlieNonNegative' });
+    min(path.delta, 0, { message: 'validation.deltaNonNegative' });
+    min(path.miss, 0, { message: 'validation.missNonNegative' });
+    min(path.score0, 0, { message: 'validation.score0NonNegative' });
+    min(path.score1, 0, { message: 'validation.score1NonNegative' });
+    min(path.score2, 0, { message: 'validation.score2NonNegative' });
+    min(path.score3, 0, { message: 'validation.score3NonNegative' });
+    min(path.score4, 0, { message: 'validation.score4NonNegative' });
+    min(path.score5, 0, { message: 'validation.score5NonNegative' });
+    min(path.score6, 0, { message: 'validation.score6NonNegative' });
+    min(path.score7, 0, { message: 'validation.score7NonNegative' });
+    min(path.score8, 0, { message: 'validation.score8NonNegative' });
+    min(path.score9, 0, { message: 'validation.score9NonNegative' });
+    min(path.score10, 0, { message: 'validation.score10NonNegative' });
   });
 
   constructor() {
@@ -128,7 +134,7 @@ export class TrainingDetailComponent {
       const training = await this.trainings.get(this.trainingId);
       this.setTraining(training);
     } catch {
-      this.error.set(this.trainings.error() ?? 'Could not load training');
+      this.error.set(this.trainings.error() ?? 'errors.loadTrainingFailed');
     } finally {
       this.loading.set(false);
     }
@@ -138,10 +144,10 @@ export class TrainingDetailComponent {
     submit(this.trainingForm, async () => {
       this.saving.set(true);
       this.error.set(null);
-      try {
-        this.setTraining(await this.trainings.update(this.trainingId, this.trainingModel()));
-      } catch {
-        this.error.set(this.trainings.error() ?? 'Could not save training');
+    try {
+      this.setTraining(await this.trainings.update(this.trainingId, this.trainingModel()));
+    } catch {
+      this.error.set(this.trainings.error() ?? 'errors.saveTrainingFailed');
       } finally {
         this.saving.set(false);
       }
@@ -165,7 +171,7 @@ export class TrainingDetailComponent {
         this.setTraining(updated);
         this.resetTaskForm();
       } catch {
-        this.taskError.set(this.trainings.error() ?? 'Could not save task');
+        this.taskError.set(this.trainings.error() ?? 'errors.saveTaskFailed');
       } finally {
         this.taskSaving.set(false);
       }
@@ -198,7 +204,7 @@ export class TrainingDetailComponent {
   }
 
   protected async deleteTask(task: ShootingTask): Promise<void> {
-    if (!window.confirm(`Delete run ${task.runNumber}?`)) {
+    if (!window.confirm(this.i18n.translate('training.confirmDeleteRun', { run: task.runNumber }))) {
       return;
     }
 
@@ -209,13 +215,13 @@ export class TrainingDetailComponent {
         this.resetTaskForm();
       }
     } catch {
-      this.taskError.set(this.trainings.error() ?? 'Could not delete task');
+      this.taskError.set(this.trainings.error() ?? 'errors.deleteTaskFailed');
     }
   }
 
   protected async deleteTraining(): Promise<void> {
     const training = this.training();
-    if (!training || !window.confirm(`Delete ${training.name}?`)) {
+    if (!training || !window.confirm(this.i18n.translate('training.confirmDelete', { name: training.name }))) {
       return;
     }
 
@@ -225,7 +231,7 @@ export class TrainingDetailComponent {
       await this.trainings.delete(training.id);
       await this.router.navigateByUrl('/trainings');
     } catch {
-      this.error.set(this.trainings.error() ?? 'Could not delete training');
+      this.error.set(this.trainings.error() ?? 'errors.deleteTrainingFailed');
     } finally {
       this.deleting.set(false);
     }
@@ -319,17 +325,17 @@ export class TrainingDetailComponent {
     }
 
     if (durationTenths === null) {
-      this.taskError.set('Use duration format m:ss.t, for example 1:23.4');
+      this.taskError.set('errors.durationFormat');
       return null;
     }
 
     if (durationTenths < 1) {
-      this.taskError.set('Duration must be greater than zero');
+      this.taskError.set('errors.durationPositive');
       return null;
     }
 
     if (!Object.values(score).some((value) => value > 0)) {
-      this.taskError.set('Add at least one hit or miss');
+      this.taskError.set('errors.scoreRequired');
       return null;
     }
 

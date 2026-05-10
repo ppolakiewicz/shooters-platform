@@ -1,3 +1,10 @@
 :host {
   display: block;
 }
+
+.language-switcher {
+  position: fixed;
+  right: 12px;
+  top: 12px;
+  z-index: 1000;
+}

@@ -2,9 +2,9 @@
   <mat-card appearance="outlined" class="auth-panel">
     <mat-card-header>
       <div>
-        <p class="eyebrow">Shooters Platform</p>
+        <p class="eyebrow">{{ 'app.brand' | translate }}</p>
         <mat-card-title>
-          <h1>Create account</h1>
+          <h1>{{ 'auth.createAccountTitle' | translate }}</h1>
         </mat-card-title>
       </div>
     </mat-card-header>
@@ -12,31 +12,31 @@
     <mat-card-content>
       <form (submit)="onSubmit(); $event.preventDefault()">
         <mat-form-field appearance="outline">
-          <mat-label>Email</mat-label>
+          <mat-label>{{ 'common.email' | translate }}</mat-label>
           <input matInput type="email" autocomplete="email" [formField]="registerForm.email">
           @if (registerForm.email().touched() && registerForm.email().errors().length) {
-            <mat-error>{{ registerForm.email().errors()[0].message }}</mat-error>
+            <mat-error>{{ registerForm.email().errors()[0].message | translate }}</mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Username</mat-label>
+          <mat-label>{{ 'common.username' | translate }}</mat-label>
           <input matInput type="text" autocomplete="username" [formField]="registerForm.username">
           @if (registerForm.username().touched() && registerForm.username().errors().length) {
-            <mat-error>{{ registerForm.username().errors()[0].message }}</mat-error>
+            <mat-error>{{ registerForm.username().errors()[0].message | translate }}</mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Password</mat-label>
+          <mat-label>{{ 'common.password' | translate }}</mat-label>
           <input matInput type="password" autocomplete="new-password" [formField]="registerForm.password">
           @if (registerForm.password().touched() && registerForm.password().errors().length) {
-            <mat-error>{{ registerForm.password().errors()[0].message }}</mat-error>
+            <mat-error>{{ registerForm.password().errors()[0].message | translate }}</mat-error>
           }
         </mat-form-field>
 
         @if (error()) {
-          <p class="form-error" role="alert">{{ error() }}</p>
+          <p class="form-error" role="alert">{{ error() | translate }}</p>
         }
 
         <button mat-flat-button type="submit" [disabled]="registerForm().invalid() || submitting()">
@@ -45,13 +45,13 @@
           } @else {
             <mat-icon aria-hidden="true">person_add</mat-icon>
           }
-          Create account
+          {{ 'auth.createAccountButton' | translate }}
         </button>
       </form>
     </mat-card-content>
 
     <mat-card-actions>
-      <a mat-button routerLink="/login">Log in</a>
+      <a mat-button routerLink="/login">{{ 'auth.loginLink' | translate }}</a>
     </mat-card-actions>
   </mat-card>
 </main>

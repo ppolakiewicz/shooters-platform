@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
+import { TranslatePipe } from '../shared/i18n/translate.pipe';
 import { AuthService } from './auth.service';
 
 @Component({
@@ -21,7 +22,8 @@ import { AuthService } from './auth.service';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    TranslatePipe
   ],
   templateUrl: './register.component.html',
   styleUrl: './auth-form.component.css',
@@ -33,15 +35,15 @@ export class RegisterComponent {
 
   protected readonly model = signal({ email: '', username: '', password: '' });
   protected readonly registerForm = form(this.model, (path) => {
-    required(path.email, { message: 'Email is required' });
-    email(path.email, { message: 'Use a valid email address' });
-    required(path.username, { message: 'Username is required' });
-    minLength(path.username, 3, { message: 'Use at least 3 characters' });
-    maxLength(path.username, 32, { message: 'Use at most 32 characters' });
-    pattern(path.username, /^[A-Za-z0-9_-]+$/, { message: 'Use only letters, numbers, underscores, and hyphens' });
-    required(path.password, { message: 'Password is required' });
-    minLength(path.password, 12, { message: 'Use at least 12 characters' });
-    maxLength(path.password, 128, { message: 'Use at most 128 characters' });
+    required(path.email, { message: 'validation.emailRequired' });
+    email(path.email, { message: 'validation.emailValid' });
+    required(path.username, { message: 'validation.usernameRequired' });
+    minLength(path.username, 3, { message: 'validation.usernameMin' });
+    maxLength(path.username, 32, { message: 'validation.usernameMax' });
+    pattern(path.username, /^[A-Za-z0-9_-]+$/, { message: 'validation.usernamePattern' });
+    required(path.password, { message: 'validation.passwordRequired' });
+    minLength(path.password, 12, { message: 'validation.passwordMin' });
+    maxLength(path.password, 128, { message: 'validation.passwordMax' });
   });
   protected readonly submitting = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -54,7 +56,7 @@ export class RegisterComponent {
         await this.auth.register(this.model());
         await this.router.navigateByUrl('/');
       } catch {
-        this.error.set(this.auth.error() ?? 'Registration failed');
+        this.error.set(this.auth.error() ?? 'errors.registrationFailed');
       } finally {
         this.submitting.set(false);
       }

@@ -1,0 +1,11 @@
+:host {
+  display: block;
+}
+
+mat-button-toggle-group {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(23 32 42 / 12%);
+  font-size: 0.82rem;
+  overflow: hidden;
+}

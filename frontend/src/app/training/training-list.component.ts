@@ -5,13 +5,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
+import { TranslatePipe } from '../shared/i18n/translate.pipe';
+import { TranslationService } from '../shared/i18n/translation.service';
 import { TrainingService } from './training.service';
 import { TrainingSummary } from './training.models';
 
 @Component({
   selector: 'app-training-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './training-list.component.html',
   styleUrl: './training-list.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -19,6 +21,7 @@ import { TrainingSummary } from './training.models';
 export class TrainingListComponent {
   private readonly trainings = inject(TrainingService);
   private readonly router = inject(Router);
+  private readonly i18n = inject(TranslationService);
 
   protected readonly items = signal<TrainingSummary[]>([]);
   protected readonly loading = signal(false);
@@ -35,7 +38,7 @@ export class TrainingListComponent {
     try {
       this.items.set(await this.trainings.list());
     } catch {
-      this.error.set(this.trainings.error() ?? 'Could not load trainings');
+      this.error.set(this.trainings.error() ?? 'errors.loadTrainingsFailed');
     } finally {
       this.loading.set(false);
     }
@@ -46,8 +49,8 @@ export class TrainingListComponent {
     this.error.set(null);
     try {
       const training = await this.trainings.create({
-        name: 'New training',
-        place: 'Shooting range',
+        name: this.i18n.translate('training.defaultName'),
+        place: this.i18n.translate('training.defaultPlace'),
         description: '',
         performedOn: today(),
         weaponType: 'PISTOL',
@@ -55,14 +58,14 @@ export class TrainingListComponent {
       });
       await this.router.navigate(['/trainings', training.id]);
     } catch {
-      this.error.set(this.trainings.error() ?? 'Could not create training');
+      this.error.set(this.trainings.error() ?? 'errors.saveTrainingFailed');
     } finally {
       this.creating.set(false);
     }
   }
 
   protected async remove(training: TrainingSummary): Promise<void> {
-    if (!window.confirm(`Delete ${training.name}?`)) {
+    if (!window.confirm(this.i18n.translate('training.confirmDelete', { name: training.name }))) {
       return;
     }
 
@@ -71,7 +74,7 @@ export class TrainingListComponent {
       await this.trainings.delete(training.id);
       await this.load();
     } catch {
-      this.error.set(this.trainings.error() ?? 'Could not delete training');
+      this.error.set(this.trainings.error() ?? 'errors.deleteTrainingFailed');
     }
   }
 }

@@ -1,69 +1,69 @@
 <main class="admin-shell">
   <header class="page-header">
     <div>
-      <p class="eyebrow">Shooters Platform</p>
-      <h1>Booking management</h1>
+      <p class="eyebrow">{{ 'app.brand' | translate }}</p>
+      <h1>{{ 'bookings.managementTitle' | translate }}</h1>
     </div>
     <div class="header-actions">
       <a mat-stroked-button routerLink="/">
         <mat-icon aria-hidden="true">home</mat-icon>
-        Home
+        {{ 'nav.home' | translate }}
       </a>
       <a mat-stroked-button routerLink="/booking-terms">
         <mat-icon aria-hidden="true">public</mat-icon>
-        Public terms
+        {{ 'bookings.publicTerms' | translate }}
       </a>
     </div>
   </header>
 
   @if (error()) {
-    <p class="error" role="alert">{{ error() }}</p>
+    <p class="error" role="alert">{{ error() | translate }}</p>
   }
 
   @if (loading()) {
     <section class="state">
       <mat-spinner diameter="30" aria-hidden="true"></mat-spinner>
-      <span>Loading bookings</span>
+      <span>{{ 'bookings.loading' | translate }}</span>
     </section>
   } @else {
     <section class="admin-grid">
       <form class="panel" (submit)="createEnrollment(); $event.preventDefault()">
-        <h2>New TrainingEnrollment</h2>
+        <h2>{{ 'bookings.newEnrollment' | translate }}</h2>
         <mat-form-field appearance="outline">
-          <mat-label>Name</mat-label>
+          <mat-label>{{ 'common.name' | translate }}</mat-label>
           <input matInput [formField]="enrollmentForm.name">
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Description</mat-label>
+          <mat-label>{{ 'common.description' | translate }}</mat-label>
           <textarea matInput rows="3" [formField]="enrollmentForm.description"></textarea>
         </mat-form-field>
         <div class="form-grid">
           <mat-form-field appearance="outline">
-            <mat-label>Place</mat-label>
+            <mat-label>{{ 'common.place' | translate }}</mat-label>
             <input matInput [formField]="enrollmentForm.placeName">
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Address</mat-label>
+            <mat-label>{{ 'common.address' | translate }}</mat-label>
             <input matInput [formField]="enrollmentForm.address">
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Latitude</mat-label>
+            <mat-label>{{ 'common.latitude' | translate }}</mat-label>
             <input matInput type="number" step="0.0001" [formField]="enrollmentForm.latitude">
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Longitude</mat-label>
+            <mat-label>{{ 'common.longitude' | translate }}</mat-label>
             <input matInput type="number" step="0.0001" [formField]="enrollmentForm.longitude">
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Capacity</mat-label>
+            <mat-label>{{ 'common.capacity' | translate }}</mat-label>
             <input matInput type="number" [formField]="enrollmentForm.capacity">
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Cancel days</mat-label>
+            <mat-label>{{ 'bookings.cancelDays' | translate }}</mat-label>
             <input matInput type="number" [formField]="enrollmentForm.cancellationDeadlineDays">
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Duration minutes</mat-label>
+            <mat-label>{{ 'bookings.durationMinutes' | translate }}</mat-label>
             <input matInput type="number" [formField]="enrollmentForm.durationMinutes">
           </mat-form-field>
         </div>
@@ -73,14 +73,14 @@
           } @else {
             <mat-icon aria-hidden="true">add</mat-icon>
           }
-          Create enrollment
+          {{ 'bookings.createEnrollment' | translate }}
         </button>
       </form>
 
       <form class="panel" (submit)="createTerm(); $event.preventDefault()">
-        <h2>New Term</h2>
+        <h2>{{ 'bookings.newTerm' | translate }}</h2>
         <mat-form-field appearance="outline">
-          <mat-label>TrainingEnrollment</mat-label>
+          <mat-label>{{ 'bookings.trainingEnrollment' | translate }}</mat-label>
           <mat-select [formField]="termForm.enrollmentId" (selectionChange)="applyEnrollment($event.value)">
             @for (enrollment of enrollments(); track enrollment.id) {
               <mat-option [value]="enrollment.id">{{ enrollment.name }}</mat-option>
@@ -88,45 +88,45 @@
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Name</mat-label>
+          <mat-label>{{ 'common.name' | translate }}</mat-label>
           <input matInput [formField]="termForm.name">
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Description</mat-label>
+          <mat-label>{{ 'common.description' | translate }}</mat-label>
           <textarea matInput rows="3" [formField]="termForm.description"></textarea>
         </mat-form-field>
         <div class="form-grid">
           <mat-form-field appearance="outline">
-            <mat-label>Place</mat-label>
+            <mat-label>{{ 'common.place' | translate }}</mat-label>
             <input matInput [formField]="termForm.placeName">
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Address</mat-label>
+            <mat-label>{{ 'common.address' | translate }}</mat-label>
             <input matInput [formField]="termForm.address">
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Latitude</mat-label>
+            <mat-label>{{ 'common.latitude' | translate }}</mat-label>
             <input matInput type="number" step="0.0001" [formField]="termForm.latitude">
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Longitude</mat-label>
+            <mat-label>{{ 'common.longitude' | translate }}</mat-label>
             <input matInput type="number" step="0.0001" [formField]="termForm.longitude">
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Capacity</mat-label>
+            <mat-label>{{ 'common.capacity' | translate }}</mat-label>
             <input matInput type="number" [formField]="termForm.capacity">
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Cancel days</mat-label>
+            <mat-label>{{ 'bookings.cancelDays' | translate }}</mat-label>
             <input matInput type="number" [formField]="termForm.cancellationDeadlineDays">
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Duration minutes</mat-label>
+            <mat-label>{{ 'bookings.durationMinutes' | translate }}</mat-label>
             <input matInput type="number" [formField]="termForm.durationMinutes">
           </mat-form-field>
         </div>
         <mat-form-field appearance="outline">
-          <mat-label>Starts at</mat-label>
+          <mat-label>{{ 'bookings.startsAt' | translate }}</mat-label>
           <input matInput type="datetime-local" [formField]="termForm.startsAt">
         </mat-form-field>
         <button mat-flat-button type="submit" [disabled]="termForm().invalid() || savingTerm() || !enrollments().length">
@@ -135,35 +135,35 @@
           } @else {
             <mat-icon aria-hidden="true">event</mat-icon>
           }
-          Create term
+          {{ 'bookings.createTerm' | translate }}
         </button>
       </form>
     </section>
 
-    <section class="panel list-panel" aria-label="Terms">
-      <h2>Terms</h2>
+    <section class="panel list-panel" [attr.aria-label]="'bookings.terms' | translate">
+      <h2>{{ 'bookings.terms' | translate }}</h2>
       @if (!terms().length) {
-        <p class="empty">No terms yet</p>
+        <p class="empty">{{ 'bookings.noTerms' | translate }}</p>
       } @else {
         <table>
           <thead>
             <tr>
-              <th>Start</th>
-              <th>Name</th>
-              <th>Place</th>
-              <th>Capacity</th>
-              <th aria-label="Actions"></th>
+              <th>{{ 'bookings.startsAt' | translate }}</th>
+              <th>{{ 'common.name' | translate }}</th>
+              <th>{{ 'common.place' | translate }}</th>
+              <th>{{ 'common.capacity' | translate }}</th>
+              <th [attr.aria-label]="'common.actions' | translate"></th>
             </tr>
           </thead>
           <tbody>
             @for (term of terms(); track term.id) {
               <tr>
-                <td data-label="Start">{{ term.startsAt | date:'medium' }}</td>
-                <td data-label="Name">{{ term.name }}</td>
-                <td data-label="Place">{{ term.location.placeName }}</td>
-                <td data-label="Capacity">{{ term.capacity }}</td>
-                <td class="row-actions" data-label="Actions">
-                  <button mat-icon-button type="button" (click)="openReservations(term)" aria-label="Open reservations">
+                <td [attr.data-label]="'bookings.startsAt' | translate">{{ term.startsAt | date:'medium':undefined:i18n.locale() }}</td>
+                <td [attr.data-label]="'common.name' | translate">{{ term.name }}</td>
+                <td [attr.data-label]="'common.place' | translate">{{ term.location.placeName }}</td>
+                <td [attr.data-label]="'common.capacity' | translate">{{ term.capacity }}</td>
+                <td class="row-actions" [attr.data-label]="'common.actions' | translate">
+                  <button mat-icon-button type="button" (click)="openReservations(term)" [attr.aria-label]="'bookings.openReservations' | translate">
                     <mat-icon aria-hidden="true">group</mat-icon>
                   </button>
                 </td>
@@ -175,41 +175,41 @@
     </section>
 
     @if (selectedTerm()) {
-      <section class="panel list-panel" aria-label="Reservations">
+      <section class="panel list-panel" [attr.aria-label]="'bookings.reservations' | translate">
         <div class="section-header">
-          <h2>Reservations for {{ selectedTerm()?.name }}</h2>
+          <h2>{{ 'bookings.reservationsFor' | translate:{ name: selectedTerm()?.name ?? '' } }}</h2>
           <button mat-stroked-button type="button" (click)="expireOffers()">
             <mat-icon aria-hidden="true">hourglass_empty</mat-icon>
-            Expire offers
+            {{ 'bookings.expireOffers' | translate }}
           </button>
         </div>
         @if (loadingReservations()) {
           <div class="state compact">
             <mat-spinner diameter="24" aria-hidden="true"></mat-spinner>
-            <span>Loading reservations</span>
+            <span>{{ 'bookings.loadingReservations' | translate }}</span>
           </div>
         } @else if (!reservations().length) {
-          <p class="empty">No reservations yet</p>
+          <p class="empty">{{ 'bookings.noReservations' | translate }}</p>
         } @else {
           <table>
             <thead>
               <tr>
-                <th>Participant</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Status</th>
-                <th aria-label="Actions"></th>
+                <th>{{ 'bookings.participant' | translate }}</th>
+                <th>{{ 'common.email' | translate }}</th>
+                <th>{{ 'bookings.phone' | translate }}</th>
+                <th>{{ 'common.status' | translate }}</th>
+                <th [attr.aria-label]="'common.actions' | translate"></th>
               </tr>
             </thead>
             <tbody>
               @for (reservation of reservations(); track reservation.id) {
                 <tr>
-                  <td data-label="Participant">{{ reservation.firstName }} {{ reservation.lastName }}</td>
-                  <td data-label="Email">{{ reservation.email }}</td>
-                  <td data-label="Phone">{{ reservation.phoneNumber }}</td>
-                  <td data-label="Status">{{ reservation.status }}</td>
-                  <td class="row-actions" data-label="Actions">
-                    <button mat-icon-button type="button" (click)="cancelReservation(reservation)" aria-label="Cancel reservation">
+                  <td [attr.data-label]="'bookings.participant' | translate">{{ reservation.firstName }} {{ reservation.lastName }}</td>
+                  <td [attr.data-label]="'common.email' | translate">{{ reservation.email }}</td>
+                  <td [attr.data-label]="'bookings.phone' | translate">{{ reservation.phoneNumber }}</td>
+                  <td [attr.data-label]="'common.status' | translate">{{ reservation.status }}</td>
+                  <td class="row-actions" [attr.data-label]="'common.actions' | translate">
+                    <button mat-icon-button type="button" (click)="cancelReservation(reservation)" [attr.aria-label]="'bookings.cancelReservation' | translate">
                       <mat-icon aria-hidden="true">cancel</mat-icon>
                     </button>
                   </td>

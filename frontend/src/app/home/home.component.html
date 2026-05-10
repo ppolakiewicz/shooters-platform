@@ -1,67 +1,67 @@
 <main class="shell">
   <section class="status-panel" aria-labelledby="app-title">
     <div>
-      <p class="eyebrow">Shooters Platform</p>
-      <h1 id="app-title">Service status</h1>
-      <p class="signed-in">Signed in as {{ auth.currentUser()?.username }}</p>
+      <p class="eyebrow">{{ 'app.brand' | translate }}</p>
+      <h1 id="app-title">{{ 'home.title' | translate }}</h1>
+      <p class="signed-in">{{ 'home.signedInAs' | translate:{ username: auth.currentUser()?.username ?? '' } }}</p>
     </div>
 
     <div class="actions">
       <a mat-flat-button routerLink="/trainings">
         <mat-icon aria-hidden="true">track_changes</mat-icon>
-        Trainings
+        {{ 'nav.trainings' | translate }}
       </a>
 
       <a mat-flat-button routerLink="/bookings">
         <mat-icon aria-hidden="true">event_available</mat-icon>
-        Bookings
+        {{ 'nav.bookings' | translate }}
       </a>
 
       @if (loading()) {
         <button mat-stroked-button type="button" disabled>
           <mat-spinner diameter="18" aria-hidden="true"></mat-spinner>
-          Checking
+          {{ 'common.checking' | translate }}
         </button>
       } @else {
         <button mat-stroked-button type="button" (click)="refreshHealth()">
           <mat-icon aria-hidden="true">refresh</mat-icon>
-          Refresh
+          {{ 'common.refresh' | translate }}
         </button>
       }
 
       <button mat-stroked-button type="button" (click)="logout()" [disabled]="signingOut()">
         <mat-icon aria-hidden="true">logout</mat-icon>
-        Logout
+        {{ 'nav.logout' | translate }}
       </button>
     </div>
   </section>
 
-  <section class="metrics" aria-label="Backend health">
+  <section class="metrics" [attr.aria-label]="'home.backendHealth' | translate">
     <mat-card appearance="outlined">
       <mat-card-content>
-        <span>Backend</span>
-        <strong [class.ok]="health()?.backend === 'ok'">{{ health()?.backend ?? 'offline' }}</strong>
+        <span>{{ 'home.backend' | translate }}</span>
+        <strong [class.ok]="health()?.backend === 'ok'">{{ health()?.backend ?? ('home.offline' | translate) }}</strong>
       </mat-card-content>
     </mat-card>
     <mat-card appearance="outlined">
       <mat-card-content>
-        <span>Database</span>
-        <strong [class.ok]="health()?.database === 'ok'">{{ health()?.database ?? 'offline' }}</strong>
+        <span>{{ 'home.database' | translate }}</span>
+        <strong [class.ok]="health()?.database === 'ok'">{{ health()?.database ?? ('home.offline' | translate) }}</strong>
       </mat-card-content>
     </mat-card>
     <mat-card appearance="outlined">
       <mat-card-content>
-        <span>Probe</span>
+        <span>{{ 'home.probe' | translate }}</span>
         <strong>{{ health()?.databaseProbe ?? '-' }}</strong>
       </mat-card-content>
     </mat-card>
   </section>
 
   @if (error()) {
-    <p class="error" role="alert">{{ error() }}</p>
+    <p class="error" role="alert">{{ error() | translate }}</p>
   }
 
   @if (health()) {
-    <p class="timestamp">Last checked {{ health()?.timestamp | date:'medium' }}</p>
+    <p class="timestamp">{{ 'home.lastChecked' | translate:{ date: (health()?.timestamp | date:'medium':undefined:i18n.locale()) ?? '' } }}</p>
   }
 </main>

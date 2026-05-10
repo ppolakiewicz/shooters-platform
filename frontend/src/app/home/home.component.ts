@@ -8,12 +8,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AuthService } from '../identity/auth.service';
+import { TranslatePipe } from '../shared/i18n/translate.pipe';
+import { TranslationService } from '../shared/i18n/translation.service';
 import { BackendHealth } from './backend-health';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [CommonModule, RouterLink, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -22,6 +24,7 @@ export class HomeComponent {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   protected readonly auth = inject(AuthService);
+  protected readonly i18n = inject(TranslationService);
 
   protected readonly health = signal<BackendHealth | null>(null);
   protected readonly error = signal<string | null>(null);
@@ -42,7 +45,7 @@ export class HomeComponent {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Backend is not reachable');
+        this.error.set('errors.backendUnreachable');
         this.health.set(null);
         this.loading.set(false);
       }

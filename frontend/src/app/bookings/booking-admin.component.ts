@@ -9,6 +9,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 
+import { TranslatePipe } from '../shared/i18n/translate.pipe';
+import { TranslationService } from '../shared/i18n/translation.service';
 import { ReservationSummary, Term, TrainingEnrollment } from './booking.models';
 import { BookingService } from './booking.service';
 
@@ -24,7 +26,8 @@ import { BookingService } from './booking.service';
     MatIconModule,
     MatInputModule,
     MatProgressSpinnerModule,
-    MatSelectModule
+    MatSelectModule,
+    TranslatePipe
   ],
   templateUrl: './booking-admin.component.html',
   styleUrl: './booking-admin.component.css',
@@ -32,6 +35,7 @@ import { BookingService } from './booking.service';
 })
 export class BookingAdminComponent {
   private readonly bookings = inject(BookingService);
+  protected readonly i18n = inject(TranslationService);
 
   protected readonly enrollments = signal<TrainingEnrollment[]>([]);
   protected readonly terms = signal<Term[]>([]);
@@ -57,18 +61,18 @@ export class BookingAdminComponent {
     durationMinutes: 90
   });
   protected readonly enrollmentForm = form(this.enrollmentModel, (path) => {
-    required(path.name, { message: 'Name is required' });
-    maxLength(path.name, 120, { message: 'Use at most 120 characters' });
-    maxLength(path.description, 2048, { message: 'Use at most 2048 characters' });
-    required(path.placeName, { message: 'Place is required' });
-    required(path.address, { message: 'Address is required' });
-    min(path.latitude, -90, { message: 'Latitude must be at least -90' });
-    max(path.latitude, 90, { message: 'Latitude must be at most 90' });
-    min(path.longitude, -180, { message: 'Longitude must be at least -180' });
-    max(path.longitude, 180, { message: 'Longitude must be at most 180' });
-    min(path.capacity, 1, { message: 'Capacity must be at least 1' });
-    min(path.cancellationDeadlineDays, 0, { message: 'Cancellation days cannot be negative' });
-    min(path.durationMinutes, 1, { message: 'Duration must be at least 1 minute' });
+    required(path.name, { message: 'validation.nameRequired' });
+    maxLength(path.name, 120, { message: 'validation.useAtMost' });
+    maxLength(path.description, 2048, { message: 'validation.useAtMost' });
+    required(path.placeName, { message: 'validation.placeRequired' });
+    required(path.address, { message: 'validation.addressRequired' });
+    min(path.latitude, -90, { message: 'validation.latitudeMin' });
+    max(path.latitude, 90, { message: 'validation.latitudeMax' });
+    min(path.longitude, -180, { message: 'validation.longitudeMin' });
+    max(path.longitude, 180, { message: 'validation.longitudeMax' });
+    min(path.capacity, 1, { message: 'validation.capacityAtLeastOne' });
+    min(path.cancellationDeadlineDays, 0, { message: 'validation.cancellationDaysNonNegative' });
+    min(path.durationMinutes, 1, { message: 'validation.durationAtLeastOne' });
   });
 
   protected readonly termModel = signal({
@@ -85,20 +89,20 @@ export class BookingAdminComponent {
     startsAt: nextWeekLocalDateTime()
   });
   protected readonly termForm = form(this.termModel, (path) => {
-    required(path.enrollmentId, { message: 'Training enrollment is required' });
-    required(path.name, { message: 'Name is required' });
-    maxLength(path.name, 120, { message: 'Use at most 120 characters' });
-    maxLength(path.description, 2048, { message: 'Use at most 2048 characters' });
-    required(path.placeName, { message: 'Place is required' });
-    required(path.address, { message: 'Address is required' });
-    min(path.latitude, -90, { message: 'Latitude must be at least -90' });
-    max(path.latitude, 90, { message: 'Latitude must be at most 90' });
-    min(path.longitude, -180, { message: 'Longitude must be at least -180' });
-    max(path.longitude, 180, { message: 'Longitude must be at most 180' });
-    min(path.capacity, 1, { message: 'Capacity must be at least 1' });
-    min(path.cancellationDeadlineDays, 0, { message: 'Cancellation days cannot be negative' });
-    min(path.durationMinutes, 1, { message: 'Duration must be at least 1 minute' });
-    required(path.startsAt, { message: 'Start date and time are required' });
+    required(path.enrollmentId, { message: 'validation.trainingEnrollmentRequired' });
+    required(path.name, { message: 'validation.nameRequired' });
+    maxLength(path.name, 120, { message: 'validation.useAtMost' });
+    maxLength(path.description, 2048, { message: 'validation.useAtMost' });
+    required(path.placeName, { message: 'validation.placeRequired' });
+    required(path.address, { message: 'validation.addressRequired' });
+    min(path.latitude, -90, { message: 'validation.latitudeMin' });
+    max(path.latitude, 90, { message: 'validation.latitudeMax' });
+    min(path.longitude, -180, { message: 'validation.longitudeMin' });
+    max(path.longitude, 180, { message: 'validation.longitudeMax' });
+    min(path.capacity, 1, { message: 'validation.capacityAtLeastOne' });
+    min(path.cancellationDeadlineDays, 0, { message: 'validation.cancellationDaysNonNegative' });
+    min(path.durationMinutes, 1, { message: 'validation.durationAtLeastOne' });
+    required(path.startsAt, { message: 'validation.startRequired' });
   });
 
   constructor() {
@@ -119,7 +123,7 @@ export class BookingAdminComponent {
         this.applyEnrollment(enrollments[0].id);
       }
     } catch {
-      this.error.set(this.bookings.error() ?? 'Could not load booking admin data');
+      this.error.set(this.bookings.error() ?? 'errors.loadBookingAdminFailed');
     } finally {
       this.loading.set(false);
     }
@@ -147,7 +151,7 @@ export class BookingAdminComponent {
         this.enrollments.update((items) => [enrollment, ...items]);
         this.applyEnrollment(enrollment.id);
       } catch {
-        this.error.set(this.bookings.error() ?? 'Could not create training enrollment');
+        this.error.set(this.bookings.error() ?? 'errors.createTrainingEnrollmentFailed');
       } finally {
         this.savingEnrollment.set(false);
       }
@@ -177,7 +181,7 @@ export class BookingAdminComponent {
         this.terms.update((items) => [...items, term].sort((first, second) => first.startsAt.localeCompare(second.startsAt)));
         await this.openReservations(term);
       } catch {
-        this.error.set(this.bookings.error() ?? 'Could not create term');
+        this.error.set(this.bookings.error() ?? 'errors.createTermFailed');
       } finally {
         this.savingTerm.set(false);
       }
@@ -191,7 +195,7 @@ export class BookingAdminComponent {
     try {
       this.reservations.set(await this.bookings.reservations(term.id));
     } catch {
-      this.error.set(this.bookings.error() ?? 'Could not load reservations');
+      this.error.set(this.bookings.error() ?? 'errors.loadReservationsFailed');
     } finally {
       this.loadingReservations.set(false);
     }
@@ -221,7 +225,7 @@ export class BookingAdminComponent {
 
   protected async cancelReservation(reservation: ReservationSummary): Promise<void> {
     const term = this.selectedTerm();
-    if (!term || !window.confirm(`Cancel reservation for ${reservation.firstName} ${reservation.lastName}?`)) {
+    if (!term || !window.confirm(this.i18n.translate('bookings.confirmCancelReservation', { name: `${reservation.firstName} ${reservation.lastName}` }))) {
       return;
     }
 
@@ -230,7 +234,7 @@ export class BookingAdminComponent {
       await this.bookings.cancelReservation(term.id, reservation.id);
       this.reservations.set(await this.bookings.reservations(term.id));
     } catch {
-      this.error.set(this.bookings.error() ?? 'Could not cancel reservation');
+      this.error.set(this.bookings.error() ?? 'errors.cancelReservationFailed');
     }
   }
 
@@ -245,7 +249,7 @@ export class BookingAdminComponent {
       await this.bookings.expireOffers(term.id);
       this.reservations.set(await this.bookings.reservations(term.id));
     } catch {
-      this.error.set(this.bookings.error() ?? 'Could not expire waitlist offers');
+      this.error.set(this.bookings.error() ?? 'errors.expireOffersFailed');
     }
   }
 }

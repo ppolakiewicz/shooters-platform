@@ -86,6 +86,6 @@ export class TrainingService {
       }
     }
 
-    return 'Training request failed';
+    return 'errors.trainingRequestFailed';
   }
 }

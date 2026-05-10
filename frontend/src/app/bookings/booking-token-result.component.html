@@ -2,20 +2,20 @@
   <section class="panel">
     @if (loading()) {
       <mat-spinner diameter="32" aria-hidden="true"></mat-spinner>
-      <h1>Processing</h1>
+      <h1>{{ 'common.processing' | translate }}</h1>
     } @else if (reservation()) {
       <mat-icon aria-hidden="true">check_circle</mat-icon>
-      <h1>{{ title }}</h1>
-      <p>Status: {{ reservation()?.status }}</p>
+      <h1>{{ title | translate }}</h1>
+      <p>{{ 'common.status' | translate }}: {{ reservation()?.status }}</p>
     } @else {
       <mat-icon aria-hidden="true">error</mat-icon>
-      <h1>Booking link failed</h1>
-      <p>{{ error() }}</p>
+      <h1>{{ 'bookings.token.failed' | translate }}</h1>
+      <p>{{ error() | translate }}</p>
     }
 
     <a mat-flat-button routerLink="/booking-terms">
       <mat-icon aria-hidden="true">event</mat-icon>
-      Available terms
+      {{ 'bookings.token.availableTerms' | translate }}
     </a>
   </section>
 </main>

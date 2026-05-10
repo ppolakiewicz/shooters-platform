@@ -118,6 +118,6 @@ export class BookingService {
       }
     }
 
-    return 'Booking request failed';
+    return 'errors.bookingRequestFailed';
   }
 }

@@ -10,6 +10,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
+import { TranslatePipe } from '../shared/i18n/translate.pipe';
+import { TranslationService } from '../shared/i18n/translation.service';
 import { CreatedReservation, Term } from './booking.models';
 import { BookingService } from './booking.service';
 
@@ -25,7 +27,8 @@ import { BookingService } from './booking.service';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    TranslatePipe
   ],
   templateUrl: './booking-public-detail.component.html',
   styleUrl: './booking-public-detail.component.css',
@@ -35,6 +38,7 @@ export class BookingPublicDetailComponent {
   private readonly bookings = inject(BookingService);
   private readonly route = inject(ActivatedRoute);
   private readonly sanitizer = inject(DomSanitizer);
+  protected readonly i18n = inject(TranslationService);
   private readonly termId = this.route.snapshot.paramMap.get('id') ?? '';
 
   protected readonly term = signal<Term | null>(null);
@@ -65,19 +69,19 @@ export class BookingPublicDetailComponent {
     password: ''
   });
   protected readonly reservationForm = form(this.model, (path) => {
-    required(path.firstName, { message: 'First name is required' });
-    maxLength(path.firstName, 80, { message: 'Use at most 80 characters' });
-    required(path.lastName, { message: 'Last name is required' });
-    maxLength(path.lastName, 80, { message: 'Use at most 80 characters' });
-    required(path.email, { message: 'Email is required' });
-    email(path.email, { message: 'Use a valid email address' });
-    required(path.phoneNumber, { message: 'Phone number is required' });
-    maxLength(path.phoneNumber, 40, { message: 'Use at most 40 characters' });
-    minLength(path.username, 3, { message: 'Use at least 3 characters' });
-    maxLength(path.username, 32, { message: 'Use at most 32 characters' });
-    pattern(path.username, /^[A-Za-z0-9_-]*$/, { message: 'Use only letters, numbers, underscores, and hyphens' });
-    minLength(path.password, 12, { message: 'Use at least 12 characters' });
-    maxLength(path.password, 128, { message: 'Use at most 128 characters' });
+    required(path.firstName, { message: 'validation.firstNameRequired' });
+    maxLength(path.firstName, 80, { message: 'validation.useAtMost' });
+    required(path.lastName, { message: 'validation.lastNameRequired' });
+    maxLength(path.lastName, 80, { message: 'validation.useAtMost' });
+    required(path.email, { message: 'validation.emailRequired' });
+    email(path.email, { message: 'validation.emailValid' });
+    required(path.phoneNumber, { message: 'validation.phoneRequired' });
+    maxLength(path.phoneNumber, 40, { message: 'validation.useAtMost' });
+    minLength(path.username, 3, { message: 'validation.usernameMin' });
+    maxLength(path.username, 32, { message: 'validation.usernameMax' });
+    pattern(path.username, /^[A-Za-z0-9_-]*$/, { message: 'validation.usernamePattern' });
+    minLength(path.password, 12, { message: 'validation.passwordMin' });
+    maxLength(path.password, 128, { message: 'validation.passwordMax' });
   });
 
   constructor() {
@@ -90,7 +94,7 @@ export class BookingPublicDetailComponent {
     try {
       this.term.set(await this.bookings.publicTerm(this.termId));
     } catch {
-      this.error.set(this.bookings.error() ?? 'Could not load term');
+      this.error.set(this.bookings.error() ?? 'errors.loadTermFailed');
     } finally {
       this.loading.set(false);
     }
@@ -100,7 +104,7 @@ export class BookingPublicDetailComponent {
     submit(this.reservationForm, async () => {
       const value = this.model();
       if (value.createAccount && (!value.username || !value.password)) {
-        this.error.set('Username and password are required to create an account');
+        this.error.set('errors.usernamePasswordRequired');
         return;
       }
 
@@ -117,7 +121,7 @@ export class BookingPublicDetailComponent {
           password: value.createAccount ? value.password : null
         }));
       } catch {
-        this.error.set(this.bookings.error() ?? 'Could not create reservation');
+        this.error.set(this.bookings.error() ?? 'errors.createReservationFailed');
       } finally {
         this.submitting.set(false);
       }

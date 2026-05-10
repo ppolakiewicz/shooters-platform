@@ -1,47 +1,47 @@
 <main class="booking-shell">
   <header class="page-header">
     <div>
-      <p class="eyebrow">Shooters Platform</p>
-      <h1>Available training terms</h1>
+      <p class="eyebrow">{{ 'app.brand' | translate }}</p>
+      <h1>{{ 'bookings.public.title' | translate }}</h1>
     </div>
     <div class="header-actions">
       <a mat-stroked-button routerLink="/login">
         <mat-icon aria-hidden="true">login</mat-icon>
-        Log in
+        {{ 'nav.login' | translate }}
       </a>
     </div>
   </header>
 
   @if (error()) {
-    <p class="error" role="alert">{{ error() }}</p>
+    <p class="error" role="alert">{{ error() | translate }}</p>
   }
 
-  <section class="list-panel" aria-label="Available terms">
+  <section class="list-panel" [attr.aria-label]="'bookings.public.availableTerms' | translate">
     @if (loading()) {
       <div class="state">
         <mat-spinner diameter="28" aria-hidden="true"></mat-spinner>
-        <span>Loading terms</span>
+        <span>{{ 'bookings.public.loadingTerms' | translate }}</span>
       </div>
     } @else if (!terms().length) {
       <div class="state">
         <mat-icon aria-hidden="true">event_busy</mat-icon>
-        <span>No terms available</span>
+        <span>{{ 'bookings.public.noTerms' | translate }}</span>
       </div>
     } @else {
       <div class="term-list">
         @for (term of sortedTerms(); track term.id) {
           <article class="term-row">
             <div class="term-main">
-              <p class="term-date">{{ term.startsAt | date:'medium' }}</p>
+              <p class="term-date">{{ term.startsAt | date:'medium':undefined:i18n.locale() }}</p>
               <h2>{{ term.name }}</h2>
-              <p class="term-description">{{ term.description || 'No description provided.' }}</p>
+              <p class="term-description">{{ term.description || ('bookings.public.noDescription' | translate) }}</p>
             </div>
 
             <dl class="term-facts">
               <div class="fact fact-place">
                 <mat-icon aria-hidden="true">location_on</mat-icon>
                 <div>
-                  <dt>Place</dt>
+                  <dt>{{ 'common.place' | translate }}</dt>
                   <dd>{{ term.location.placeName }}</dd>
                   <dd class="muted">{{ term.location.address }}</dd>
                 </div>
@@ -49,22 +49,22 @@
               <div class="fact">
                 <mat-icon aria-hidden="true">schedule</mat-icon>
                 <div>
-                  <dt>Duration</dt>
-                  <dd>{{ term.durationMinutes }} min</dd>
+                  <dt>{{ 'common.duration' | translate }}</dt>
+                  <dd>{{ 'bookings.public.duration' | translate:{ count: term.durationMinutes } }}</dd>
                 </div>
               </div>
               <div class="fact">
                 <mat-icon aria-hidden="true">groups</mat-icon>
                 <div>
-                  <dt>Available</dt>
-                  <dd>{{ term.availablePlaces }} places</dd>
+                  <dt>{{ 'bookings.public.available' | translate }}</dt>
+                  <dd>{{ 'bookings.public.availablePlaces' | translate:{ count: term.availablePlaces } }}</dd>
                 </div>
               </div>
               <div class="fact">
                 <mat-icon aria-hidden="true">event_busy</mat-icon>
                 <div>
-                  <dt>Cancellation</dt>
-                  <dd>Cancel up to {{ term.cancellationDeadlineDays }} days before start</dd>
+                  <dt>{{ 'common.cancellation' | translate }}</dt>
+                  <dd>{{ 'bookings.public.cancellationFull' | translate:{ count: term.cancellationDeadlineDays } }}</dd>
                 </div>
               </div>
             </dl>
@@ -72,7 +72,7 @@
             <div class="term-action">
               <a mat-flat-button [routerLink]="['/booking-terms', term.id]">
                 <mat-icon aria-hidden="true">event_available</mat-icon>
-                Reserve
+                {{ 'common.reserve' | translate }}
               </a>
             </div>
           </article>

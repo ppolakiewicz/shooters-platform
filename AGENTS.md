@@ -43,7 +43,7 @@ web resource.
 Spring configuration classes should live in dedicated `shared/config` subpackages, grouped by concern. For example, clock
 configuration belongs in `shared/config/clock`, and security configuration belongs in `shared/config/security`.
 
-Spring Boot 4 splits some auto-configurations into dedicated modules. 
+Spring Boot 4 splits some auto-configurations into dedicated modules.
 When using JSON/object mapping directly, prefer the Spring Boot 4 Jackson setup and note
 that application code may need `tools.jackson.databind.ObjectMapper`.
 
@@ -89,6 +89,7 @@ Angular application that uses angular material components.
 Should follow latest angular best practices: standalone components, communication through signals, on push change detection
 All frontend changes should be designed and implemented mobile first. Start with small-screen layout and behavior,
 then add larger viewport enhancements with `min-width` media queries.
+All changes user-facing text should support both Polish and English.
 Each component should have unit tests that validate its expected behaviors.
 
 For Angular 21 forms, prefer Signal Forms from `@angular/forms/signals` for new forms. Keep form models non-null, use
@@ -99,6 +100,6 @@ close to the relevant feature files.
 
 ### E2E
 Contains end-to-end tests based on playwright to validate main application user paths.
-E2E tests should exercise complete user paths through the UI. 
+E2E tests should exercise complete user paths through the UI.
 Playwright tests should include short `given:`, `when:`, and `then:` style comments that describe the main scenario
 steps.

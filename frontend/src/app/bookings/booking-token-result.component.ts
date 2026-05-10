@@ -4,13 +4,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
+import { TranslatePipe } from '../shared/i18n/translate.pipe';
 import { ReservationSummary } from './booking.models';
 import { BookingService } from './booking.service';
 
 @Component({
   selector: 'app-booking-token-result',
   standalone: true,
-  imports: [RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './booking-token-result.component.html',
   styleUrl: './booking-token-result.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -24,7 +25,7 @@ export class BookingTokenResultComponent {
   protected readonly loading = signal(false);
   protected readonly reservation = signal<ReservationSummary | null>(null);
   protected readonly error = signal<string | null>(null);
-  protected readonly title = this.action === 'confirm' ? 'Waitlist place confirmed' : 'Reservation cancelled';
+  protected readonly title = this.action === 'confirm' ? 'bookings.token.confirmed' : 'bookings.token.cancelled';
 
   constructor() {
     void this.submit();
@@ -38,7 +39,7 @@ export class BookingTokenResultComponent {
         ? await this.bookings.confirmWaitlist(this.token)
         : await this.bookings.cancelByToken(this.token));
     } catch {
-      this.error.set(this.bookings.error() ?? 'Could not complete booking action');
+      this.error.set(this.bookings.error() ?? 'errors.bookingActionFailed');
     } finally {
       this.loading.set(false);
     }

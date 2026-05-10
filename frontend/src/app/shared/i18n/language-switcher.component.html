@@ -1,0 +1,8 @@
+<mat-button-toggle-group
+  [attr.aria-label]="'app.language' | translate"
+  [value]="i18n.language()"
+  (change)="setLanguage($event.value)"
+>
+  <mat-button-toggle value="pl">{{ 'app.polish' | translate }}</mat-button-toggle>
+  <mat-button-toggle value="en">{{ 'app.english' | translate }}</mat-button-toggle>
+</mat-button-toggle-group>

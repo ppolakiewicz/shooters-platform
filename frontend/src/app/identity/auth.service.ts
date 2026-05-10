@@ -104,6 +104,6 @@ export class AuthService {
       }
     }
 
-    return 'Authentication request failed';
+    return 'errors.authRequestFailed';
   }
 }
