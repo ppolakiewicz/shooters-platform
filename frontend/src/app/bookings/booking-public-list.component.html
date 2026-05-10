@@ -28,19 +28,53 @@
         <span>No terms available</span>
       </div>
     } @else {
-      <div class="term-grid">
-        @for (term of terms(); track term.id) {
-          <article class="term-card">
-            <div>
+      <div class="term-list">
+        @for (term of sortedTerms(); track term.id) {
+          <article class="term-row">
+            <div class="term-main">
               <p class="term-date">{{ term.startsAt | date:'medium' }}</p>
               <h2>{{ term.name }}</h2>
-              <p>{{ term.location.placeName }}</p>
-              <small>{{ term.durationMinutes }} min · {{ term.capacity }} places</small>
+              <p class="term-description">{{ term.description || 'No description provided.' }}</p>
             </div>
-            <a mat-flat-button [routerLink]="['/booking-terms', term.id]">
-              <mat-icon aria-hidden="true">event_available</mat-icon>
-              Reserve
-            </a>
+
+            <dl class="term-facts">
+              <div class="fact fact-place">
+                <mat-icon aria-hidden="true">location_on</mat-icon>
+                <div>
+                  <dt>Place</dt>
+                  <dd>{{ term.location.placeName }}</dd>
+                  <dd class="muted">{{ term.location.address }}</dd>
+                </div>
+              </div>
+              <div class="fact">
+                <mat-icon aria-hidden="true">schedule</mat-icon>
+                <div>
+                  <dt>Duration</dt>
+                  <dd>{{ term.durationMinutes }} min</dd>
+                </div>
+              </div>
+              <div class="fact">
+                <mat-icon aria-hidden="true">groups</mat-icon>
+                <div>
+                  <dt>Capacity</dt>
+                  <dd>{{ term.capacity }} places</dd>
+                </div>
+              </div>
+              <div class="fact">
+                <mat-icon aria-hidden="true">event_busy</mat-icon>
+                <div>
+                  <dt>Cancellation</dt>
+                  <dd>Cancel up to {{ term.cancellationDeadlineDays }} days before start</dd>
+                </div>
+              </div>
+            </dl>
+
+            <div class="term-action">
+              <a mat-flat-button [routerLink]="['/booking-terms', term.id]">
+                <mat-icon aria-hidden="true">event_available</mat-icon>
+                Reserve
+              </a>
+            </div>
           </article>
         }
       </div>

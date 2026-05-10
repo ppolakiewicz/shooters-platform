@@ -1,15 +1,16 @@
 .booking-shell {
   min-height: 100vh;
-  padding: 20px;
+  padding: 16px;
   background: #f7f8fa;
   color: #1c1f24;
 }
 
 .page-header,
 .list-panel,
-.term-card {
-  max-width: 1100px;
-  margin: 0 auto;
+.error {
+  width: min(100%, 1280px);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .page-header {
@@ -18,17 +19,18 @@
   flex-direction: column;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .header-actions a,
-.term-card a {
+.term-action a {
   width: 100%;
   min-height: 44px;
 }
 
 .eyebrow,
-.term-date {
+.term-date,
+dt {
   margin: 0 0 6px;
   color: #596579;
   font-size: 0.78rem;
@@ -37,36 +39,80 @@
 
 h1,
 h2,
-p {
+p,
+dl,
+dd {
   margin-top: 0;
 }
 
 h1 {
   font-size: 2rem;
   line-height: 1.1;
+  overflow-wrap: anywhere;
 }
 
-.list-panel {
-  background: #ffffff;
+h2 {
+  margin-bottom: 0;
+  font-size: 1.12rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.term-list {
+  display: grid;
+  gap: 8px;
+}
+
+.term-row {
+  display: grid;
+  gap: 14px;
   border: 1px solid #d9dee8;
   border-radius: 8px;
-  padding: 12px;
-}
-
-.term-grid {
-  display: grid;
-  gap: 12px;
-}
-
-.term-card {
-  display: flex;
-  align-items: stretch;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 16px;
-  border: 1px solid #e0e4ec;
-  border-radius: 8px;
+  background: #ffffff;
   padding: 16px;
+}
+
+.term-main,
+.term-facts {
+  min-width: 0;
+}
+
+.term-description {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 10px 0 0;
+  color: #3d4656;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.term-facts {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 0;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 10px;
+  min-width: 0;
+}
+
+.fact mat-icon {
+  color: #276749;
+}
+
+dd {
+  margin-bottom: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.muted {
+  margin-top: 2px;
+  color: #596579;
+  font-weight: 400;
 }
 
 .state {
@@ -75,42 +121,70 @@ h1 {
   justify-content: center;
   gap: 10px;
   min-height: 120px;
+  border: 1px solid #d9dee8;
+  border-radius: 8px;
+  background: #ffffff;
   color: #596579;
 }
 
 .error {
-  max-width: 1100px;
-  margin: 0 auto 16px;
+  margin-bottom: 16px;
   color: #b42318;
 }
 
-@media (min-width: 520px) {
+@media (min-width: 560px) {
+  .booking-shell {
+    padding: 20px;
+  }
+
   .header-actions a,
-  .term-card a {
+  .term-action a {
     width: auto;
+  }
+
+  .term-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .term-facts {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 700px) {
+@media (min-width: 760px) {
   .booking-shell {
-    padding: 32px;
-  }
-
-  .page-header,
-  .term-card {
-    align-items: center;
-    flex-direction: row;
+    padding: 28px;
   }
 
   .page-header {
+    align-items: center;
+    flex-direction: row;
     margin-bottom: 24px;
   }
 
   h1 {
     font-size: 2.35rem;
   }
+}
 
-  .list-panel {
-    padding: 16px;
+@media (min-width: 1080px) {
+  .booking-shell {
+    padding: 32px;
+  }
+
+  .term-row {
+    align-items: center;
+    grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.8fr) auto;
+    gap: 20px;
+  }
+
+  .term-facts {
+    grid-column: auto;
+    grid-template-columns: minmax(170px, 1.25fr) repeat(3, minmax(120px, 1fr));
+  }
+
+  .term-description {
+    -webkit-line-clamp: 3;
   }
 }

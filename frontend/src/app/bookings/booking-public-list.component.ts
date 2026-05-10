@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,6 +20,9 @@ export class BookingPublicListComponent {
   private readonly bookings = inject(BookingService);
 
   protected readonly terms = signal<Term[]>([]);
+  protected readonly sortedTerms = computed(() =>
+    [...this.terms()].sort((left, right) => Date.parse(left.startsAt) - Date.parse(right.startsAt))
+  );
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
 
