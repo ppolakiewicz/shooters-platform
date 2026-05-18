@@ -2,6 +2,7 @@
   "name": "shooters-platform-e2e",
   "version": "0.0.1",
   "private": true,
+  "license": "CC-BY-NC-SA-4.0",
   "scripts": {
     "test": "playwright test",
     "test:ui": "playwright test --ui",

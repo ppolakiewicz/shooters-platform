@@ -1,6 +1,7 @@
 {
   "name": "shooters-platform",
   "private": true,
+  "license": "CC-BY-NC-SA-4.0",
   "workspaces": [
     "frontend",
     "e2e"
