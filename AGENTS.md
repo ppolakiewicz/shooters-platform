@@ -1,105 +1,53 @@
-# Shooters Platform Agent Notes
 
-### General info
-Always use `caveman` skill for communication.
-When working use `grill-me` skill to get more context about changes.
-When implementing use `tdd` skill.
+## 10xDevs AI Toolkit — Module 1, Lesson 1
 
-## Project Structure
+Bootstrap a greenfield project end-to-end with the **shaping chain**:
 
-Project is split into three modules:
+```
+/10x-init  →  /10x-shape  →  /10x-prd  →  (10x-tech-stack-selector)  →  (bootstrapper)
+```
 
-## Git workflow
+The first three skills ship in this lesson; the last two are the next links in the chain.
 
-All newly created files should be added to the Git stage before finishing the task.
+### Task Router — Where to start
 
-### Backend
-Backend is Spring Boot 4 Gradle application build with Java 25 and Postgres database.
-For maintaining database Flyway migrations are used.
-Backend is build as set of individual modules that use Domain Driven Design approach.
-Each module can contain below main parts:
-- domain package - where plain Java business logic is kept in hexagonal architecture with ports
-- infrastructure package - where domain adapters are kept that provide connection to expected infrastructure components
-- use case package - where logic that need to integrate different modules is kept
-- web package - where module spring web controllers and DTOs are kept
+| Skill | Use it when |
+| --- | --- |
+| **Project setup** | |
+| `/10x-init` | The project directory is fresh. Scaffolds `context/foundation/lessons.md` and `docs/reference/contract-surfaces.md` so the rest of the workflow has somewhere to write. Run this once per project. |
+| **Discovery** | |
+| `/10x-shape` | You have an idea and need to turn it into structured shape-notes BEFORE writing a PRD. Greenfield only. Walks vision → persona/access → MVP → FRs (with Socratic challenge) → business logic & data → stack-openness sketch. Surfaces empty-CRUD and MVP-too-big anti-patterns by name. Output: `context/foundation/shape-notes.md` with a resumable `checkpoint:` block. |
+| **Document generation** | |
+| `/10x-prd` | You have shape-notes (or raw notes) and want a schema-conformant `context/foundation/prd.md`. Generates against the locked schema, routes every gap verbatim into `## Open Questions`, and refuses to invent domain decisions. On collision, prompts overwrite vs. versioned save (`prd-vN.md`). |
 
-#### Testing strategy
-Domain logic should be tested using in memory implementation of port interfaces. Those in memory implementations should be
-using hash map to store information and provide assertion methods to be used in tests. No mocking is allowed.
+### How the chain hands off
 
-Backend tests should be written with Spock specifications in `src/test/groovy`, not JUnit test classes. Spock tests should
-use descriptive English labels for `given:`, `when:`, `then:` and `and:` blocks.
-Format Spock specifications with two-space indentation for class members and helper methods. Spock block labels should
-be indented one level inside the feature method, and statements inside those blocks should be indented one additional
-level deeper.
+- `/10x-init` produces the workflow v2 scaffold (`context/foundation/`, `lessons.md`, `contract-surfaces.md`). `/10x-shape` requires this and will offer to delegate to `/10x-init` if it's missing.
+- `/10x-shape` writes `context/foundation/shape-notes.md` with frontmatter `checkpoint:` (current_phase, phases_completed, frs_drafted, quality_check_status). On re-entry, it resumes from the next unfinished phase.
+- `/10x-prd` reads `shape-notes.md` (default) or any path you pass, scores the input on a 4-signal heuristic, warns on thin input, and writes `context/foundation/prd.md` against the schema at `skills/10x-shape/references/prd-schema.md` (frontmatter aligned 1:1 with 10x-tech-stack-selector's Q1–Q7).
 
-Use case logic should be tested with spring boot integration tests.
+### What the PRD captures (and what it does NOT)
 
-Web package should be tested with mock MVC that will send request to spring web controller.
-Each web controller should have dedicated client in test package that will allow to communicate in tests with given
-web resource.
+- **Captured**: vision, persona, success criteria, user stories (Given/When/Then), FRs (FR-NNN), NFRs, business logic (one-sentence rule first), data model, access control, durable implementation decisions, testing strategy, deployment & CI/CD strategy, non-goals, open questions.
+- **NOT captured (deliberate)**: framework choices, database choices, file paths, deployment platform. Stack openness is binding — only `product_type` and `tech_preferences.language_family` capture stack-shaped intent. Frameworks are 10x-tech-stack-selector's job.
 
-#### Backend implementation notes
-Spring configuration classes should live in dedicated `shared/config` subpackages, grouped by concern. For example, clock
-configuration belongs in `shared/config/clock`, and security configuration belongs in `shared/config/security`.
+### Anti-patterns surfaced during shaping
 
-Spring Boot 4 splits some auto-configurations into dedicated modules.
-When using JSON/object mapping directly, prefer the Spring Boot 4 Jackson setup and note
-that application code may need `tools.jackson.databind.ObjectMapper`.
+- **Empty-CRUD**: business logic that reduces to "users add and remove records" with no domain rule. `/10x-shape` names it explicitly and prompts for a real rule shape (recommendation, prioritization, classification, validation, scoring, workflow, calculation).
+- **MVP-too-big**: first-flow estimate exceeds ~1 week of after-hours work, or > 4 distinct user actions before user-visible value, or requires multiple integrations before payoff. Skill names the expensive pieces and offers concrete scope-down moves.
 
-The domain package should expose domain services for module behavior instead of letting use cases call repositories
-directly. In the identity module, use cases call `IdentityService`; that service owns domain rules such as email
-normalization, password policy checks, authentication rules, and email uniqueness validation.
+Both are **soft gates**: they warn but allow override. Overrides are recorded in the checkpoint and surfaced in the PRD's `## Open Questions`.
 
-Do not add a use case layer when it only forwards calls to a single domain service. Add use cases only when orchestration
-between more than one domain service/module or external concern is needed. If a controller calls a single module domain
-service directly, put the transaction boundary on that service.
+### Foundation paths used by this lesson
 
-Domain model objects should use domain-specific value objects and enums instead of primitive identifiers, email strings,
-or role strings. Convert those domain types to UUIDs, strings, or JSON-friendly DTO shapes at infrastructure and web
-boundaries, not inside domain records or services.
+- `context/foundation/shape-notes.md` — `/10x-shape` output
+- `context/foundation/prd.md` (or `prd-vN.md`) — `/10x-prd` output
+- `context/foundation/lessons.md` — recurring rules & pitfalls (scaffolded by `/10x-init`)
+- `docs/reference/contract-surfaces.md` — load-bearing names registry (scaffolded by `/10x-init`)
 
-Spring Security for the browser SPA uses server-side sessions and CSRF. Angular receives `XSRF-TOKEN` and sends
-`X-XSRF-TOKEN` for mutating `/api` requests. Keep session/authentication mechanics in web or shared security
-configuration, not in domain code.
+### Universal language
 
-Check roles and permissions in the web layer with `@PreAuthorize` on controllers or controller methods. Do not put role
-checks in domain services or use cases; they should receive an already-authorized user context and enforce ownership/data
-access rules only.
+The shipped skills carry no 10xDevs / cohort / certification references. The mechanics (Socratic challenge, gray-area discovery, recommended-answer fatigue mitigation, soft quality gate) are universal indicators of a well-scoped greenfield project.
 
-Keep controller request/response records in dedicated files in the module `web` package instead of nesting many records
-inside a controller. Package-private records are preferred unless another package must use them.
+Skills must not write to `context/archive/`. Archived changes are immutable; if a resolved target path starts with `context/archive/`, abort with: "This change is archived. Open a new change with `/10x-new` instead."
 
-Backend Java packages are JSpecify null-marked. When adding a new package under `src/main/java`, add a `package-info.java`
-with `@NullMarked` unless the package intentionally needs `@NullUnmarked`.
-
-With JSpecify `@NullMarked`, avoid defensive null-checks for parameters and record components that are declared non-null.
-Use null-checks only at runtime boundaries or normalization helpers where values can genuinely be absent, and mark those
-parameters with `@Nullable` so IDEs and NullAway agree with the check. Keep domain value validation such as ranges,
-lengths, and allowed combinations even when null-checks are redundant.
-
-Infrastructure packages that contain JPA entities may use `@NullUnmarked` because Hibernate initializes fields through
-reflection. Classes in those packages that implement domain ports must add class-level `@NullMarked` to preserve the
-domain interface contract. Apply the same rule to in-memory test implementations of domain ports.
-
-Postgres 18 Docker images should mount persistent data at `/var/lib/postgresql`, not `/var/lib/postgresql/data`.
-
-### Frontend
-Angular application that uses angular material components.
-Should follow latest angular best practices: standalone components, communication through signals, on push change detection
-All frontend changes should be designed and implemented mobile first. Start with small-screen layout and behavior,
-then add larger viewport enhancements with `min-width` media queries.
-All changes user-facing text should support both Polish and English.
-Each component should have unit tests that validate its expected behaviors.
-
-For Angular 21 forms, prefer Signal Forms from `@angular/forms/signals` for new forms. Keep form models non-null, use
-standalone components, Angular Material controls, signal-based state, and OnPush change detection.
-
-Frontend unit tests use Angular's Vitest-based `@angular/build:unit-test` setup. Keep service, guard, and component tests
-close to the relevant feature files.
-
-### E2E
-Contains end-to-end tests based on playwright to validate main application user paths.
-E2E tests should exercise complete user paths through the UI.
-Playwright tests should include short `given:`, `when:`, and `then:` style comments that describe the main scenario
-steps.
