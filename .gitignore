@@ -1,6 +1,9 @@
 # Compiled class file
 *.class
 
+# Agent
+.agents
+
 # IntelliJ
 .idea/*
 !.idea/.gitignore
