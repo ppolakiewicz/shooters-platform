@@ -107,7 +107,11 @@ async function createComponent(service: unknown) {
 
   const fixture = TestBed.createComponent(BookingPublicListComponent);
   await fixture.whenStable();
-  return { component: fixture.componentInstance as any, fixture };
+  return { component: fixture.componentInstance as unknown as BookingPublicListComponentTestAccess, fixture };
+}
+
+interface BookingPublicListComponentTestAccess {
+  terms: () => Term[];
 }
 
 function fieldText(row: HTMLElement, label: string): string {

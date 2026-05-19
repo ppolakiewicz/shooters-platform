@@ -42,7 +42,11 @@ async function createComponent(service: unknown, action: 'confirm' | 'cancel') {
 
   const fixture = TestBed.createComponent(BookingTokenResultComponent);
   await fixture.whenStable();
-  return { component: fixture.componentInstance as any };
+  return { component: fixture.componentInstance as unknown as BookingTokenResultComponentTestAccess };
+}
+
+interface BookingTokenResultComponentTestAccess {
+  reservation: () => ReservationSummary | null;
 }
 
 function serviceMock() {

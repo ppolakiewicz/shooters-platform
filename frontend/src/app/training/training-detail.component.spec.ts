@@ -4,7 +4,7 @@ import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/route
 import { describe, expect, it, vi } from 'vitest';
 
 import { TrainingDetailComponent } from './training-detail.component';
-import { Training } from './training.models';
+import { ScoringType, Training, WeaponType } from './training.models';
 import { TrainingService } from './training.service';
 
 describe('TrainingDetailComponent', () => {
@@ -83,7 +83,40 @@ async function createComponent(service: unknown) {
 
   const fixture = TestBed.createComponent(TrainingDetailComponent);
   await fixture.whenStable();
-  return { component: fixture.componentInstance as any, fixture };
+  return { component: fixture.componentInstance as unknown as TrainingDetailComponentTestAccess, fixture };
+}
+
+interface TrainingDetailComponentTestAccess {
+  training: () => Training | null;
+  trainingModel: () => {
+    description: string;
+  };
+  taskModel: {
+    (): TaskModel;
+    set(value: TaskModel): void;
+  };
+  saveTask(): void;
+}
+
+interface TaskModel {
+  weaponType: WeaponType;
+  scoringType: ScoringType;
+  duration: string;
+  alpha: number;
+  charlie: number;
+  delta: number;
+  miss: number;
+  score0: number;
+  score1: number;
+  score2: number;
+  score3: number;
+  score4: number;
+  score5: number;
+  score6: number;
+  score7: number;
+  score8: number;
+  score9: number;
+  score10: number;
 }
 
 function serviceMock(training: Training) {

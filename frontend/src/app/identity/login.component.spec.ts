@@ -43,5 +43,18 @@ async function createComponent(auth = { login: vi.fn(), error: vi.fn() }) {
   vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
   const fixture = TestBed.createComponent(LoginComponent);
   await fixture.whenStable();
-  return { component: fixture.componentInstance as any, router };
+  return { component: fixture.componentInstance as unknown as LoginComponentTestAccess, router };
+}
+
+interface LoginComponentTestAccess {
+  model: {
+    set(value: { email: string; password: string }): void;
+  };
+  loginForm: () => FormState;
+  onSubmit(): void;
+}
+
+interface FormState {
+  invalid(): boolean;
+  valid(): boolean;
 }

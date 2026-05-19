@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { TrainingListComponent } from './training-list.component';
 import { TrainingService } from './training.service';
+import { TrainingSummary } from './training.models';
 
 describe('TrainingListComponent', () => {
   it('loads summaries into the list', async () => {
@@ -70,10 +71,15 @@ async function createComponent(service: unknown) {
   vi.spyOn(router, 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(TrainingListComponent);
   await fixture.whenStable();
-  return { component: fixture.componentInstance as any, fixture, router };
+  return { component: fixture.componentInstance as unknown as TrainingListComponentTestAccess, fixture, router };
 }
 
-function summary() {
+interface TrainingListComponentTestAccess {
+  items: () => TrainingSummary[];
+  create(): Promise<void>;
+}
+
+function summary(): TrainingSummary {
   return {
     id: 'training-id',
     name: 'Practice',

@@ -59,7 +59,24 @@ async function createComponent(service: unknown) {
 
   const fixture = TestBed.createComponent(BookingPublicDetailComponent);
   await fixture.whenStable();
-  return { component: fixture.componentInstance as any };
+  return { component: fixture.componentInstance as unknown as BookingPublicDetailComponentTestAccess };
+}
+
+interface BookingPublicDetailComponentTestAccess {
+  term: () => Term | null;
+  mapUrl: () => unknown | null;
+  model: {
+    set(value: {
+      firstName: string;
+      lastName: string;
+      email: string;
+      phoneNumber: string;
+      createAccount: boolean;
+      username: string;
+      password: string;
+    }): void;
+  };
+  reserve(): void;
 }
 
 function serviceMock(term: Term) {

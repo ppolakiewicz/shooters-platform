@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { BookingAdminComponent } from './booking-admin.component';
 import { BookingService } from './booking.service';
-import { Term, TrainingEnrollment } from './booking.models';
+import { ReservationSummary, Term, TrainingEnrollment } from './booking.models';
 
 describe('BookingAdminComponent', () => {
   it('loads enrollments and terms for management', async () => {
@@ -54,7 +54,14 @@ async function createComponent(service: unknown) {
 
   const fixture = TestBed.createComponent(BookingAdminComponent);
   await fixture.whenStable();
-  return { component: fixture.componentInstance as any, fixture };
+  return { component: fixture.componentInstance as unknown as BookingAdminComponentTestAccess, fixture };
+}
+
+interface BookingAdminComponentTestAccess {
+  enrollments: () => TrainingEnrollment[];
+  terms: () => Term[];
+  reservations: () => ReservationSummary[];
+  openReservations(term: Term): Promise<void>;
 }
 
 function serviceMock() {
