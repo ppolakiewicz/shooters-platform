@@ -1,8 +1,17 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable, inject, signal } from '@angular/core';
-import { Observable, firstValueFrom } from 'rxjs';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {inject, Injectable, signal} from '@angular/core';
+import {firstValueFrom, Observable} from 'rxjs';
 
-import { CreateReservation, CreatedBooking, ReservationSummary, Term, TrainingEnrollment, UpsertTerm, UpsertTrainingEnrollment, WaitlistEntrySummary } from './booking.models';
+import {
+  CreatedBooking,
+  CreateReservation,
+  ReservationSummary,
+  Term,
+  TrainingEnrollment,
+  UpsertTerm,
+  UpsertTrainingEnrollment,
+  WaitlistEntrySummary
+} from './booking.models';
 
 @Injectable({ providedIn: 'root' })
 export class BookingService {
@@ -20,7 +29,7 @@ export class BookingService {
   }
 
   async createReservation(termId: string, request: CreateReservation): Promise<CreatedBooking> {
-    return this.mutate(() => this.http.post<CreatedBooking>('/api/bookings/reservations/reserve', { termId, ...request }));
+    return this.mutate(() => this.http.post<CreatedBooking>('/api/bookings/reservations', {termId, ...request}));
   }
 
   async confirmWaitlist(token: string): Promise<ReservationSummary> {
@@ -32,15 +41,15 @@ export class BookingService {
   }
 
   async enrollments(): Promise<TrainingEnrollment[]> {
-    return this.read(() => this.http.get<TrainingEnrollment[]>('/api/bookings/enrollments'));
+    return this.read(() => this.http.get<TrainingEnrollment[]>('/api/bookings/training-enrollments'));
   }
 
   async createEnrollment(request: UpsertTrainingEnrollment): Promise<TrainingEnrollment> {
-    return this.mutate(() => this.http.post<TrainingEnrollment>('/api/bookings/enrollments', request));
+    return this.mutate(() => this.http.post<TrainingEnrollment>('/api/bookings/training-enrollments', request));
   }
 
   async updateEnrollment(id: string, request: UpsertTrainingEnrollment): Promise<TrainingEnrollment> {
-    return this.mutate(() => this.http.put<TrainingEnrollment>(`/api/bookings/enrollments/${id}`, request));
+    return this.mutate(() => this.http.put<TrainingEnrollment>(`/api/bookings/training-enrollments/${id}`, request));
   }
 
   async ownerTerms(): Promise<Term[]> {
@@ -56,23 +65,25 @@ export class BookingService {
   }
 
   async reservations(termId: string): Promise<ReservationSummary[]> {
-    return this.mutate(() => this.http.post<ReservationSummary[]>('/api/bookings/reservations/list', { termId }));
+    return this.read(() => this.http.get<ReservationSummary[]>(`/api/bookings/terms/${termId}/reservations`));
   }
 
   async waitlistEntries(termId: string): Promise<WaitlistEntrySummary[]> {
-    return this.mutate(() => this.http.post<WaitlistEntrySummary[]>('/api/bookings/waitlist/list', { termId }));
+    return this.read(() => this.http.get<WaitlistEntrySummary[]>(`/api/bookings/terms/${termId}/waitlist`));
   }
 
   async cancelReservation(termId: string, reservationId: string): Promise<ReservationSummary> {
-    return this.mutate(() => this.http.post<ReservationSummary>('/api/bookings/reservations/cancel-by-instructor', { termId, reservationId }));
+    return this.mutate(() => this.http.post<ReservationSummary>(`/api/bookings/terms/${termId}/reservations/${reservationId}/cancel-by-instructor`, {}));
   }
 
   async expireOffers(termId: string): Promise<{ expiredCount: number }> {
-    return this.mutate(() => this.http.post<{ expiredCount: number }>('/api/bookings/reservations/expire-waitlist-offers', { termId }));
+    return this.mutate(() => this.http.post<{
+      expiredCount: number
+    }>(`/api/bookings/terms/${termId}/reservations/expire-waitlist-offers`, {}));
   }
 
   async removeWaitlistEntry(termId: string, waitlistEntryId: string): Promise<WaitlistEntrySummary> {
-    return this.mutate(() => this.http.post<WaitlistEntrySummary>('/api/bookings/waitlist/remove-by-owner', { termId, waitlistEntryId }));
+    return this.mutate(() => this.http.post<WaitlistEntrySummary>(`/api/bookings/terms/${termId}/waitlist/${waitlistEntryId}/remove-by-owner`, {}));
   }
 
   async cancelWaitlistByToken(token: string): Promise<WaitlistEntrySummary> {

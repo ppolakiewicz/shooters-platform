@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import {expect, test} from '@playwright/test';
 
 test('creates a booking term and promotes waitlisted participant after cancellation', async ({ page }) => {
   // given: a registered instructor manages booking terms
@@ -22,7 +22,7 @@ test('creates a booking term and promotes waitlisted participant after cancellat
   await enrollmentForm.getByLabel('Name').fill('Intro pistol');
   await enrollmentForm.getByLabel('Capacity').fill('1');
   const enrollmentResponse = page.waitForResponse((response) =>
-    response.url().endsWith('/api/bookings/enrollments') && response.request().method() === 'POST'
+    response.url().endsWith('/api/bookings/training-enrollments') && response.request().method() === 'POST'
   );
   await page.getByRole('button', { name: 'Create enrollment' }).click();
   expect((await enrollmentResponse).ok()).toBeTruthy();
@@ -42,7 +42,7 @@ test('creates a booking term and promotes waitlisted participant after cancellat
   await page.getByLabel('Email').fill(`anna-${Date.now()}@example.com`);
   await page.getByLabel('Phone number').fill('+48111111111');
   const firstReservationResponse = page.waitForResponse((response) =>
-    response.url().endsWith('/api/bookings/reservations/reserve') && response.request().method() === 'POST'
+    response.url().endsWith('/api/bookings/reservations') && response.request().method() === 'POST'
   );
   await page.getByRole('button', { name: 'Reserve' }).click();
   const firstBooking = await (await firstReservationResponse).json() as {
@@ -61,7 +61,7 @@ test('creates a booking term and promotes waitlisted participant after cancellat
   await page.getByLabel('Email').fill(`jan-${Date.now()}@example.com`);
   await page.getByLabel('Phone number').fill('+48222222222');
   const secondReservationResponse = page.waitForResponse((response) =>
-    response.url().endsWith('/api/bookings/reservations/reserve') && response.request().method() === 'POST'
+    response.url().endsWith('/api/bookings/reservations') && response.request().method() === 'POST'
   );
   await page.getByRole('button', { name: 'Reserve' }).click();
   const secondBooking = await (await secondReservationResponse).json() as {
@@ -90,8 +90,7 @@ test('creates a booking term and promotes waitlisted participant after cancellat
   expect(csrfResponse.ok()).toBeTruthy();
   const csrfCookie = (await page.context().cookies()).find((cookie) => cookie.name === 'XSRF-TOKEN');
   expect(csrfCookie?.value).toBeTruthy();
-  const reservationsResponse = await page.request.post('/api/bookings/reservations/list', {
-    data: { termId: term.id },
+  const reservationsResponse = await page.request.get(`/api/bookings/terms/${term.id}/reservations`, {
     headers: { 'X-XSRF-TOKEN': csrfCookie?.value ?? '' }
   });
   expect(reservationsResponse.ok()).toBeTruthy();
@@ -125,7 +124,7 @@ test('updates available places on the public term list after reservation', async
   await enrollmentForm.getByLabel('Name').fill(termName);
   await enrollmentForm.getByLabel('Capacity').fill('3');
   const enrollmentResponse = page.waitForResponse((response) =>
-    response.url().endsWith('/api/bookings/enrollments') && response.request().method() === 'POST'
+    response.url().endsWith('/api/bookings/training-enrollments') && response.request().method() === 'POST'
   );
   await page.getByRole('button', { name: 'Create enrollment' }).click();
   expect((await enrollmentResponse).ok()).toBeTruthy();
@@ -153,7 +152,7 @@ test('updates available places on the public term list after reservation', async
   await page.getByLabel('Email').fill(`availability-${Date.now()}@example.com`);
   await page.getByLabel('Phone number').fill('+48111111111');
   const reservationResponse = page.waitForResponse((response) =>
-    response.url().endsWith('/api/bookings/reservations/reserve') && response.request().method() === 'POST'
+    response.url().endsWith('/api/bookings/reservations') && response.request().method() === 'POST'
   );
   await page.getByRole('button', { name: 'Reserve' }).click();
   const reservation = await (await reservationResponse).json() as { type: string; reservation: { status: string } };

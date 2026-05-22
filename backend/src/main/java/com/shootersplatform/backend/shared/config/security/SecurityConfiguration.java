@@ -7,8 +7,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -44,7 +44,7 @@ class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/health", "/api/auth/csrf").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/bookings/public/terms/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/bookings/reservations/reserve").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/bookings/reservations").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings/reservations/confirm-waitlist-offer").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings/reservations/cancel-by-participant").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings/waitlist/cancel-by-participant").permitAll()

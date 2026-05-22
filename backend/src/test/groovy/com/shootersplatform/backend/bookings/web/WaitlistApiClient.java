@@ -1,0 +1,43 @@
+package com.shootersplatform.backend.bookings.web;
+
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+
+import java.util.UUID;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
+public class WaitlistApiClient {
+
+    private final MockMvc mockMvc;
+
+    public WaitlistApiClient(MockMvc mockMvc) {
+        this.mockMvc = mockMvc;
+    }
+
+    public ResultActions list(MockHttpSession session, UUID termId) throws Exception {
+        return mockMvc.perform(get("/api/bookings/terms/{termId}/waitlist", termId)
+            .session(session));
+    }
+
+    public ResultActions listWithoutSession(UUID termId) throws Exception {
+        return mockMvc.perform(get("/api/bookings/terms/{termId}/waitlist", termId));
+    }
+
+    public ResultActions cancelByParticipant(String cancellationToken) throws Exception {
+        return mockMvc.perform(post("/api/bookings/waitlist/cancel-by-participant")
+                .contentType("application/json")
+                .content("""
+                        {"token": "%s"}
+                        """.formatted(cancellationToken)));
+    }
+
+    public ResultActions removeByOwner(MockHttpSession session, UUID termId, UUID waitlistEntryId) throws Exception {
+        return mockMvc.perform(post("/api/bookings/terms/{termId}/waitlist/{waitlistEntryId}/remove-by-owner", termId, waitlistEntryId)
+                .session(session)
+            .with(csrf()));
+    }
+}

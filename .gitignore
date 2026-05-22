@@ -4,8 +4,8 @@
 # Agent
 .agents
 
-# Temp
-.tmp
+# Handoff
+.handoff
 
 # IntelliJ
 .idea/*
