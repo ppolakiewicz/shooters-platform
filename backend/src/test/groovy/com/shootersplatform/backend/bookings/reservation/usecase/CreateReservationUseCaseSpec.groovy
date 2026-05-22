@@ -7,6 +7,8 @@ import com.shootersplatform.backend.bookings.location.domain.Location
 import com.shootersplatform.backend.bookings.reservation.domain.ReservationService
 import com.shootersplatform.backend.bookings.reservation.domain.ReservationValidationException
 import com.shootersplatform.backend.bookings.term.domain.Term
+import com.shootersplatform.backend.bookings.waitlist.domain.InMemoryWaitlistRepository
+import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistService
 import com.shootersplatform.backend.identity.InMemoryLoginRateLimiter
 import com.shootersplatform.backend.identity.InMemoryUserAccountRepository
 import com.shootersplatform.backend.identity.PlainTextPasswordHasher
@@ -33,9 +35,10 @@ class CreateReservationUseCaseSpec extends Specification {
     users = new InMemoryUserAccountRepository()
     terms = new InMemoryTermRepository()
     reservations = new InMemoryReservationRepository()
+    def waitlist = new InMemoryWaitlistRepository()
     def identity = new IdentityService(users, new PlainTextPasswordHasher(), clock)
     useCase = new CreateReservationUseCase(
-      new ReservationService(terms, reservations, new InMemoryReservationNotificationPort(), clock),
+      new ReservationService(terms, reservations, waitlist, new WaitlistService(terms, waitlist, clock), new InMemoryReservationNotificationPort(), clock),
       new RegisterUserUseCase(identity, new InMemoryLoginRateLimiter())
     )
   }
@@ -49,7 +52,7 @@ class CreateReservationUseCaseSpec extends Specification {
 
     then: "The reservation is linked to the registered user"
         result.registeredUser() != null
-        result.reservation().participantUserId() == result.registeredUser().id()
+        result.booking().reservation().participantUserId() == result.registeredUser().id()
         users.count() == 1
   }
 

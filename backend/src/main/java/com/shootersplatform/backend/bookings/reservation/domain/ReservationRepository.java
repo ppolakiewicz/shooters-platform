@@ -17,15 +17,11 @@ public interface ReservationRepository {
 
     Optional<Reservation> findByWaitlistConfirmationToken(String token);
 
-    Optional<Reservation> findFirstWaitlisted(TermId termId);
-
     List<Reservation> findExpiredWaitlistOffers(Instant now);
 
     boolean existsActiveByTermAndEmail(TermId termId, EmailAddress email);
 
     long countOccupiedPlaces(TermId termId);
-
-    int nextWaitlistPosition(TermId termId);
 
     Reservation save(Reservation reservation);
 }

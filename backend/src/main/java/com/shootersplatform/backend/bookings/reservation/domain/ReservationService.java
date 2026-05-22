@@ -5,6 +5,9 @@ import com.shootersplatform.backend.identity.domain.UserId;
 import com.shootersplatform.backend.bookings.term.domain.Term;
 import com.shootersplatform.backend.bookings.term.domain.TermId;
 import com.shootersplatform.backend.bookings.term.domain.TermRepository;
+import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistEntry;
+import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistRepository;
+import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistService;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,17 +24,23 @@ public class ReservationService {
 
     private final TermRepository terms;
     private final ReservationRepository reservations;
+    private final WaitlistRepository waitlist;
+    private final WaitlistService waitlistService;
     private final ReservationNotificationPort notifications;
     private final Clock clock;
 
     public ReservationService(
             TermRepository terms,
             ReservationRepository reservations,
+            WaitlistRepository waitlist,
+            WaitlistService waitlistService,
             ReservationNotificationPort notifications,
             Clock clock
     ) {
         this.terms = terms;
         this.reservations = reservations;
+        this.waitlist = waitlist;
+        this.waitlistService = waitlistService;
         this.notifications = notifications;
         this.clock = clock;
     }
@@ -47,7 +56,7 @@ public class ReservationService {
         return reservations.countOccupiedPlaces(termId);
     }
 
-    public Reservation createReservation(
+    public CreatedBooking createReservation(
             TermId termId,
             @Nullable UserId participantUserId,
             String firstName,
@@ -60,20 +69,19 @@ public class ReservationService {
             throw new ReservationValidationException("Term has already started");
         }
         EmailAddress emailAddress = new EmailAddress(email);
-        if (reservations.existsActiveByTermAndEmail(termId, emailAddress)) {
+        if (reservations.existsActiveByTermAndEmail(termId, emailAddress) || waitlist.existsByTermAndEmail(termId, emailAddress)) {
             throw new ReservationValidationException("Participant is already registered for this term");
         }
 
-        Reservation reservation;
         if (reservations.countOccupiedPlaces(termId) < lockedTerm.capacity()) {
-            reservation = Reservation.createConfirmed(termId, participantUserId, firstName, lastName, email, phoneNumber, clock.instant());
+            Reservation reservation = Reservation.createConfirmed(termId, participantUserId, firstName, lastName, email, phoneNumber, clock.instant());
             reservation = reservations.save(reservation);
             notifications.reservationConfirmed(lockedTerm, reservation);
-            return reservation;
+            return CreatedBooking.reservation(reservation);
         }
 
-        reservation = Reservation.createWaitlisted(termId, participantUserId, firstName, lastName, email, phoneNumber, reservations.nextWaitlistPosition(termId), clock.instant());
-        return reservations.save(reservation);
+        WaitlistEntry entry = waitlistService.add(termId, participantUserId, firstName, lastName, email, phoneNumber);
+        return CreatedBooking.waitlistEntry(entry);
     }
 
     public Reservation confirmWaitlistOffer(String token) {
@@ -127,13 +135,14 @@ public class ReservationService {
     }
 
     private void promoteWaitlistedIfPossible(Term term) {
-        if (reservations.countOccupiedPlaces(term.id()) >= term.capacity()) {
-            return;
-        }
-        reservations.findFirstWaitlisted(term.id()).ifPresent(waitlisted -> {
-            Reservation offered = waitlisted.offerWaitlistPlace(clock.instant().plus(WAITLIST_OFFER_TTL), clock.instant());
+        while (reservations.countOccupiedPlaces(term.id()) < term.capacity()) {
+            WaitlistEntry entry = waitlistService.pollFirst(term.id()).orElse(null);
+            if (entry == null) {
+                return;
+            }
+            Reservation offered = Reservation.createWaitlistOffer(entry, clock.instant().plus(WAITLIST_OFFER_TTL), clock.instant());
             Reservation saved = reservations.save(offered);
             notifications.waitlistOfferCreated(term, saved);
-        });
+        }
     }
 }

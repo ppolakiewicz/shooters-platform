@@ -43,9 +43,6 @@ class ReservationEntity {
     @Column(name = "status", nullable = false, length = 40)
     private ReservationStatus status;
 
-    @Column(name = "waitlist_position", nullable = false)
-    private int waitlistPosition;
-
     @Column(name = "cancellation_token", nullable = false, length = 64)
     private String cancellationToken;
 
@@ -79,8 +76,6 @@ class ReservationEntity {
     void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
     ReservationStatus getStatus() { return status; }
     void setStatus(ReservationStatus status) { this.status = status; }
-    int getWaitlistPosition() { return waitlistPosition; }
-    void setWaitlistPosition(int waitlistPosition) { this.waitlistPosition = waitlistPosition; }
     String getCancellationToken() { return cancellationToken; }
     void setCancellationToken(String cancellationToken) { this.cancellationToken = cancellationToken; }
     @Nullable String getWaitlistConfirmationToken() { return waitlistConfirmationToken; }

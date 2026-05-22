@@ -1,6 +1,5 @@
 export type ReservationStatus =
   | 'CONFIRMED'
-  | 'WAITLISTED'
   | 'WAITLIST_OFFERED'
   | 'CANCELLED_BY_PARTICIPANT'
   | 'CANCELLED_BY_INSTRUCTOR'
@@ -48,7 +47,6 @@ export interface ReservationSummary {
   email: string;
   phoneNumber: string;
   status: ReservationStatus;
-  waitlistPosition: number;
   waitlistOfferExpiresAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -57,6 +55,27 @@ export interface ReservationSummary {
 export interface CreatedReservation extends ReservationSummary {
   cancellationToken: string;
 }
+
+export interface WaitlistEntrySummary {
+  id: string;
+  termId: string;
+  participantUserId: string | null;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatedWaitlistEntry extends WaitlistEntrySummary {
+  cancellationToken: string;
+}
+
+export type CreatedBooking =
+  | { type: 'RESERVATION'; reservation: CreatedReservation; waitlistEntry: null }
+  | { type: 'WAITLIST_ENTRY'; reservation: null; waitlistEntry: CreatedWaitlistEntry };
 
 export interface UpsertTrainingEnrollment {
   name: string;

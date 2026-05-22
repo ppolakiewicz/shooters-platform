@@ -1,8 +1,8 @@
 package com.shootersplatform.backend.bookings.reservation.usecase;
 
+import com.shootersplatform.backend.bookings.reservation.domain.CreatedBooking;
 import com.shootersplatform.backend.bookings.reservation.domain.ReservationService;
 import com.shootersplatform.backend.bookings.reservation.domain.ReservationValidationException;
-import com.shootersplatform.backend.bookings.reservation.domain.Reservation;
 import com.shootersplatform.backend.bookings.term.domain.TermId;
 import com.shootersplatform.backend.identity.domain.AuthenticatedUser;
 import com.shootersplatform.backend.identity.domain.UserId;
@@ -23,7 +23,7 @@ public class CreateReservationUseCase {
     }
 
     @Transactional
-    public CreatedReservation create(
+    public CreatedBookingResult create(
             TermId termId,
             @Nullable AuthenticatedUser currentUser,
             String firstName,
@@ -49,7 +49,7 @@ public class CreateReservationUseCase {
             participantUserId = registeredUser.id();
         }
 
-        Reservation reservation = reservationService.createReservation(termId, participantUserId, firstName, lastName, email, phoneNumber);
-        return new CreatedReservation(reservation, registeredUser);
+        CreatedBooking created = reservationService.createReservation(termId, participantUserId, firstName, lastName, email, phoneNumber);
+        return new CreatedBookingResult(created, registeredUser);
     }
 }

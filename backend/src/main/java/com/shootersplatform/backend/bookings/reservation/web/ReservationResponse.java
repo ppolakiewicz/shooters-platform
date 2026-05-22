@@ -16,7 +16,6 @@ record ReservationResponse(
         String email,
         String phoneNumber,
         ReservationStatus status,
-        int waitlistPosition,
         @Nullable Instant waitlistOfferExpiresAt,
         Instant createdAt,
         Instant updatedAt
@@ -32,7 +31,6 @@ record ReservationResponse(
                 reservation.email().value(),
                 reservation.phoneNumber(),
                 reservation.status(),
-                reservation.waitlistPosition(),
                 reservation.waitlistOfferExpiresAt(),
                 reservation.createdAt(),
                 reservation.updatedAt()

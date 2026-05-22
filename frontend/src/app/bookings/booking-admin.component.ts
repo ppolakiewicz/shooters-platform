@@ -11,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 
 import { TranslatePipe } from '../shared/i18n/translate.pipe';
 import { TranslationService } from '../shared/i18n/translation.service';
-import { ReservationSummary, Term, TrainingEnrollment } from './booking.models';
+import { ReservationSummary, Term, TrainingEnrollment, WaitlistEntrySummary } from './booking.models';
 import { BookingService } from './booking.service';
 
 @Component({
@@ -41,6 +41,7 @@ export class BookingAdminComponent {
   protected readonly terms = signal<Term[]>([]);
   protected readonly selectedTermId = signal<string | null>(null);
   protected readonly reservations = signal<ReservationSummary[]>([]);
+  protected readonly waitlistEntries = signal<WaitlistEntrySummary[]>([]);
   protected readonly loading = signal(false);
   protected readonly savingEnrollment = signal(false);
   protected readonly savingTerm = signal(false);
@@ -193,7 +194,12 @@ export class BookingAdminComponent {
     this.loadingReservations.set(true);
     this.error.set(null);
     try {
-      this.reservations.set(await this.bookings.reservations(term.id));
+      const [reservations, waitlistEntries] = await Promise.all([
+        this.bookings.reservations(term.id),
+        this.bookings.waitlistEntries(term.id)
+      ]);
+      this.reservations.set(reservations);
+      this.waitlistEntries.set(waitlistEntries);
     } catch {
       this.error.set(this.bookings.error() ?? 'errors.loadReservationsFailed');
     } finally {
@@ -232,9 +238,24 @@ export class BookingAdminComponent {
     this.error.set(null);
     try {
       await this.bookings.cancelReservation(term.id, reservation.id);
-      this.reservations.set(await this.bookings.reservations(term.id));
+      await this.openReservations(term);
     } catch {
       this.error.set(this.bookings.error() ?? 'errors.cancelReservationFailed');
+    }
+  }
+
+  protected async removeWaitlistEntry(entry: WaitlistEntrySummary): Promise<void> {
+    const term = this.selectedTerm();
+    if (!term || !window.confirm(this.i18n.translate('bookings.confirmRemoveWaitlistEntry', { name: `${entry.firstName} ${entry.lastName}` }))) {
+      return;
+    }
+
+    this.error.set(null);
+    try {
+      await this.bookings.removeWaitlistEntry(term.id, entry.id);
+      await this.openReservations(term);
+    } catch {
+      this.error.set(this.bookings.error() ?? 'errors.removeWaitlistEntryFailed');
     }
   }
 
@@ -247,7 +268,7 @@ export class BookingAdminComponent {
     this.error.set(null);
     try {
       await this.bookings.expireOffers(term.id);
-      this.reservations.set(await this.bookings.reservations(term.id));
+      await this.openReservations(term);
     } catch {
       this.error.set(this.bookings.error() ?? 'errors.expireOffersFailed');
     }

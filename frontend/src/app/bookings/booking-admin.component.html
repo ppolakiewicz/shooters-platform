@@ -219,6 +219,45 @@
           </table>
         }
       </section>
+
+      <section class="panel list-panel" [attr.aria-label]="'bookings.waitlist' | translate">
+        <h2>{{ 'bookings.waitlistFor' | translate:{ name: selectedTerm()?.name ?? '' } }}</h2>
+        @if (loadingReservations()) {
+          <div class="state compact">
+            <mat-spinner diameter="24" aria-hidden="true"></mat-spinner>
+            <span>{{ 'bookings.loadingReservations' | translate }}</span>
+          </div>
+        } @else if (!waitlistEntries().length) {
+          <p class="empty">{{ 'bookings.noWaitlistEntries' | translate }}</p>
+        } @else {
+          <table>
+            <thead>
+              <tr>
+                <th>{{ 'bookings.position' | translate }}</th>
+                <th>{{ 'bookings.participant' | translate }}</th>
+                <th>{{ 'common.email' | translate }}</th>
+                <th>{{ 'bookings.phone' | translate }}</th>
+                <th [attr.aria-label]="'common.actions' | translate"></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (entry of waitlistEntries(); track entry.id) {
+                <tr>
+                  <td [attr.data-label]="'bookings.position' | translate">{{ entry.position }}</td>
+                  <td [attr.data-label]="'bookings.participant' | translate">{{ entry.firstName }} {{ entry.lastName }}</td>
+                  <td [attr.data-label]="'common.email' | translate">{{ entry.email }}</td>
+                  <td [attr.data-label]="'bookings.phone' | translate">{{ entry.phoneNumber }}</td>
+                  <td class="row-actions" [attr.data-label]="'common.actions' | translate">
+                    <button mat-icon-button type="button" (click)="removeWaitlistEntry(entry)" [attr.aria-label]="'bookings.removeWaitlistEntry' | translate">
+                      <mat-icon aria-hidden="true">playlist_remove</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </section>
     }
   }
 </main>

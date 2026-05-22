@@ -20,7 +20,6 @@ class JpaReservationRepository implements ReservationRepository {
 
     private static final List<ReservationStatus> ACTIVE_STATUSES = List.of(
             ReservationStatus.CONFIRMED,
-            ReservationStatus.WAITLISTED,
             ReservationStatus.WAITLIST_OFFERED
     );
     private static final List<ReservationStatus> OCCUPIED_STATUSES = List.of(
@@ -55,11 +54,6 @@ class JpaReservationRepository implements ReservationRepository {
     }
 
     @Override
-    public Optional<Reservation> findFirstWaitlisted(TermId termId) {
-        return repository.findFirstByTermIdAndStatusOrderByWaitlistPositionAscCreatedAtAsc(termId.value(), ReservationStatus.WAITLISTED).map(this::toDomain);
-    }
-
-    @Override
     public List<Reservation> findExpiredWaitlistOffers(Instant now) {
         return repository.findByStatusAndWaitlistOfferExpiresAtLessThanEqual(ReservationStatus.WAITLIST_OFFERED, now).stream().map(this::toDomain).toList();
     }
@@ -72,12 +66,6 @@ class JpaReservationRepository implements ReservationRepository {
     @Override
     public long countOccupiedPlaces(TermId termId) {
         return repository.countByTermIdAndStatusIn(termId.value(), OCCUPIED_STATUSES);
-    }
-
-    @Override
-    public int nextWaitlistPosition(TermId termId) {
-        Integer maxPosition = repository.findMaxWaitlistPosition(termId.value());
-        return (maxPosition == null ? 0 : maxPosition) + 1;
     }
 
     @Override
@@ -95,7 +83,6 @@ class JpaReservationRepository implements ReservationRepository {
                 new EmailAddress(entity.getEmail()),
                 entity.getPhoneNumber(),
                 entity.getStatus(),
-                entity.getWaitlistPosition(),
                 entity.getCancellationToken(),
                 entity.getWaitlistConfirmationToken(),
                 entity.getWaitlistOfferExpiresAt(),
@@ -114,7 +101,6 @@ class JpaReservationRepository implements ReservationRepository {
         entity.setEmail(reservation.email().value());
         entity.setPhoneNumber(reservation.phoneNumber());
         entity.setStatus(reservation.status());
-        entity.setWaitlistPosition(reservation.waitlistPosition());
         entity.setCancellationToken(reservation.cancellationToken());
         entity.setWaitlistConfirmationToken(reservation.waitlistConfirmationToken());
         entity.setWaitlistOfferExpiresAt(reservation.waitlistOfferExpiresAt());

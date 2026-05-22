@@ -35,15 +35,18 @@ class TermServiceSpec extends Specification {
         term.ownerId() == owner
   }
 
-  def "rejects invalid term capacity during update"() {
+  def "preserves term capacity during update"() {
     given: "A term exists"
         def term = createTerm()
 
-    when: "The instructor updates it with invalid capacity"
-        service.update(owner, term.id(), "Basic pistol", "", location(), 0, 2, 90, LocalDateTime.parse("2026-06-01T12:30:00"))
+    when: "The instructor updates editable fields"
+        def updated = service.update(owner, term.id(), "Updated pistol", "", location(), 3, 120, LocalDateTime.parse("2026-06-01T14:30:00"))
 
-    then: "The term module rejects the request"
-        thrown(TermValidationException)
+    then: "Capacity stays at the value chosen during creation"
+        updated.name() == "Updated pistol"
+        updated.capacity() == 8
+        updated.cancellationDeadlineDays() == 3
+        updated.durationMinutes() == 120
   }
 
   def "lists only public terms that start in the future"() {

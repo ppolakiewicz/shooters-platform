@@ -40,13 +40,12 @@ public class TermService {
         String name,
         String description,
         Location location,
-        int capacity,
         int cancellationDeadlineDays,
         int durationMinutes,
         LocalDateTime startsAt) {
 
         Term term = terms.findByIdAndOwner(termId, ownerId).orElseThrow(TermNotFoundException::new);
-        return terms.save(term.update(name, description, location, capacity, cancellationDeadlineDays, durationMinutes, startsAt, clock.instant()));
+        return terms.save(term.update(name, description, location, cancellationDeadlineDays, durationMinutes, startsAt, clock.instant()));
     }
 
     @Transactional(readOnly = true)

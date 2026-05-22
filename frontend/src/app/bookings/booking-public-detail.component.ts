@@ -12,7 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { TranslatePipe } from '../shared/i18n/translate.pipe';
 import { TranslationService } from '../shared/i18n/translation.service';
-import { CreatedReservation, Term } from './booking.models';
+import { CreatedBooking, Term } from './booking.models';
 import { BookingService } from './booking.service';
 
 @Component({
@@ -42,7 +42,7 @@ export class BookingPublicDetailComponent {
   private readonly termId = this.route.snapshot.paramMap.get('id') ?? '';
 
   protected readonly term = signal<Term | null>(null);
-  protected readonly reservation = signal<CreatedReservation | null>(null);
+  protected readonly booking = signal<CreatedBooking | null>(null);
   protected readonly loading = signal(false);
   protected readonly submitting = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -111,7 +111,7 @@ export class BookingPublicDetailComponent {
       this.submitting.set(true);
       this.error.set(null);
       try {
-        this.reservation.set(await this.bookings.createReservation(this.termId, {
+        this.booking.set(await this.bookings.createReservation(this.termId, {
           firstName: value.firstName,
           lastName: value.lastName,
           email: value.email,

@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { BookingPublicDetailComponent } from './booking-public-detail.component';
 import { BookingService } from './booking.service';
-import { CreatedReservation, Term } from './booking.models';
+import { CreatedBooking, Term } from './booking.models';
 
 describe('BookingPublicDetailComponent', () => {
   it('loads term and prepares an OpenStreetMap preview URL', async () => {
@@ -80,20 +80,23 @@ interface BookingPublicDetailComponentTestAccess {
 }
 
 function serviceMock(term: Term) {
-  const reservation: CreatedReservation = {
-    id: 'reservation-id',
-    termId: term.id,
-    participantUserId: null,
-    firstName: 'Anna',
-    lastName: 'Nowak',
-    email: 'anna@example.com',
-    phoneNumber: '+48111111111',
-    status: 'CONFIRMED',
-    waitlistPosition: 0,
-    cancellationToken: 'cancel-token',
-    waitlistOfferExpiresAt: null,
-    createdAt: '2026-05-08T10:00:00Z',
-    updatedAt: '2026-05-08T10:00:00Z'
+  const reservation: CreatedBooking = {
+    type: 'RESERVATION',
+    waitlistEntry: null,
+    reservation: {
+      id: 'reservation-id',
+      termId: term.id,
+      participantUserId: null,
+      firstName: 'Anna',
+      lastName: 'Nowak',
+      email: 'anna@example.com',
+      phoneNumber: '+48111111111',
+      status: 'CONFIRMED',
+      cancellationToken: 'cancel-token',
+      waitlistOfferExpiresAt: null,
+      createdAt: '2026-05-08T10:00:00Z',
+      updatedAt: '2026-05-08T10:00:00Z'
+    }
   };
   return {
     publicTerm: vi.fn().mockResolvedValue(term),

@@ -4,6 +4,9 @@
 # Agent
 .agents
 
+# Temp
+.tmp
+
 # IntelliJ
 .idea/*
 !.idea/.gitignore

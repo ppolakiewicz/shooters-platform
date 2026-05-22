@@ -20,12 +20,20 @@
       <p class="error" role="alert">{{ error() | translate }}</p>
     }
 
-    @if (reservation()) {
+    @if (booking()?.type === 'RESERVATION') {
       <section class="result-panel">
         <mat-icon aria-hidden="true">check_circle</mat-icon>
         <div>
-          <h2>{{ 'bookings.public.reservationTitle' | translate:{ status: reservation()?.status ?? '' } }}</h2>
-          <p>{{ 'bookings.public.cancellationToken' | translate:{ token: reservation()?.cancellationToken ?? '' } }}</p>
+          <h2>{{ 'bookings.public.reservationTitle' | translate:{ status: booking()?.reservation?.status ?? '' } }}</h2>
+          <p>{{ 'bookings.public.cancellationToken' | translate:{ token: booking()?.reservation?.cancellationToken ?? '' } }}</p>
+        </div>
+      </section>
+    } @else if (booking()?.type === 'WAITLIST_ENTRY') {
+      <section class="result-panel">
+        <mat-icon aria-hidden="true">pending_actions</mat-icon>
+        <div>
+          <h2>{{ 'bookings.public.waitlistTitle' | translate:{ position: booking()?.waitlistEntry?.position ?? '' } }}</h2>
+          <p>{{ 'bookings.public.cancellationToken' | translate:{ token: booking()?.waitlistEntry?.cancellationToken ?? '' } }}</p>
         </div>
       </section>
     }

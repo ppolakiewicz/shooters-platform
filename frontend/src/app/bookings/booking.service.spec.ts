@@ -67,9 +67,9 @@ describe('BookingService', () => {
       username: 'AnnaNowak',
       password: 'correct horse battery'
     });
-    request.flush(sampleCreatedReservation('CONFIRMED'));
+    request.flush({ type: 'RESERVATION', reservation: sampleCreatedReservation('CONFIRMED'), waitlistEntry: null });
 
-    await expect(create).resolves.toMatchObject({ status: 'CONFIRMED', cancellationToken: 'cancel-token' });
+    await expect(create).resolves.toMatchObject({ type: 'RESERVATION', reservation: { status: 'CONFIRMED', cancellationToken: 'cancel-token' } });
   });
 
   it('confirms waitlist offer without csrf', async () => {
@@ -119,7 +119,6 @@ function sampleReservation(status: string) {
     email: 'anna@example.com',
     phoneNumber: '+48111111111',
     status,
-    waitlistPosition: 0,
     waitlistOfferExpiresAt: null,
     createdAt: '2026-05-08T10:00:00Z',
     updatedAt: '2026-05-08T10:00:00Z'

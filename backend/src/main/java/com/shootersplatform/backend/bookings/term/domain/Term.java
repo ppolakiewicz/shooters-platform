@@ -74,13 +74,12 @@ public record Term(
             String updatedName,
             String updatedDescription,
             Location updatedLocation,
-            int updatedCapacity,
             int updatedCancellationDeadlineDays,
             int updatedDurationMinutes,
             LocalDateTime updatedStartsAt,
             Instant now
     ) {
-        return new Term(id, ownerId, updatedName, updatedDescription, updatedLocation, updatedCapacity, updatedCancellationDeadlineDays, updatedDurationMinutes, updatedStartsAt, createdAt, now);
+        return new Term(id, ownerId, updatedName, updatedDescription, updatedLocation, capacity, updatedCancellationDeadlineDays, updatedDurationMinutes, updatedStartsAt, createdAt, now);
     }
 
     public boolean canParticipantCancel(Instant now) {

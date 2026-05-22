@@ -1,6 +1,7 @@
 package com.shootersplatform.backend.bookings.reservation.domain;
 
 import com.shootersplatform.backend.bookings.term.domain.TermId;
+import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistEntry;
 import com.shootersplatform.backend.identity.domain.EmailAddress;
 import com.shootersplatform.backend.identity.domain.UserId;
 import org.jspecify.annotations.Nullable;
@@ -17,7 +18,6 @@ public record Reservation(
         EmailAddress email,
         String phoneNumber,
         ReservationStatus status,
-        int waitlistPosition,
         String cancellationToken,
         @Nullable String waitlistConfirmationToken,
         @Nullable Instant waitlistOfferExpiresAt,
@@ -37,20 +37,29 @@ public record Reservation(
             String phoneNumber,
             Instant now
     ) {
-        return create(termId, participantUserId, firstName, lastName, rawEmail, phoneNumber, ReservationStatus.CONFIRMED, 0, now);
+        return create(termId, participantUserId, firstName, lastName, rawEmail, phoneNumber, ReservationStatus.CONFIRMED, now);
     }
 
-    public static Reservation createWaitlisted(
-            TermId termId,
-            @Nullable UserId participantUserId,
-            String firstName,
-            String lastName,
-            String rawEmail,
-            String phoneNumber,
-            int waitlistPosition,
+    public static Reservation createWaitlistOffer(
+            WaitlistEntry entry,
+            Instant expiresAt,
             Instant now
     ) {
-        return create(termId, participantUserId, firstName, lastName, rawEmail, phoneNumber, ReservationStatus.WAITLISTED, waitlistPosition, now);
+        return new Reservation(
+                ReservationId.newId(),
+                entry.termId(),
+                entry.participantUserId(),
+                entry.firstName(),
+                entry.lastName(),
+                entry.email(),
+                entry.phoneNumber(),
+                ReservationStatus.WAITLIST_OFFERED,
+                entry.cancellationToken(),
+                newToken(),
+                expiresAt,
+                now,
+                now
+        );
     }
 
     private static Reservation create(
@@ -61,7 +70,6 @@ public record Reservation(
             String rawEmail,
             String phoneNumber,
             ReservationStatus status,
-            int waitlistPosition,
             Instant now
     ) {
         return new Reservation(
@@ -73,7 +81,6 @@ public record Reservation(
                 new EmailAddress(rawEmail),
                 phoneNumber,
                 status,
-                waitlistPosition,
                 newToken(),
                 null,
                 null,
@@ -86,12 +93,6 @@ public record Reservation(
         firstName = normalizeRequired(firstName, "First name", NAME_MAX_LENGTH);
         lastName = normalizeRequired(lastName, "Last name", NAME_MAX_LENGTH);
         phoneNumber = normalizeRequired(phoneNumber, "Phone number", PHONE_MAX_LENGTH);
-        if (waitlistPosition < 0) {
-            throw new ReservationValidationException("Waitlist position cannot be negative");
-        }
-        if (status == ReservationStatus.WAITLISTED && waitlistPosition < 1) {
-            throw new ReservationValidationException("Waitlisted reservation requires a waitlist position");
-        }
     }
 
     public boolean occupiesPlace() {
@@ -99,14 +100,7 @@ public record Reservation(
     }
 
     public boolean activeForDuplicateCheck() {
-        return status == ReservationStatus.CONFIRMED || status == ReservationStatus.WAITLISTED || status == ReservationStatus.WAITLIST_OFFERED;
-    }
-
-    public Reservation offerWaitlistPlace(Instant expiresAt, Instant now) {
-        if (status != ReservationStatus.WAITLISTED) {
-            throw new ReservationValidationException("Only waitlisted reservation can receive a waitlist offer");
-        }
-        return new Reservation(id, termId, participantUserId, firstName, lastName, email, phoneNumber, ReservationStatus.WAITLIST_OFFERED, waitlistPosition, cancellationToken, newToken(), expiresAt, createdAt, now);
+        return status == ReservationStatus.CONFIRMED || status == ReservationStatus.WAITLIST_OFFERED;
     }
 
     public Reservation confirmWaitlistOffer(String token, Instant now) {
@@ -116,7 +110,7 @@ public record Reservation(
         if (waitlistOfferExpiresAt == null || now.isAfter(waitlistOfferExpiresAt)) {
             throw new ReservationValidationException("Waitlist confirmation link has expired");
         }
-        return new Reservation(id, termId, participantUserId, firstName, lastName, email, phoneNumber, ReservationStatus.CONFIRMED, 0, cancellationToken, null, null, createdAt, now);
+        return new Reservation(id, termId, participantUserId, firstName, lastName, email, phoneNumber, ReservationStatus.CONFIRMED, cancellationToken, null, null, createdAt, now);
     }
 
     public Reservation cancelByParticipant(Instant now) {
@@ -131,14 +125,14 @@ public record Reservation(
         if (status != ReservationStatus.WAITLIST_OFFERED) {
             throw new ReservationValidationException("Only waitlist offers can expire");
         }
-        return new Reservation(id, termId, participantUserId, firstName, lastName, email, phoneNumber, ReservationStatus.WAITLIST_OFFER_EXPIRED, waitlistPosition, cancellationToken, null, null, createdAt, now);
+        return new Reservation(id, termId, participantUserId, firstName, lastName, email, phoneNumber, ReservationStatus.WAITLIST_OFFER_EXPIRED, cancellationToken, null, null, createdAt, now);
     }
 
     private Reservation cancel(ReservationStatus cancelledStatus, Instant now) {
         if (!activeForDuplicateCheck()) {
             throw new ReservationValidationException("Reservation is already closed");
         }
-        return new Reservation(id, termId, participantUserId, firstName, lastName, email, phoneNumber, cancelledStatus, waitlistPosition, cancellationToken, waitlistConfirmationToken, waitlistOfferExpiresAt, createdAt, now);
+        return new Reservation(id, termId, participantUserId, firstName, lastName, email, phoneNumber, cancelledStatus, cancellationToken, waitlistConfirmationToken, waitlistOfferExpiresAt, createdAt, now);
     }
 
     private static String normalizeRequired(@Nullable String value, String fieldName, int maxLength) {

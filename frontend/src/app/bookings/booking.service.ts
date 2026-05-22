@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, firstValueFrom } from 'rxjs';
 
-import { CreateReservation, CreatedReservation, ReservationSummary, Term, TrainingEnrollment, UpsertTerm, UpsertTrainingEnrollment } from './booking.models';
+import { CreateReservation, CreatedBooking, ReservationSummary, Term, TrainingEnrollment, UpsertTerm, UpsertTrainingEnrollment, WaitlistEntrySummary } from './booking.models';
 
 @Injectable({ providedIn: 'root' })
 export class BookingService {
@@ -19,16 +19,16 @@ export class BookingService {
     return this.read(() => this.http.get<Term>(`/api/bookings/public/terms/${id}`));
   }
 
-  async createReservation(termId: string, request: CreateReservation): Promise<CreatedReservation> {
-    return this.mutate(() => this.http.post<CreatedReservation>('/api/bookings/reservations/reserve', { termId, ...request }));
+  async createReservation(termId: string, request: CreateReservation): Promise<CreatedBooking> {
+    return this.mutate(() => this.http.post<CreatedBooking>('/api/bookings/reservations/reserve', { termId, ...request }));
   }
 
   async confirmWaitlist(token: string): Promise<ReservationSummary> {
-    return this.httpPostNoCsrf('/api/bookings/reservations/confirm-waitlist-offer', { token });
+    return this.httpPostNoCsrf<ReservationSummary>('/api/bookings/reservations/confirm-waitlist-offer', { token });
   }
 
   async cancelByToken(token: string): Promise<ReservationSummary> {
-    return this.httpPostNoCsrf('/api/bookings/reservations/cancel-by-participant', { token });
+    return this.httpPostNoCsrf<ReservationSummary>('/api/bookings/reservations/cancel-by-participant', { token });
   }
 
   async enrollments(): Promise<TrainingEnrollment[]> {
@@ -59,12 +59,24 @@ export class BookingService {
     return this.mutate(() => this.http.post<ReservationSummary[]>('/api/bookings/reservations/list', { termId }));
   }
 
+  async waitlistEntries(termId: string): Promise<WaitlistEntrySummary[]> {
+    return this.mutate(() => this.http.post<WaitlistEntrySummary[]>('/api/bookings/waitlist/list', { termId }));
+  }
+
   async cancelReservation(termId: string, reservationId: string): Promise<ReservationSummary> {
     return this.mutate(() => this.http.post<ReservationSummary>('/api/bookings/reservations/cancel-by-instructor', { termId, reservationId }));
   }
 
   async expireOffers(termId: string): Promise<{ expiredCount: number }> {
     return this.mutate(() => this.http.post<{ expiredCount: number }>('/api/bookings/reservations/expire-waitlist-offers', { termId }));
+  }
+
+  async removeWaitlistEntry(termId: string, waitlistEntryId: string): Promise<WaitlistEntrySummary> {
+    return this.mutate(() => this.http.post<WaitlistEntrySummary>('/api/bookings/waitlist/remove-by-owner', { termId, waitlistEntryId }));
+  }
+
+  async cancelWaitlistByToken(token: string): Promise<WaitlistEntrySummary> {
+    return this.httpPostNoCsrf<WaitlistEntrySummary>('/api/bookings/waitlist/cancel-by-participant', { token });
   }
 
   private async read<T>(request: () => Observable<T>): Promise<T> {
@@ -94,11 +106,11 @@ export class BookingService {
     }
   }
 
-  private async httpPostNoCsrf(url: string, request: object): Promise<ReservationSummary> {
+  private async httpPostNoCsrf<T>(url: string, request: object): Promise<T> {
     this.loading.set(true);
     this.error.set(null);
     try {
-      return await firstValueFrom(this.http.post<ReservationSummary>(url, request));
+      return await firstValueFrom(this.http.post<T>(url, request));
     } catch (error) {
       this.error.set(this.errorMessage(error));
       throw error;

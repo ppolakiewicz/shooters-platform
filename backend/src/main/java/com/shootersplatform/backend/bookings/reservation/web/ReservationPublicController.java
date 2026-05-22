@@ -3,7 +3,7 @@ package com.shootersplatform.backend.bookings.reservation.web;
 import com.shootersplatform.backend.bookings.reservation.domain.ReservationService;
 import com.shootersplatform.backend.bookings.term.domain.TermId;
 import com.shootersplatform.backend.bookings.reservation.usecase.CreateReservationUseCase;
-import com.shootersplatform.backend.bookings.reservation.usecase.CreatedReservation;
+import com.shootersplatform.backend.bookings.reservation.usecase.CreatedBookingResult;
 import com.shootersplatform.backend.identity.domain.AuthenticatedUser;
 import com.shootersplatform.backend.identity.web.SecuritySessionService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,13 +38,13 @@ class ReservationPublicController {
 
     @PostMapping("/reserve")
     @ResponseStatus(HttpStatus.CREATED)
-    CreatedReservationResponse reserve(
+    CreatedBookingResponse reserve(
             @Valid @RequestBody CreateReservationRequest request,
             @Nullable Authentication authentication,
             HttpServletRequest servletRequest,
             HttpServletResponse servletResponse
     ) {
-        CreatedReservation result = createReservation.create(
+        CreatedBookingResult result = createReservation.create(
                 new TermId(request.termId()),
                 currentUser(authentication),
                 request.firstName(),
@@ -59,7 +59,7 @@ class ReservationPublicController {
         if (result.registeredUser() != null) {
             sessions.authenticate(result.registeredUser(), servletRequest, servletResponse);
         }
-        return CreatedReservationResponse.from(result.reservation());
+        return CreatedBookingResponse.from(result.booking());
     }
 
     @PostMapping("/confirm-waitlist-offer")

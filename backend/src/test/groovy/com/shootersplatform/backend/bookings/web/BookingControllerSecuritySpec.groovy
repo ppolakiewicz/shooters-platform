@@ -4,6 +4,7 @@ import com.jayway.jsonpath.JsonPath
 import com.shootersplatform.backend.AbstractIntegrationSpec
 import com.shootersplatform.backend.bookings.reservation.web.ReservationApiClient
 import com.shootersplatform.backend.bookings.term.web.TermApiClient
+import com.shootersplatform.backend.bookings.waitlist.web.WaitlistApiClient
 import com.shootersplatform.backend.identity.web.AuthApiClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.mock.web.MockHttpSession
@@ -26,12 +27,14 @@ class BookingControllerSecuritySpec extends AbstractIntegrationSpec {
   MockMvc mockMvc
   AuthApiClient auth
   ReservationApiClient reservations
+  WaitlistApiClient waitlist
   TermApiClient terms
 
   def setup() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build()
     auth = new AuthApiClient(mockMvc)
     reservations = new ReservationApiClient(mockMvc)
+    waitlist = new WaitlistApiClient(mockMvc)
     terms = new TermApiClient(mockMvc)
   }
 
@@ -41,6 +44,7 @@ class BookingControllerSecuritySpec extends AbstractIntegrationSpec {
 
     expect: "Anonymous management requests are rejected"
         reservations.listWithoutSession(termId).andExpect(status().isUnauthorized())
+        waitlist.listWithoutSession(termId).andExpect(status().isUnauthorized())
 
     and: "Mutating term requests require CSRF"
         terms.createWithoutCsrf(registerSession()).andExpect(status().isForbidden())
@@ -58,8 +62,8 @@ class BookingControllerSecuritySpec extends AbstractIntegrationSpec {
 
     then: "The participant receives a cancellation token but no waitlist confirmation token"
         createResult.andExpect(status().isCreated())
-        .andExpect(jsonPath('$.cancellationToken').isString())
-        .andExpect(jsonPath('$.waitlistConfirmationToken').doesNotExist())
+        .andExpect(jsonPath('$.reservation.cancellationToken').isString())
+        .andExpect(jsonPath('$.reservation.waitlistConfirmationToken').doesNotExist())
 
     and: "The management list never exposes secret tokens"
         reservations.list(session, termId)
@@ -69,19 +73,17 @@ class BookingControllerSecuritySpec extends AbstractIntegrationSpec {
         .andExpect(jsonPath('$[0].waitlistConfirmationToken').doesNotExist())
   }
 
-  def "term update rejects capacity below occupied places"() {
-    given: "A user owns a term with two occupied places"
+  def "term update preserves capacity after creation"() {
+    given: "A user owns a term"
         def session = registerSession()
         def termId = UUID.fromString(json(terms.create(session, "Capacity term", 2, LocalDateTime.parse("2026-06-01T12:00:00")).andReturn(), '$.id') as String)
-        reservations.reserve(termId, "Anna", "Nowak", "anna-${UUID.randomUUID()}@example.com").andExpect(status().isCreated())
-        reservations.reserve(termId, "Jan", "Kowalski", "jan-${UUID.randomUUID()}@example.com").andExpect(status().isCreated())
 
-    when: "The owner lowers capacity below occupied places"
+    when: "The owner sends a different capacity in the update payload"
         def result = terms.update(session, termId, "Capacity term", 1, LocalDateTime.parse("2026-06-01T12:00:00"))
 
-    then: "The API rejects the update"
-        result.andExpect(status().isBadRequest())
-        .andExpect(jsonPath('$.title').value('Invalid term request'))
+    then: "The update succeeds and keeps the original capacity"
+        result.andExpect(status().isOk())
+        .andExpect(jsonPath('$.capacity').value(2))
   }
 
   private MockHttpSession registerSession() {

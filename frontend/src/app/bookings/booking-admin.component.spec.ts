@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { BookingAdminComponent } from './booking-admin.component';
 import { BookingService } from './booking.service';
-import { ReservationSummary, Term, TrainingEnrollment } from './booking.models';
+import { ReservationSummary, Term, TrainingEnrollment, WaitlistEntrySummary } from './booking.models';
 
 describe('BookingAdminComponent', () => {
   it('loads enrollments and terms for management', async () => {
@@ -24,7 +24,9 @@ describe('BookingAdminComponent', () => {
     await component.openReservations(sampleTerm());
 
     expect(service.reservations).toHaveBeenCalledWith('term-id');
+    expect(service.waitlistEntries).toHaveBeenCalledWith('term-id');
     expect(component.reservations()[0].status).toBe('CONFIRMED');
+    expect(component.waitlistEntries()[0].position).toBe(1);
   });
 
   it('labels management tables for compact mobile presentation', async () => {
@@ -39,6 +41,7 @@ describe('BookingAdminComponent', () => {
 
     await vi.waitFor(() => expect(fixture.nativeElement.querySelector('td[data-label="Participant"]')).not.toBeNull());
     expect(fixture.nativeElement.querySelector('td[data-label="Status"]')?.textContent).toContain('CONFIRMED');
+    expect(fixture.nativeElement.querySelector('td[data-label="Position"]')?.textContent).toContain('1');
   });
 });
 
@@ -61,6 +64,7 @@ interface BookingAdminComponentTestAccess {
   enrollments: () => TrainingEnrollment[];
   terms: () => Term[];
   reservations: () => ReservationSummary[];
+  waitlistEntries: () => WaitlistEntrySummary[];
   openReservations(term: Term): Promise<void>;
 }
 
@@ -79,13 +83,25 @@ function serviceMock() {
       email: 'anna@example.com',
       phoneNumber: '+48111111111',
       status: 'CONFIRMED',
-      waitlistPosition: 0,
       waitlistOfferExpiresAt: null,
+      createdAt: '2026-05-08T10:00:00Z',
+      updatedAt: '2026-05-08T10:00:00Z'
+    }]),
+    waitlistEntries: vi.fn().mockResolvedValue([{
+      id: 'waitlist-entry-id',
+      termId: 'term-id',
+      participantUserId: null,
+      firstName: 'Jan',
+      lastName: 'Kowalski',
+      email: 'jan@example.com',
+      phoneNumber: '+48222222222',
+      position: 1,
       createdAt: '2026-05-08T10:00:00Z',
       updatedAt: '2026-05-08T10:00:00Z'
     }]),
     cancelReservation: vi.fn(),
     expireOffers: vi.fn(),
+    removeWaitlistEntry: vi.fn(),
     error: vi.fn()
   };
 }

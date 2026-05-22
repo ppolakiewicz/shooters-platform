@@ -42,14 +42,6 @@ public class InMemoryReservationRepository implements ReservationRepository {
     }
 
     @Override
-    public Optional<Reservation> findFirstWaitlisted(TermId termId) {
-        return reservations.values().stream()
-                .filter(reservation -> reservation.termId().equals(termId))
-                .filter(reservation -> reservation.status() == ReservationStatus.WAITLISTED)
-                .min(Comparator.comparingInt(Reservation::waitlistPosition).thenComparing(Reservation::createdAt));
-    }
-
-    @Override
     public List<Reservation> findExpiredWaitlistOffers(Instant now) {
         return reservations.values().stream()
                 .filter(reservation -> reservation.status() == ReservationStatus.WAITLIST_OFFERED)
@@ -71,15 +63,6 @@ public class InMemoryReservationRepository implements ReservationRepository {
                 .filter(reservation -> reservation.termId().equals(termId))
                 .filter(Reservation::occupiesPlace)
                 .count();
-    }
-
-    @Override
-    public int nextWaitlistPosition(TermId termId) {
-        return reservations.values().stream()
-                .filter(reservation -> reservation.termId().equals(termId))
-                .mapToInt(Reservation::waitlistPosition)
-                .max()
-                .orElse(0) + 1;
     }
 
     @Override

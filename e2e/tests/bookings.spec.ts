@@ -45,10 +45,14 @@ test('creates a booking term and promotes waitlisted participant after cancellat
     response.url().endsWith('/api/bookings/reservations/reserve') && response.request().method() === 'POST'
   );
   await page.getByRole('button', { name: 'Reserve' }).click();
-  const firstReservation = await (await firstReservationResponse).json() as { status: string; cancellationToken: string };
+  const firstBooking = await (await firstReservationResponse).json() as {
+    type: string;
+    reservation: { status: string; cancellationToken: string };
+  };
 
   // then: the first reservation is confirmed
-  expect(firstReservation.status).toBe('CONFIRMED');
+  expect(firstBooking.type).toBe('RESERVATION');
+  expect(firstBooking.reservation.status).toBe('CONFIRMED');
   await expect(page.getByRole('heading', { name: 'Reservation CONFIRMED' })).toBeVisible();
 
   // when: the second guest registers for the full term
@@ -60,15 +64,19 @@ test('creates a booking term and promotes waitlisted participant after cancellat
     response.url().endsWith('/api/bookings/reservations/reserve') && response.request().method() === 'POST'
   );
   await page.getByRole('button', { name: 'Reserve' }).click();
-  const secondReservation = await (await secondReservationResponse).json() as { status: string };
+  const secondBooking = await (await secondReservationResponse).json() as {
+    type: string;
+    waitlistEntry: { position: number };
+  };
 
   // then: the second reservation enters the waitlist
-  expect(secondReservation.status).toBe('WAITLISTED');
-  await expect(page.getByRole('heading', { name: 'Reservation WAITLISTED' })).toBeVisible();
+  expect(secondBooking.type).toBe('WAITLIST_ENTRY');
+  expect(secondBooking.waitlistEntry.position).toBe(1);
+  await expect(page.getByRole('heading', { name: 'Waitlist position 1' })).toBeVisible();
 
   // when: the first guest cancels through the token link
   const cancellationResponse = await page.request.post('/api/bookings/reservations/cancel-by-participant', {
-    data: { token: firstReservation.cancellationToken }
+    data: { token: firstBooking.reservation.cancellationToken }
   });
   expect(cancellationResponse.ok()).toBeTruthy();
 
@@ -148,8 +156,9 @@ test('updates available places on the public term list after reservation', async
     response.url().endsWith('/api/bookings/reservations/reserve') && response.request().method() === 'POST'
   );
   await page.getByRole('button', { name: 'Reserve' }).click();
-  const reservation = await (await reservationResponse).json() as { status: string };
-  expect(reservation.status).toBe('CONFIRMED');
+  const reservation = await (await reservationResponse).json() as { type: string; reservation: { status: string } };
+  expect(reservation.type).toBe('RESERVATION');
+  expect(reservation.reservation.status).toBe('CONFIRMED');
 
   // then: public list shows one fewer available place
   await page.goto('/booking-terms');

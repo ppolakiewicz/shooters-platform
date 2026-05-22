@@ -3,6 +3,7 @@ package com.shootersplatform.backend.bookings.reservation.web
 import com.jayway.jsonpath.JsonPath
 import com.shootersplatform.backend.AbstractIntegrationSpec
 import com.shootersplatform.backend.bookings.term.web.TermApiClient
+import com.shootersplatform.backend.bookings.waitlist.web.WaitlistApiClient
 import com.shootersplatform.backend.identity.web.AuthApiClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
@@ -40,6 +41,7 @@ class ReservationUserPathIntegrationSpec extends AbstractIntegrationSpec {
   MockMvc mockMvc
   AuthApiClient auth
   ReservationApiClient reservations
+  WaitlistApiClient waitlist
   TermApiClient terms
 
   def setup() {
@@ -47,6 +49,7 @@ class ReservationUserPathIntegrationSpec extends AbstractIntegrationSpec {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build()
     auth = new AuthApiClient(mockMvc)
     reservations = new ReservationApiClient(mockMvc)
+    waitlist = new WaitlistApiClient(mockMvc)
     terms = new TermApiClient(mockMvc)
   }
 
@@ -59,8 +62,9 @@ class ReservationUserPathIntegrationSpec extends AbstractIntegrationSpec {
     when: "A guest reserves a place"
         def created = reservations.reserve(termId, "Anna", "Nowak", email)
         .andExpect(status().isCreated())
-        .andExpect(jsonPath('$.status').value('CONFIRMED'))
-        .andExpect(jsonPath('$.cancellationToken').isString())
+        .andExpect(jsonPath('$.type').value('RESERVATION'))
+        .andExpect(jsonPath('$.reservation.status').value('CONFIRMED'))
+        .andExpect(jsonPath('$.reservation.cancellationToken').isString())
         .andReturn()
 
     then: "The owner sees the reservation without secret tokens"
@@ -70,10 +74,10 @@ class ReservationUserPathIntegrationSpec extends AbstractIntegrationSpec {
         .andExpect(jsonPath('$[0].cancellationToken').doesNotExist())
         .andExpect(jsonPath('$[0].waitlistConfirmationToken').doesNotExist())
         .andReturn()
-        reservationByEmail(ownerList, email).id == json(created, '$.id')
+        reservationByEmail(ownerList, email).id == json(created, '$.reservation.id')
   }
 
-  def "full term puts next participant on waitlist"() {
+  def "full term creates waitlist entry for next participant"() {
     given: "A single-seat term exists"
         def ownerSession = registerSession()
         def termId = createTerm(ownerSession, uniqueLabel("Waitlist term"), 1, FUTURE_START)
@@ -81,15 +85,26 @@ class ReservationUserPathIntegrationSpec extends AbstractIntegrationSpec {
     when: "Two guests reserve the same term"
         reservations.reserve(termId, "Anna", "Nowak", uniqueEmail())
         .andExpect(status().isCreated())
-        .andExpect(jsonPath('$.status').value('CONFIRMED'))
+        .andExpect(jsonPath('$.type').value('RESERVATION'))
+        .andExpect(jsonPath('$.reservation.status').value('CONFIRMED'))
         def waitlistedEmail = uniqueEmail()
         def waitlisted = reservations.reserve(termId, "Jan", "Kowalski", waitlistedEmail)
 
-    then: "The second guest is waitlisted"
+    then: "The second guest receives a waitlist entry"
         waitlisted
         .andExpect(status().isCreated())
-        .andExpect(jsonPath('$.status').value('WAITLISTED'))
-        .andExpect(jsonPath('$.waitlistPosition').value(1))
+        .andExpect(jsonPath('$.type').value('WAITLIST_ENTRY'))
+        .andExpect(jsonPath('$.waitlistEntry.position').value(1))
+        .andExpect(jsonPath('$.waitlistEntry.cancellationToken').isString())
+
+    and: "The owner sees waitlist entries separately from reservations"
+        reservations.list(ownerSession, termId)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath('$', hasSize(1)))
+        waitlist.list(ownerSession, termId)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath('$', hasSize(1)))
+        .andExpect(jsonPath('$[0].email').value(waitlistedEmail.toLowerCase(Locale.ROOT)))
   }
 
   def "rejects duplicate active reservation email"() {
@@ -122,6 +137,49 @@ class ReservationUserPathIntegrationSpec extends AbstractIntegrationSpec {
         .andExpect(jsonPath('$.title').value('Invalid booking request'))
   }
 
+  def "participant cancels waitlist entry and positions are compacted"() {
+    given: "A full term has two waitlist entries"
+        def ownerSession = registerSession()
+        def termId = createTerm(ownerSession, uniqueLabel("Waitlist cancel term"), 1, FUTURE_START)
+        reservations.reserve(termId, "Anna", "Nowak", uniqueEmail()).andExpect(status().isCreated())
+        def firstWaitlisted = reservations.reserve(termId, "Jan", "Kowalski", uniqueEmail()).andExpect(status().isCreated()).andReturn()
+        def secondWaitlistedEmail = uniqueEmail()
+        reservations.reserve(termId, "Ewa", "Zielinska", secondWaitlistedEmail).andExpect(status().isCreated())
+
+    when: "The first waitlisted participant cancels with the public token"
+        waitlist.cancelByParticipant(json(firstWaitlisted, '$.waitlistEntry.cancellationToken') as String)
+        .andExpect(status().isOk())
+
+    then: "The remaining waitlist entry moves to first position"
+        waitlist.list(ownerSession, termId)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath('$', hasSize(1)))
+        .andExpect(jsonPath('$[0].email').value(secondWaitlistedEmail.toLowerCase(Locale.ROOT)))
+        .andExpect(jsonPath('$[0].position').value(1))
+  }
+
+  def "owner removes waitlist entry and positions are compacted"() {
+    given: "A full term has two waitlist entries"
+        def ownerSession = registerSession()
+        def termId = createTerm(ownerSession, uniqueLabel("Waitlist owner remove term"), 1, FUTURE_START)
+        reservations.reserve(termId, "Anna", "Nowak", uniqueEmail()).andExpect(status().isCreated())
+        def firstWaitlisted = reservations.reserve(termId, "Jan", "Kowalski", uniqueEmail()).andExpect(status().isCreated()).andReturn()
+        def secondWaitlistedEmail = uniqueEmail()
+        reservations.reserve(termId, "Ewa", "Zielinska", secondWaitlistedEmail).andExpect(status().isCreated())
+        def firstWaitlistedId = UUID.fromString(json(firstWaitlisted, '$.waitlistEntry.id') as String)
+
+    when: "The owner removes the first waitlist entry"
+        waitlist.removeByOwner(ownerSession, termId, firstWaitlistedId)
+        .andExpect(status().isOk())
+
+    then: "The remaining waitlist entry moves to first position"
+        waitlist.list(ownerSession, termId)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath('$', hasSize(1)))
+        .andExpect(jsonPath('$[0].email').value(secondWaitlistedEmail.toLowerCase(Locale.ROOT)))
+        .andExpect(jsonPath('$[0].position').value(1))
+  }
+
   def "participant cancels before deadline and first waitlisted gets offer"() {
     given: "A full term has one waitlisted participant"
         def ownerSession = registerSession()
@@ -130,7 +188,7 @@ class ReservationUserPathIntegrationSpec extends AbstractIntegrationSpec {
         def waitlistedEmail = uniqueEmail()
         def confirmed = reservations.reserve(termId, "Anna", "Nowak", confirmedEmail).andExpect(status().isCreated()).andReturn()
         reservations.reserve(termId, "Jan", "Kowalski", waitlistedEmail).andExpect(status().isCreated())
-        def cancellationToken = json(confirmed, '$.cancellationToken') as String
+        def cancellationToken = json(confirmed, '$.reservation.cancellationToken') as String
 
     when: "The confirmed participant cancels before deadline"
         reservations.cancelByParticipant(cancellationToken)
@@ -154,7 +212,7 @@ class ReservationUserPathIntegrationSpec extends AbstractIntegrationSpec {
         clock.setInstant(Instant.parse("2026-05-31T00:00:01Z"))
 
     then: "Cancellation is rejected"
-        reservations.cancelByParticipant(json(confirmed, '$.cancellationToken') as String)
+        reservations.cancelByParticipant(json(confirmed, '$.reservation.cancellationToken') as String)
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath('$.title').value('Invalid booking request'))
   }
@@ -166,7 +224,7 @@ class ReservationUserPathIntegrationSpec extends AbstractIntegrationSpec {
         def confirmed = reservations.reserve(termId, "Anna", "Nowak", uniqueEmail()).andExpect(status().isCreated()).andReturn()
         def waitlistedEmail = uniqueEmail()
         reservations.reserve(termId, "Jan", "Kowalski", waitlistedEmail).andExpect(status().isCreated())
-        reservations.cancelByParticipant(json(confirmed, '$.cancellationToken') as String).andExpect(status().isOk())
+        reservations.cancelByParticipant(json(confirmed, '$.reservation.cancellationToken') as String).andExpect(status().isOk())
         def confirmationToken = waitlistConfirmationToken(termId, waitlistedEmail)
 
     when: "The participant confirms the waitlist offer"
@@ -190,7 +248,7 @@ class ReservationUserPathIntegrationSpec extends AbstractIntegrationSpec {
         def secondWaitlistedEmail = uniqueEmail()
         reservations.reserve(termId, "Jan", "Kowalski", firstWaitlistedEmail).andExpect(status().isCreated())
         reservations.reserve(termId, "Ewa", "Zielinska", secondWaitlistedEmail).andExpect(status().isCreated())
-        reservations.cancelByParticipant(json(confirmed, '$.cancellationToken') as String).andExpect(status().isOk())
+        reservations.cancelByParticipant(json(confirmed, '$.reservation.cancellationToken') as String).andExpect(status().isOk())
 
     when: "The instructor expires stale waitlist offers after TTL"
         clock.plus(Duration.ofHours(24).plusSeconds(1))
@@ -212,7 +270,7 @@ class ReservationUserPathIntegrationSpec extends AbstractIntegrationSpec {
         def waitlistedEmail = uniqueEmail()
         def confirmed = reservations.reserve(termId, "Anna", "Nowak", confirmedEmail).andExpect(status().isCreated()).andReturn()
         reservations.reserve(termId, "Jan", "Kowalski", waitlistedEmail).andExpect(status().isCreated())
-        def reservationId = UUID.fromString(json(confirmed, '$.id') as String)
+        def reservationId = UUID.fromString(json(confirmed, '$.reservation.id') as String)
 
     when: "The instructor cancels the confirmed reservation"
         reservations.cancelByInstructor(ownerSession, termId, reservationId)
@@ -233,12 +291,13 @@ class ReservationUserPathIntegrationSpec extends AbstractIntegrationSpec {
         def reservation = reservations.reserve(termId, "Anna", "Nowak", uniqueEmail())
         .andExpect(status().isCreated())
         .andReturn()
-        def reservationId = UUID.fromString(json(reservation, '$.id') as String)
+        def reservationId = UUID.fromString(json(reservation, '$.reservation.id') as String)
 
     expect: "The other instructor cannot manage reservations for the owner term"
         reservations.list(otherSession, termId).andExpect(status().isNotFound())
         reservations.cancelByInstructor(otherSession, termId, reservationId).andExpect(status().isNotFound())
         reservations.expireWaitlistOffers(otherSession, termId).andExpect(status().isNotFound())
+        waitlist.list(otherSession, termId).andExpect(status().isNotFound())
   }
 
   def "reserve with account creation starts session"() {
@@ -258,8 +317,9 @@ class ReservationUserPathIntegrationSpec extends AbstractIntegrationSpec {
           PASSWORD
         )
         .andExpect(status().isCreated())
-        .andExpect(jsonPath('$.status').value('CONFIRMED'))
-        .andExpect(jsonPath('$.participantUserId').isString())
+        .andExpect(jsonPath('$.type').value('RESERVATION'))
+        .andExpect(jsonPath('$.reservation.status').value('CONFIRMED'))
+        .andExpect(jsonPath('$.reservation.participantUserId').isString())
         .andReturn()
 
     then: "The response session is authenticated"

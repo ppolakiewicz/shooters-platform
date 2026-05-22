@@ -59,7 +59,6 @@ function serviceMock() {
     email: 'anna@example.com',
     phoneNumber: '+48111111111',
     status: 'CONFIRMED',
-    waitlistPosition: 0,
     waitlistOfferExpiresAt: null,
     createdAt: '2026-05-08T10:00:00Z',
     updatedAt: '2026-05-08T10:00:00Z'

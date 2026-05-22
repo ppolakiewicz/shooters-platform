@@ -96,7 +96,7 @@ class TermUserPathIntegrationSpec extends AbstractIntegrationSpec {
         .andExpect(jsonPath('$.name').value('Updated pistol'))
         .andExpect(jsonPath('$.description').value('Advanced safety'))
         .andExpect(jsonPath('$.location.placeName').value('Range B'))
-        .andExpect(jsonPath('$.capacity').value(6))
+        .andExpect(jsonPath('$.capacity').value(4))
         .andExpect(jsonPath('$.durationMinutes').value(90))
         .andExpect(jsonPath('$.startsAt').value('2026-06-02T18:30:00'))
   }

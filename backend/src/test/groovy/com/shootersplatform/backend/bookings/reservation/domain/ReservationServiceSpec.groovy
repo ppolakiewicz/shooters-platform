@@ -6,6 +6,8 @@ import com.shootersplatform.backend.bookings.trainingenrollment.domain.InMemoryT
 import com.shootersplatform.backend.bookings.location.domain.Location
 import com.shootersplatform.backend.bookings.term.domain.Term
 import com.shootersplatform.backend.bookings.trainingenrollment.domain.TrainingEnrollment
+import com.shootersplatform.backend.bookings.waitlist.domain.InMemoryWaitlistRepository
+import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistService
 import com.shootersplatform.backend.identity.domain.UserId
 import spock.lang.Specification
 
@@ -17,6 +19,7 @@ class ReservationServiceSpec extends Specification {
   private InMemoryTrainingEnrollmentRepository enrollments
   private InMemoryTermRepository terms
   private InMemoryReservationRepository reservations
+  private InMemoryWaitlistRepository waitlist
   private InMemoryReservationNotificationPort notifications
   private ReservationService service
   private MutableClock clock
@@ -25,9 +28,10 @@ class ReservationServiceSpec extends Specification {
     enrollments = new InMemoryTrainingEnrollmentRepository()
     terms = new InMemoryTermRepository()
     reservations = new InMemoryReservationRepository()
+    waitlist = new InMemoryWaitlistRepository()
     notifications = new InMemoryReservationNotificationPort()
     clock = new MutableClock(Instant.parse("2026-05-08T10:00:00Z"))
-    service = new ReservationService(terms, reservations, notifications, clock)
+    service = new ReservationService(terms, reservations, waitlist, new WaitlistService(terms, waitlist, clock), notifications, clock)
   }
 
   def "creates training enrollment and term by copying editable fields"() {
@@ -45,7 +49,7 @@ class ReservationServiceSpec extends Specification {
         term.durationMinutes() == 90
   }
 
-  def "confirms reservation while term has free capacity and waitlists once capacity is full"() {
+  def "confirms reservation while term has free capacity and creates waitlist entry once capacity is full"() {
     given: "A term with a single available place exists"
         def term = singleSeatTerm()
 
@@ -53,10 +57,11 @@ class ReservationServiceSpec extends Specification {
         def first = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111")
         def second = service.createReservation(term.id(), null, "Jan", "Kowalski", "jan@example.com", "+48222222222")
 
-    then: "The first participant is confirmed and the second is waitlisted"
-        first.status() == ReservationStatus.CONFIRMED
-        second.status() == ReservationStatus.WAITLISTED
-        second.waitlistPosition() == 1
+    then: "The first participant is confirmed and the second has a waitlist entry"
+        first.reservation().status() == ReservationStatus.CONFIRMED
+        second.waitlistEntry().position() == 1
+        reservations.findByTerm(term.id())*.email()*.value() == ["anna@example.com"]
+        waitlist.findByTerm(term.id())*.email()*.value() == ["jan@example.com"]
         notifications.confirmed()*.email()*.value() == ["anna@example.com"]
   }
 
@@ -75,7 +80,7 @@ class ReservationServiceSpec extends Specification {
   def "participant cancellation promotes first waitlisted reservation to offered"() {
     given: "A full term has one participant on the waitlist"
         def term = singleSeatTerm()
-        def confirmed = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111")
+        def confirmed = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111").reservation()
         service.createReservation(term.id(), null, "Jan", "Kowalski", "jan@example.com", "+48222222222")
 
     when: "The confirmed participant cancels"
@@ -95,7 +100,7 @@ class ReservationServiceSpec extends Specification {
   def "waitlist confirmation link confirms the offered reservation"() {
     given: "A waitlisted participant has received an offer"
         def term = singleSeatTerm()
-        def confirmed = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111")
+        def confirmed = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111").reservation()
         service.createReservation(term.id(), null, "Jan", "Kowalski", "jan@example.com", "+48222222222")
         service.cancelByParticipant(confirmed.cancellationToken())
         def token = notifications.waitlistOffers().first().waitlistConfirmationToken()
@@ -111,7 +116,7 @@ class ReservationServiceSpec extends Specification {
   def "expired waitlist offer is closed and next waitlisted reservation is offered"() {
     given: "Two participants are waiting and the first receives an offer"
         def term = singleSeatTerm()
-        def confirmed = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111")
+        def confirmed = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111").reservation()
         service.createReservation(term.id(), null, "Jan", "Kowalski", "jan@example.com", "+48222222222")
         service.createReservation(term.id(), null, "Ewa", "Zielinska", "ewa@example.com", "+48333333333")
         service.cancelByParticipant(confirmed.cancellationToken())
@@ -132,7 +137,7 @@ class ReservationServiceSpec extends Specification {
   def "participant cannot cancel after configured cancellation deadline"() {
     given: "A term starts too soon to cancel"
         def term = singleSeatTerm()
-        def confirmed = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111")
+        def confirmed = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111").reservation()
         clock.instant = Instant.parse("2026-05-31T00:00:01Z")
 
     when: "The participant tries to cancel after the deadline"
@@ -157,7 +162,7 @@ class ReservationServiceSpec extends Specification {
   def "participant cancellation deadline uses Warsaw midnight before start date"() {
     given: "A term starts at noon Warsaw time with one cancellation day"
         def term = singleSeatTerm()
-        def confirmed = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111")
+        def confirmed = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111").reservation()
 
     when: "The participant cancels exactly at the configured Warsaw midnight deadline"
         clock.instant = Instant.parse("2026-05-30T22:00:00Z")

@@ -60,14 +60,13 @@ class TermManagementController {
     }
 
     @PutMapping("/{termId}")
-    TermResponse update(@PathVariable UUID termId, @Valid @RequestBody UpsertTermRequest request, Authentication authentication) {
+    TermResponse update(@PathVariable UUID termId, @Valid @RequestBody UpdateTermRequest request, Authentication authentication) {
         return toResponse(updateTerm.update(
                 currentUser(authentication).id(),
                 new TermId(termId),
                 request.name(),
                 request.description(),
                 request.location().toDomain(),
-                request.capacity(),
                 request.cancellationDeadlineDays(),
                 request.durationMinutes(),
                 request.startsAt()
