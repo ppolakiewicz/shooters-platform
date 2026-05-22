@@ -18,13 +18,13 @@ public class CreateTrainingEnrollmentUseCase {
 
     @Transactional
     public TrainingEnrollment create(
-        UserId ownerId,
-        String name,
-        String description,
-        Location location,
-        int capacity,
-        int cancellationDeadlineDays,
-        int durationMinutes
+            UserId ownerId,
+            String name,
+            String description,
+            Location location,
+            int capacity,
+            int cancellationDeadlineDays,
+            int durationMinutes
     ) {
         return trainingEnrollments.create(ownerId, name, description, location, capacity, cancellationDeadlineDays, durationMinutes);
     }

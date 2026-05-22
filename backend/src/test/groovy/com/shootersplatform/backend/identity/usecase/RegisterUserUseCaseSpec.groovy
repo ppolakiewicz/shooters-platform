@@ -13,47 +13,47 @@ import java.time.ZoneOffset
 
 class RegisterUserUseCaseSpec extends Specification {
 
-  private InMemoryUserAccountRepository userAccounts
-  private InMemoryLoginRateLimiter rateLimiter
-  private RegisterUserUseCase registerUser
+    private InMemoryUserAccountRepository userAccounts
+    private InMemoryLoginRateLimiter rateLimiter
+    private RegisterUserUseCase registerUser
 
-  def setup() {
-    userAccounts = new InMemoryUserAccountRepository()
-    rateLimiter = new InMemoryLoginRateLimiter()
-    def identity = new IdentityService(
-      userAccounts,
-      new PlainTextPasswordHasher(),
-      Clock.fixed(Instant.parse("2026-05-03T12:00:00Z"), ZoneOffset.UTC)
-    )
-    registerUser = new RegisterUserUseCase(
-      identity,
-      rateLimiter
-    )
-  }
+    def setup() {
+        userAccounts = new InMemoryUserAccountRepository()
+        rateLimiter = new InMemoryLoginRateLimiter()
+        def identity = new IdentityService(
+                userAccounts,
+                new PlainTextPasswordHasher(),
+                Clock.fixed(Instant.parse("2026-05-03T12:00:00Z"), ZoneOffset.UTC)
+        )
+        registerUser = new RegisterUserUseCase(
+                identity,
+                rateLimiter
+        )
+    }
 
-  def "registers active user with default role normalized email and username"() {
-    when: "A new user registers with mixed-case email, display username, and a valid password"
-        def registered = registerUser.register("  NEW.User@Example.COM  ", "Shooter_One", "correct horse battery", "127.0.0.1")
+    def "registers active user with default role normalized email and username"() {
+        when: "A new user registers with mixed-case email, display username, and a valid password"
+            def registered = registerUser.register("  NEW.User@Example.COM  ", "Shooter_One", "correct horse battery", "127.0.0.1")
 
-    then: "The returned user contains the normalized email, display username, and default role"
-        registered.email().value() == "new.user@example.com"
-        registered.username().value() == "Shooter_One"
-        registered.roles() == [UserRole.USER] as Set
-        userAccounts.count() == 1
+        then: "The returned user contains the normalized email, display username, and default role"
+            registered.email().value() == "new.user@example.com"
+            registered.username().value() == "Shooter_One"
+            registered.roles() == [UserRole.USER] as Set
+            userAccounts.count() == 1
 
-    and: "The persisted account is active, has USER role, and stores the hashed password"
-        def saved = userAccounts.savedByEmail("new.user@example.com")
-        saved.username().value() == "Shooter_One"
-        saved.enabled()
-        saved.roles() == [UserRole.USER] as Set
-        saved.passwordHash() == "hashed:correct horse battery"
-  }
+        and: "The persisted account is active, has USER role, and stores the hashed password"
+            def saved = userAccounts.savedByEmail("new.user@example.com")
+            saved.username().value() == "Shooter_One"
+            saved.enabled()
+            saved.roles() == [UserRole.USER] as Set
+            saved.passwordHash() == "hashed:correct horse battery"
+    }
 
-  def "records registration attempt"() {
-    when: "A valid registration request is processed"
-        registerUser.register("owner@example.com", "OwnerOne", "correct horse battery", "127.0.0.1")
+    def "records registration attempt"() {
+        when: "A valid registration request is processed"
+            registerUser.register("owner@example.com", "OwnerOne", "correct horse battery", "127.0.0.1")
 
-    then: "The registration attempt is recorded by the rate limiter"
-        rateLimiter.registrationAttempts() == 1
-  }
+        then: "The registration attempt is recorded by the rate limiter"
+            rateLimiter.registrationAttempts() == 1
+    }
 }

@@ -3,11 +3,7 @@ package com.shootersplatform.backend.bookings.trainingenrollment.domain;
 import com.shootersplatform.backend.identity.domain.UserId;
 import org.jspecify.annotations.NullMarked;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @NullMarked
 public class InMemoryTrainingEnrollmentRepository implements TrainingEnrollmentRepository {

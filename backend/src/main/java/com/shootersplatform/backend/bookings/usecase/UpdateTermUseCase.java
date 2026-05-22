@@ -24,14 +24,14 @@ public class UpdateTermUseCase {
 
     @Transactional
     public AvailableTerm update(
-        UserId ownerId,
-        TermId termId,
-        String name,
-        String description,
-        Location location,
-        int cancellationDeadlineDays,
-        int durationMinutes,
-        LocalDateTime startsAt
+            UserId ownerId,
+            TermId termId,
+            String name,
+            String description,
+            Location location,
+            int cancellationDeadlineDays,
+            int durationMinutes,
+            LocalDateTime startsAt
     ) {
         Term term = terms.update(ownerId, termId, name, description, location, cancellationDeadlineDays, durationMinutes, startsAt);
         long occupiedPlaces = reservations.countOccupiedPlaces(term.id());

@@ -1,10 +1,6 @@
 package com.shootersplatform.backend.identity;
 
-import com.shootersplatform.backend.identity.domain.EmailAddress;
-import com.shootersplatform.backend.identity.domain.UserAccount;
-import com.shootersplatform.backend.identity.domain.UserAccountRepository;
-import com.shootersplatform.backend.identity.domain.UserId;
-import com.shootersplatform.backend.identity.domain.Username;
+import com.shootersplatform.backend.identity.domain.*;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.HashMap;

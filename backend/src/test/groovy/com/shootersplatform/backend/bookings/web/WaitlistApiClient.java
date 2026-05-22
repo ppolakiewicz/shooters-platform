@@ -20,7 +20,7 @@ public class WaitlistApiClient {
 
     public ResultActions list(MockHttpSession session, UUID termId) throws Exception {
         return mockMvc.perform(get("/api/bookings/terms/{termId}/waitlist", termId)
-            .session(session));
+                .session(session));
     }
 
     public ResultActions listWithoutSession(UUID termId) throws Exception {
@@ -38,6 +38,6 @@ public class WaitlistApiClient {
     public ResultActions removeByOwner(MockHttpSession session, UUID termId, UUID waitlistEntryId) throws Exception {
         return mockMvc.perform(post("/api/bookings/terms/{termId}/waitlist/{waitlistEntryId}/remove-by-owner", termId, waitlistEntryId)
                 .session(session)
-            .with(csrf()));
+                .with(csrf()));
     }
 }

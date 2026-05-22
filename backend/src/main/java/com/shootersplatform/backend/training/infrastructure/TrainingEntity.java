@@ -2,15 +2,7 @@ package com.shootersplatform.backend.training.infrastructure;
 
 import com.shootersplatform.backend.training.domain.ScoringType;
 import com.shootersplatform.backend.training.domain.WeaponType;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderBy;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.time.Instant;
 import java.time.LocalDate;

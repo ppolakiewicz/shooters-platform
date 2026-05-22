@@ -19,14 +19,14 @@ public class UpdateTrainingEnrollmentUseCase {
 
     @Transactional
     public TrainingEnrollment update(
-        UserId ownerId,
-        TrainingEnrollmentId enrollmentId,
-        String name,
-        String description,
-        Location location,
-        int capacity,
-        int cancellationDeadlineDays,
-        int durationMinutes
+            UserId ownerId,
+            TrainingEnrollmentId enrollmentId,
+            String name,
+            String description,
+            Location location,
+            int capacity,
+            int cancellationDeadlineDays,
+            int durationMinutes
     ) {
         return trainingEnrollments.update(ownerId, enrollmentId, name, description, location, capacity, cancellationDeadlineDays, durationMinutes);
     }

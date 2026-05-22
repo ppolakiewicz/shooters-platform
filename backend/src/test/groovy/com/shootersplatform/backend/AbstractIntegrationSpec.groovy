@@ -11,16 +11,16 @@ import spock.lang.Specification
 @ActiveProfiles("test")
 abstract class AbstractIntegrationSpec extends Specification {
 
-  private static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:18.3-alpine")
+    private static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:18.3-alpine")
 
-  static {
-    POSTGRES.start()
-  }
+    static {
+        POSTGRES.start()
+    }
 
-  @DynamicPropertySource
-  static void postgresProperties(DynamicPropertyRegistry registry) {
-    registry.add("spring.datasource.url", POSTGRES::getJdbcUrl)
-    registry.add("spring.datasource.username", POSTGRES::getUsername)
-    registry.add("spring.datasource.password", POSTGRES::getPassword)
-  }
+    @DynamicPropertySource
+    static void postgresProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", POSTGRES::getJdbcUrl)
+        registry.add("spring.datasource.username", POSTGRES::getUsername)
+        registry.add("spring.datasource.password", POSTGRES::getPassword)
+    }
 }

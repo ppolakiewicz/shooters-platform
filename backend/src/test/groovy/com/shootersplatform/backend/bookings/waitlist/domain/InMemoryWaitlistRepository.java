@@ -4,11 +4,7 @@ import com.shootersplatform.backend.bookings.term.domain.TermId;
 import com.shootersplatform.backend.identity.domain.EmailAddress;
 import org.jspecify.annotations.NullMarked;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @NullMarked
 public class InMemoryWaitlistRepository implements WaitlistRepository {

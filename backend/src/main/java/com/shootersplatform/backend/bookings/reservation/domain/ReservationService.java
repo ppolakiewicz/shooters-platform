@@ -1,13 +1,13 @@
 package com.shootersplatform.backend.bookings.reservation.domain;
 
-import com.shootersplatform.backend.identity.domain.EmailAddress;
-import com.shootersplatform.backend.identity.domain.UserId;
 import com.shootersplatform.backend.bookings.term.domain.Term;
 import com.shootersplatform.backend.bookings.term.domain.TermId;
 import com.shootersplatform.backend.bookings.term.domain.TermRepository;
 import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistEntry;
 import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistRepository;
 import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistService;
+import com.shootersplatform.backend.identity.domain.EmailAddress;
+import com.shootersplatform.backend.identity.domain.UserId;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,10 +1,6 @@
 package com.shootersplatform.backend.identity.web;
 
-import com.shootersplatform.backend.identity.domain.DuplicateEmailException;
-import com.shootersplatform.backend.identity.domain.DuplicateUsernameException;
-import com.shootersplatform.backend.identity.domain.IdentityValidationException;
-import com.shootersplatform.backend.identity.domain.InvalidCredentialsException;
-import com.shootersplatform.backend.identity.domain.RateLimitExceededException;
+import com.shootersplatform.backend.identity.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;

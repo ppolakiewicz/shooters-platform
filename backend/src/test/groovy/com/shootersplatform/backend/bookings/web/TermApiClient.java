@@ -36,17 +36,17 @@ public class TermApiClient {
 
     public ResultActions create(MockHttpSession session, String body) throws Exception {
         return mockMvc.perform(post("/api/bookings/terms")
-            .session(session)
-            .with(csrf())
-            .contentType("application/json")
-            .content(body));
+                .session(session)
+                .with(csrf())
+                .contentType("application/json")
+                .content(body));
     }
 
     public ResultActions createWithoutCsrf(MockHttpSession session) throws Exception {
         return mockMvc.perform(post("/api/bookings/terms")
-            .session(session)
-            .contentType("application/json")
-            .content(termBody("No csrf", 1, LocalDateTime.parse("2026-06-01T12:00:00"))));
+                .session(session)
+                .contentType("application/json")
+                .content(termBody("No csrf", 1, LocalDateTime.parse("2026-06-01T12:00:00"))));
     }
 
     public ResultActions update(MockHttpSession session, UUID termId, String name, int capacity, LocalDateTime startsAt) throws Exception {
@@ -55,10 +55,10 @@ public class TermApiClient {
 
     public ResultActions update(MockHttpSession session, UUID termId, String body) throws Exception {
         return mockMvc.perform(put("/api/bookings/terms/{termId}", termId)
-            .session(session)
-            .with(csrf())
-            .contentType("application/json")
-            .content(body));
+                .session(session)
+                .with(csrf())
+                .contentType("application/json")
+                .content(body));
     }
 
     public static String termBody(String name, int capacity, LocalDateTime startsAt) {
@@ -66,32 +66,32 @@ public class TermApiClient {
     }
 
     public static String termBody(
-        String name,
-        String description,
-        String placeName,
-        String address,
-        double latitude,
-        double longitude,
-        int capacity,
-        int cancellationDeadlineDays,
-        int durationMinutes,
-        LocalDateTime startsAt
+            String name,
+            String description,
+            String placeName,
+            String address,
+            double latitude,
+            double longitude,
+            int capacity,
+            int cancellationDeadlineDays,
+            int durationMinutes,
+            LocalDateTime startsAt
     ) {
         return """
-            {
-              "name": "%s",
-              "description": "%s",
-              "location": {
-                "placeName": "%s",
-                "address": "%s",
-                "latitude": %s,
-                "longitude": %s
-              },
-              "capacity": %d,
-              "cancellationDeadlineDays": %d,
-              "durationMinutes": %d,
-              "startsAt": "%s"
-            }
-            """.formatted(name, description, placeName, address, latitude, longitude, capacity, cancellationDeadlineDays, durationMinutes, startsAt);
+                {
+                  "name": "%s",
+                  "description": "%s",
+                  "location": {
+                    "placeName": "%s",
+                    "address": "%s",
+                    "latitude": %s,
+                    "longitude": %s
+                  },
+                  "capacity": %d,
+                  "cancellationDeadlineDays": %d,
+                  "durationMinutes": %d,
+                  "startsAt": "%s"
+                }
+                """.formatted(name, description, placeName, address, latitude, longitude, capacity, cancellationDeadlineDays, durationMinutes, startsAt);
     }
 }

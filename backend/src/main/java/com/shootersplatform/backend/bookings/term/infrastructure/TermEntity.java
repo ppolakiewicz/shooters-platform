@@ -56,32 +56,115 @@ class TermEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    UUID getId() { return id; }
-    void setId(UUID id) { this.id = id; }
-    UUID getOwnerUserId() { return ownerUserId; }
-    void setOwnerUserId(UUID ownerUserId) { this.ownerUserId = ownerUserId; }
-    String getName() { return name; }
-    void setName(String name) { this.name = name; }
-    String getDescription() { return description; }
-    void setDescription(String description) { this.description = description; }
-    String getPlaceName() { return placeName; }
-    void setPlaceName(String placeName) { this.placeName = placeName; }
-    String getAddress() { return address; }
-    void setAddress(String address) { this.address = address; }
-    double getLatitude() { return latitude; }
-    void setLatitude(double latitude) { this.latitude = latitude; }
-    double getLongitude() { return longitude; }
-    void setLongitude(double longitude) { this.longitude = longitude; }
-    int getCapacity() { return capacity; }
-    void setCapacity(int capacity) { this.capacity = capacity; }
-    int getCancellationDeadlineDays() { return cancellationDeadlineDays; }
-    void setCancellationDeadlineDays(int cancellationDeadlineDays) { this.cancellationDeadlineDays = cancellationDeadlineDays; }
-    int getDurationMinutes() { return durationMinutes; }
-    void setDurationMinutes(int durationMinutes) { this.durationMinutes = durationMinutes; }
-    LocalDateTime getStartsAt() { return startsAt; }
-    void setStartsAt(LocalDateTime startsAt) { this.startsAt = startsAt; }
-    Instant getCreatedAt() { return createdAt; }
-    void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
-    Instant getUpdatedAt() { return updatedAt; }
-    void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+    UUID getId() {
+        return id;
+    }
+
+    void setId(UUID id) {
+        this.id = id;
+    }
+
+    UUID getOwnerUserId() {
+        return ownerUserId;
+    }
+
+    void setOwnerUserId(UUID ownerUserId) {
+        this.ownerUserId = ownerUserId;
+    }
+
+    String getName() {
+        return name;
+    }
+
+    void setName(String name) {
+        this.name = name;
+    }
+
+    String getDescription() {
+        return description;
+    }
+
+    void setDescription(String description) {
+        this.description = description;
+    }
+
+    String getPlaceName() {
+        return placeName;
+    }
+
+    void setPlaceName(String placeName) {
+        this.placeName = placeName;
+    }
+
+    String getAddress() {
+        return address;
+    }
+
+    void setAddress(String address) {
+        this.address = address;
+    }
+
+    double getLatitude() {
+        return latitude;
+    }
+
+    void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    double getLongitude() {
+        return longitude;
+    }
+
+    void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    int getCapacity() {
+        return capacity;
+    }
+
+    void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    int getCancellationDeadlineDays() {
+        return cancellationDeadlineDays;
+    }
+
+    void setCancellationDeadlineDays(int cancellationDeadlineDays) {
+        this.cancellationDeadlineDays = cancellationDeadlineDays;
+    }
+
+    int getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    void setDurationMinutes(int durationMinutes) {
+        this.durationMinutes = durationMinutes;
+    }
+
+    LocalDateTime getStartsAt() {
+        return startsAt;
+    }
+
+    void setStartsAt(LocalDateTime startsAt) {
+        this.startsAt = startsAt;
+    }
+
+    Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

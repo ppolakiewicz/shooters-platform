@@ -35,14 +35,14 @@ public class TermService {
     }
 
     public Term update(
-        UserId ownerId,
-        TermId termId,
-        String name,
-        String description,
-        Location location,
-        int cancellationDeadlineDays,
-        int durationMinutes,
-        LocalDateTime startsAt) {
+            UserId ownerId,
+            TermId termId,
+            String name,
+            String description,
+            Location location,
+            int cancellationDeadlineDays,
+            int durationMinutes,
+            LocalDateTime startsAt) {
 
         Term term = terms.findByIdAndOwner(termId, ownerId).orElseThrow(TermNotFoundException::new);
         return terms.save(term.update(name, description, location, cancellationDeadlineDays, durationMinutes, startsAt, clock.instant()));

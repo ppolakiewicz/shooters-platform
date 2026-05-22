@@ -1,11 +1,6 @@
 package com.shootersplatform.backend.identity.usecase;
 
-import com.shootersplatform.backend.identity.domain.AuthenticatedUser;
-import com.shootersplatform.backend.identity.domain.EmailAddress;
-import com.shootersplatform.backend.identity.domain.IdentityService;
-import com.shootersplatform.backend.identity.domain.InvalidCredentialsException;
-import com.shootersplatform.backend.identity.domain.LoginRateLimiter;
-import com.shootersplatform.backend.identity.domain.UserAccount;
+import com.shootersplatform.backend.identity.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

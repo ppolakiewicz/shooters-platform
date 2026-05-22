@@ -48,26 +48,91 @@ class WaitlistEntryEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    UUID getId() { return id; }
-    void setId(UUID id) { this.id = id; }
-    UUID getTermId() { return termId; }
-    void setTermId(UUID termId) { this.termId = termId; }
-    @Nullable UUID getParticipantUserId() { return participantUserId; }
-    void setParticipantUserId(@Nullable UUID participantUserId) { this.participantUserId = participantUserId; }
-    String getFirstName() { return firstName; }
-    void setFirstName(String firstName) { this.firstName = firstName; }
-    String getLastName() { return lastName; }
-    void setLastName(String lastName) { this.lastName = lastName; }
-    String getEmail() { return email; }
-    void setEmail(String email) { this.email = email; }
-    String getPhoneNumber() { return phoneNumber; }
-    void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
-    int getPosition() { return position; }
-    void setPosition(int position) { this.position = position; }
-    String getCancellationToken() { return cancellationToken; }
-    void setCancellationToken(String cancellationToken) { this.cancellationToken = cancellationToken; }
-    Instant getCreatedAt() { return createdAt; }
-    void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
-    Instant getUpdatedAt() { return updatedAt; }
-    void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+    UUID getId() {
+        return id;
+    }
+
+    void setId(UUID id) {
+        this.id = id;
+    }
+
+    UUID getTermId() {
+        return termId;
+    }
+
+    void setTermId(UUID termId) {
+        this.termId = termId;
+    }
+
+    @Nullable UUID getParticipantUserId() {
+        return participantUserId;
+    }
+
+    void setParticipantUserId(@Nullable UUID participantUserId) {
+        this.participantUserId = participantUserId;
+    }
+
+    String getFirstName() {
+        return firstName;
+    }
+
+    void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    String getLastName() {
+        return lastName;
+    }
+
+    void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    String getEmail() {
+        return email;
+    }
+
+    void setEmail(String email) {
+        this.email = email;
+    }
+
+    String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    int getPosition() {
+        return position;
+    }
+
+    void setPosition(int position) {
+        this.position = position;
+    }
+
+    String getCancellationToken() {
+        return cancellationToken;
+    }
+
+    void setCancellationToken(String cancellationToken) {
+        this.cancellationToken = cancellationToken;
+    }
+
+    Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

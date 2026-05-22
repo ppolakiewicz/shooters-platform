@@ -44,7 +44,7 @@ class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/health", "/api/auth/csrf").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/bookings/public/terms/**").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/bookings/reservations").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/bookings/reservations").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings/reservations/confirm-waitlist-offer").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings/reservations/cancel-by-participant").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings/waitlist/cancel-by-participant").permitAll()

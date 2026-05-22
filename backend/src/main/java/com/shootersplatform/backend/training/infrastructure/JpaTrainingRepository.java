@@ -1,13 +1,7 @@
 package com.shootersplatform.backend.training.infrastructure;
 
 import com.shootersplatform.backend.identity.domain.UserId;
-import com.shootersplatform.backend.training.domain.HitScore;
-import com.shootersplatform.backend.training.domain.ShootingTask;
-import com.shootersplatform.backend.training.domain.ShootingTaskId;
-import com.shootersplatform.backend.training.domain.Training;
-import com.shootersplatform.backend.training.domain.TrainingId;
-import com.shootersplatform.backend.training.domain.TrainingRepository;
-import com.shootersplatform.backend.training.domain.TrainingSummary;
+import com.shootersplatform.backend.training.domain.*;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Repository;
 

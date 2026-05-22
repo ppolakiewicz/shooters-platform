@@ -15,139 +15,139 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class AuthControllerSecuritySpec extends AbstractIntegrationSpec {
 
-  @Autowired
-  WebApplicationContext context
+    @Autowired
+    WebApplicationContext context
 
-  AuthApiClient auth
+    AuthApiClient auth
 
-  def setup() {
-    MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build()
-    auth = new AuthApiClient(mockMvc)
-  }
+    def setup() {
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build()
+        auth = new AuthApiClient(mockMvc)
+    }
 
-  def "public health endpoint stays accessible"() {
-    when: "The public health endpoint is requested"
-        def result = auth.health()
+    def "public health endpoint stays accessible"() {
+        when: "The public health endpoint is requested"
+            def result = auth.health()
 
-    then: "The backend responds successfully without authentication"
-        result.andExpect(status().isOk())
-  }
+        then: "The backend responds successfully without authentication"
+            result.andExpect(status().isOk())
+    }
 
-  def "register creates session and current user"() {
-    when: "A new user registers with valid credentials"
-        def username = uniqueUsername()
-        def result = auth.register(uniqueEmail(), username, "correct horse battery")
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath('$.email').value(endsWith('@example.com')))
-        .andExpect(jsonPath('$.username').value(username))
-        .andExpect(jsonPath('$.roles', contains('USER')))
-        .andReturn()
+    def "register creates session and current user"() {
+        when: "A new user registers with valid credentials"
+            def username = uniqueUsername()
+            def result = auth.register(uniqueEmail(), username, "correct horse battery")
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath('$.email').value(endsWith('@example.com')))
+                    .andExpect(jsonPath('$.username').value(username))
+                    .andExpect(jsonPath('$.roles', contains('USER')))
+                    .andReturn()
 
-    then: "The created session can be used to load the current user"
-        def session = result.request.getSession(false) as MockHttpSession
-        auth.me(session)
-        .andExpect(status().isOk())
-        .andExpect(jsonPath('$.username').value(username))
-        .andExpect(jsonPath('$.roles', contains('USER')))
-  }
+        then: "The created session can be used to load the current user"
+            def session = result.request.getSession(false) as MockHttpSession
+            auth.me(session)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath('$.username').value(username))
+                    .andExpect(jsonPath('$.roles', contains('USER')))
+    }
 
-  def "register rejects duplicate email"() {
-    given: "A user has already registered an email address"
-        def email = uniqueEmail()
-        auth.register(email, uniqueUsername(), "correct horse battery").andExpect(status().isCreated())
+    def "register rejects duplicate email"() {
+        given: "A user has already registered an email address"
+            def email = uniqueEmail()
+            auth.register(email, uniqueUsername(), "correct horse battery").andExpect(status().isCreated())
 
-    when: "Another registration uses the same email address with different casing"
-        def result = auth.register(email.toUpperCase(), uniqueUsername(), "another safe password")
+        when: "Another registration uses the same email address with different casing"
+            def result = auth.register(email.toUpperCase(), uniqueUsername(), "another safe password")
 
-    then: "The API reports a conflict"
-        result.andExpect(status().isConflict())
-        .andExpect(jsonPath('$.title').value('Email is already registered'))
-  }
+        then: "The API reports a conflict"
+            result.andExpect(status().isConflict())
+                    .andExpect(jsonPath('$.title').value('Email is already registered'))
+    }
 
-  def "register rejects duplicate username case insensitively"() {
-    given: "A user has already registered a username"
-        def username = uniqueUsername()
-        auth.register(uniqueEmail(), username, "correct horse battery").andExpect(status().isCreated())
+    def "register rejects duplicate username case insensitively"() {
+        given: "A user has already registered a username"
+            def username = uniqueUsername()
+            auth.register(uniqueEmail(), username, "correct horse battery").andExpect(status().isCreated())
 
-    when: "Another registration uses the same username with different casing"
-        def result = auth.register(uniqueEmail(), username.toLowerCase(), "another safe password")
+        when: "Another registration uses the same username with different casing"
+            def result = auth.register(uniqueEmail(), username.toLowerCase(), "another safe password")
 
-    then: "The API reports a conflict"
-        result.andExpect(status().isConflict())
-        .andExpect(jsonPath('$.title').value('Username is already registered'))
-  }
+        then: "The API reports a conflict"
+            result.andExpect(status().isConflict())
+                    .andExpect(jsonPath('$.title').value('Username is already registered'))
+    }
 
-  def "register requires username"() {
-    when: "Registration is submitted without a username"
-        def result = auth.register(uniqueEmail(), "", "correct horse battery")
+    def "register requires username"() {
+        when: "Registration is submitted without a username"
+            def result = auth.register(uniqueEmail(), "", "correct horse battery")
 
-    then: "The API rejects the request"
-        result.andExpect(status().isBadRequest())
-        .andExpect(jsonPath('$.title').value('Invalid request'))
-  }
+        then: "The API rejects the request"
+            result.andExpect(status().isBadRequest())
+                    .andExpect(jsonPath('$.title').value('Invalid request'))
+    }
 
-  def "protected current user endpoint requires authentication"() {
-    when: "The current user endpoint is requested without an authenticated session"
-        def result = auth.me(new MockHttpSession())
+    def "protected current user endpoint requires authentication"() {
+        when: "The current user endpoint is requested without an authenticated session"
+            def result = auth.me(new MockHttpSession())
 
-    then: "The API rejects the request as unauthorized"
-        result.andExpect(status().isUnauthorized())
-  }
+        then: "The API rejects the request as unauthorized"
+            result.andExpect(status().isUnauthorized())
+    }
 
-  def "csrf is required for registration"() {
-    when: "Registration is submitted without a CSRF token"
-        def result = auth.registerWithoutCsrf(uniqueEmail(), uniqueUsername(), "correct horse battery")
+    def "csrf is required for registration"() {
+        when: "Registration is submitted without a CSRF token"
+            def result = auth.registerWithoutCsrf(uniqueEmail(), uniqueUsername(), "correct horse battery")
 
-    then: "Spring Security rejects the request"
-        result.andExpect(status().isForbidden())
-  }
+        then: "Spring Security rejects the request"
+            result.andExpect(status().isForbidden())
+    }
 
-  def "login failure is generic"() {
-    when: "Login is attempted for invalid credentials"
-        def result = auth.login(uniqueEmail(), "wrong password value")
+    def "login failure is generic"() {
+        when: "Login is attempted for invalid credentials"
+            def result = auth.login(uniqueEmail(), "wrong password value")
 
-    then: "The API returns a generic invalid credentials problem"
-        result.andExpect(status().isUnauthorized())
-        .andExpect(jsonPath('$.title').value('Invalid credentials'))
-  }
+        then: "The API returns a generic invalid credentials problem"
+            result.andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath('$.title').value('Invalid credentials'))
+    }
 
-  def "rate limits repeated failed logins"() {
-    given: "A client repeatedly fails login for the same email"
-        def email = uniqueEmail()
-        def clientIp = "203.0.113.9"
+    def "rate limits repeated failed logins"() {
+        given: "A client repeatedly fails login for the same email"
+            def email = uniqueEmail()
+            def clientIp = "203.0.113.9"
 
-        5.times {
-        auth.login(email, "wrong password value", clientIp).andExpect(status().isUnauthorized())
-  }
+            5.times {
+                auth.login(email, "wrong password value", clientIp).andExpect(status().isUnauthorized())
+            }
 
-    when: "The client makes another failed login attempt in the same window"
-        def result = auth.login(email, "wrong password value", clientIp)
+        when: "The client makes another failed login attempt in the same window"
+            def result = auth.login(email, "wrong password value", clientIp)
 
-    then: "The API rejects the request with a rate limit response"
-        result.andExpect(status().isTooManyRequests())
-        .andExpect(jsonPath('$.title').value('Too many attempts'))
-  }
+        then: "The API rejects the request with a rate limit response"
+            result.andExpect(status().isTooManyRequests())
+                    .andExpect(jsonPath('$.title').value('Too many attempts'))
+    }
 
-  def "logout invalidates session"() {
-    given: "A registered user has an authenticated session"
-        def registerResult = auth.register(uniqueEmail(), uniqueUsername(), "correct horse battery").andReturn()
-        def session = registerResult.request.getSession(false) as MockHttpSession
+    def "logout invalidates session"() {
+        given: "A registered user has an authenticated session"
+            def registerResult = auth.register(uniqueEmail(), uniqueUsername(), "correct horse battery").andReturn()
+            def session = registerResult.request.getSession(false) as MockHttpSession
 
-    when: "The user logs out"
-        def logoutResult = auth.logout(session)
+        when: "The user logs out"
+            def logoutResult = auth.logout(session)
 
-    then: "Logout succeeds without content"
-        logoutResult.andExpect(status().isNoContent())
+        then: "Logout succeeds without content"
+            logoutResult.andExpect(status().isNoContent())
 
-    and: "The previous session no longer authenticates current user requests"
-        auth.me(session).andExpect(status().isUnauthorized())
-  }
+        and: "The previous session no longer authenticates current user requests"
+            auth.me(session).andExpect(status().isUnauthorized())
+    }
 
-  private static String uniqueEmail() {
-    "user-${UUID.randomUUID()}@example.com"
-  }
+    private static String uniqueEmail() {
+        "user-${UUID.randomUUID()}@example.com"
+    }
 
-  private static String uniqueUsername() {
-    "User_${UUID.randomUUID().toString().replace("-", "").substring(0, 12)}"
-  }
+    private static String uniqueUsername() {
+        "User_${UUID.randomUUID().toString().replace("-", "").substring(0, 12)}"
+    }
 }

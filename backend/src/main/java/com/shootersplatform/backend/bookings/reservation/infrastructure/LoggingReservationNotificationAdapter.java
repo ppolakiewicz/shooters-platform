@@ -1,7 +1,7 @@
 package com.shootersplatform.backend.bookings.reservation.infrastructure;
 
-import com.shootersplatform.backend.bookings.reservation.domain.ReservationNotificationPort;
 import com.shootersplatform.backend.bookings.reservation.domain.Reservation;
+import com.shootersplatform.backend.bookings.reservation.domain.ReservationNotificationPort;
 import com.shootersplatform.backend.bookings.term.domain.Term;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;

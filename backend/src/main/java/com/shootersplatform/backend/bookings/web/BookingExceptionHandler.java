@@ -23,10 +23,10 @@ import java.util.Objects;
 class BookingExceptionHandler {
 
     @ExceptionHandler({
-        TermNotFoundException.class,
-        ReservationNotFoundException.class,
-        WaitlistNotFoundException.class,
-        TrainingEnrollmentNotFoundException.class
+            TermNotFoundException.class,
+            ReservationNotFoundException.class,
+            WaitlistNotFoundException.class,
+            TrainingEnrollmentNotFoundException.class
     })
     ProblemDetail notFound(RuntimeException exception) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
@@ -35,11 +35,11 @@ class BookingExceptionHandler {
     }
 
     @ExceptionHandler({
-        TermValidationException.class,
-        ReservationValidationException.class,
-        WaitlistValidationException.class,
-        TrainingEnrollmentValidationException.class,
-        LocationValidationException.class
+            TermValidationException.class,
+            ReservationValidationException.class,
+            WaitlistValidationException.class,
+            TrainingEnrollmentValidationException.class,
+            LocationValidationException.class
     })
     ProblemDetail validation(RuntimeException exception) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
@@ -52,11 +52,11 @@ class BookingExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Request validation failed");
         problem.setTitle("Invalid request");
         List<Map<String, String>> errors = exception.getBindingResult().getFieldErrors().stream()
-            .map(error -> Map.of(
-                "field", error.getField(),
-                "message", Objects.toString(error.getDefaultMessage(), "")
-            ))
-            .toList();
+                .map(error -> Map.of(
+                        "field", error.getField(),
+                        "message", Objects.toString(error.getDefaultMessage(), "")
+                ))
+                .toList();
         problem.setProperty("errors", errors);
         return problem;
     }
