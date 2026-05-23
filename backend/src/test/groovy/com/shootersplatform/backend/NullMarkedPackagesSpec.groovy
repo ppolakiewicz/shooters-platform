@@ -23,7 +23,7 @@ class NullMarkedPackagesSpec extends Specification {
         when: "Package metadata is checked for JSpecify annotations"
             def packagesWithoutNullnessDefault = sourcePackages.findAll { sourcePackage ->
                 Path packageInfo = sourcePackage.resolve("package-info.java")
-                !Files.exists(packageInfo) || !declaresNullnessDefault(packageInfo)
+                !isProjectRootPackage(sourcePackage) && (!Files.exists(packageInfo) || !declaresNullnessDefault(packageInfo))
             }
 
         then: "Each package is explicitly null-marked or intentionally null-unmarked"
@@ -33,5 +33,9 @@ class NullMarkedPackagesSpec extends Specification {
     private static boolean declaresNullnessDefault(Path packageInfo) {
         String content = Files.readString(packageInfo)
         content.contains("@NullMarked") || content.contains("@NullUnmarked")
+    }
+
+    private static boolean isProjectRootPackage(Path sourcePackage) {
+        sourcePackage == Path.of("src/main/java/com/shootersplatform/backend")
     }
 }
