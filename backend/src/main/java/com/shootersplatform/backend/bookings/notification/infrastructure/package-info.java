@@ -1,4 +1,4 @@
-@NullUnmarked
+@NullMarked
 package com.shootersplatform.backend.bookings.notification.infrastructure;
 
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NullMarked;

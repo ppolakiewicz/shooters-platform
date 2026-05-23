@@ -58,8 +58,8 @@ public class CreateReservationUseCase {
             throw new ReservationValidationException("Authenticated users cannot create another account while reserving");
         }
 
-        @Nullable AuthenticatedUser registeredUser = null;
-        @Nullable UserId participantUserId = currentUser == null ? null : currentUser.id();
+        AuthenticatedUser registeredUser = null;
+        UserId participantUserId = currentUser == null ? null : currentUser.id();
         if (currentUser == null && createAccount) {
             if (username == null || password == null) {
                 throw new ReservationValidationException("Username and password are required to create an account");
