@@ -1,205 +1,103 @@
 package com.shootersplatform.backend.bookings.reservation.domain
 
-import com.shootersplatform.backend.bookings.location.domain.Location
-import com.shootersplatform.backend.bookings.term.domain.InMemoryTermRepository
-import com.shootersplatform.backend.bookings.term.domain.Term
-import com.shootersplatform.backend.bookings.trainingenrollment.domain.InMemoryTrainingEnrollmentRepository
-import com.shootersplatform.backend.bookings.trainingenrollment.domain.TrainingEnrollment
-import com.shootersplatform.backend.bookings.waitlist.domain.InMemoryWaitlistRepository
-import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistService
-import com.shootersplatform.backend.identity.domain.UserId
+import com.shootersplatform.backend.bookings.term.domain.TermId
+import com.shootersplatform.backend.identity.domain.EmailAddress
 import spock.lang.Specification
 
-import java.time.*
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZoneOffset
 
 class ReservationServiceSpec extends Specification {
 
-    private UserId owner = UserId.newId()
-    private InMemoryTrainingEnrollmentRepository enrollments
-    private InMemoryTermRepository terms
     private InMemoryReservationRepository reservations
-    private InMemoryWaitlistRepository waitlist
-    private InMemoryReservationNotificationPort notifications
     private ReservationService service
     private MutableClock clock
 
     def setup() {
-        enrollments = new InMemoryTrainingEnrollmentRepository()
-        terms = new InMemoryTermRepository()
         reservations = new InMemoryReservationRepository()
-        waitlist = new InMemoryWaitlistRepository()
-        notifications = new InMemoryReservationNotificationPort()
         clock = new MutableClock(Instant.parse("2026-05-08T10:00:00Z"))
-        service = new ReservationService(terms, reservations, waitlist, new WaitlistService(terms, waitlist, clock), notifications, clock)
+        service = new ReservationService(reservations, clock)
     }
 
-    def "creates training enrollment and term by copying editable fields"() {
-        when: "The instructor creates an enrollment and a concrete term"
-            def enrollment = createEnrollment(" Basic pistol ", " Safety and stance ", 4, 2, 90)
-            def term = terms.save(termFrom(enrollment, LocalDateTime.parse("2026-06-01T12:30:00")))
+    def "creates confirmed reservation"() {
+        given: "A term id exists"
+            def termId = TermId.newId()
 
-        then: "The term keeps a copied snapshot of the enrollment fields"
-            enrollment.name() == "Basic pistol"
-            enrollment.description() == "Safety and stance"
-            term.name() == "Basic pistol"
-            term.location().address() == "Range Street 1"
-            term.capacity() == 4
-            term.cancellationDeadlineDays() == 2
-            term.durationMinutes() == 90
+        when: "A reservation is created"
+            def reservation = service.createConfirmed(termId, null, "Anna", "Nowak", "anna@example.com", "+48111111111")
+
+        then: "The reservation is confirmed and stored"
+            reservation.status() == ReservationStatus.CONFIRMED
+            reservation.termId() == termId
+            reservations.findByTerm(termId) == [reservation]
     }
 
-    def "confirms reservation while term has free capacity and creates waitlist entry once capacity is full"() {
-        given: "A term with a single available place exists"
-            def term = singleSeatTerm()
+    def "reports active reservation email for duplicate checks"() {
+        given: "A participant has an active reservation"
+            def termId = TermId.newId()
+            service.createConfirmed(termId, null, "Anna", "Nowak", "anna@example.com", "+48111111111")
 
-        when: "Two participants register"
-            def first = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111")
-            def second = service.createReservation(term.id(), null, "Jan", "Kowalski", "jan@example.com", "+48222222222")
-
-        then: "The first participant is confirmed and the second has a waitlist entry"
-            first.reservation().status() == ReservationStatus.CONFIRMED
-            second.waitlistEntry().position() == 1
-            reservations.findByTerm(term.id())*.email()*.value() == ["anna@example.com"]
-            waitlist.findByTerm(term.id())*.email()*.value() == ["jan@example.com"]
-            notifications.confirmed()*.email()*.value() == ["anna@example.com"]
+        expect: "The normalized email is treated as active"
+            service.hasActiveReservation(termId, new EmailAddress("ANNA@example.com"))
     }
 
-    def "rejects duplicate active reservation email for the same term"() {
-        given: "A participant already has an active reservation"
-            def term = singleSeatTerm()
-            service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111")
+    def "participant cancellation closes an active reservation"() {
+        given: "A confirmed reservation exists"
+            def reservation = service.createConfirmed(TermId.newId(), null, "Anna", "Nowak", "anna@example.com", "+48111111111")
 
-        when: "The same email is used again"
-            service.createReservation(term.id(), null, "Anna", "Nowak", "ANNA@example.com", "+48111111111")
+        when: "The reservation is cancelled"
+            def cancelled = service.cancelByParticipant(reservation)
 
-        then: "The domain rejects the duplicate"
-            thrown(ReservationValidationException)
-    }
-
-    def "participant cancellation promotes first waitlisted reservation to offered"() {
-        given: "A full term has one participant on the waitlist"
-            def term = singleSeatTerm()
-            def confirmed = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111").reservation()
-            service.createReservation(term.id(), null, "Jan", "Kowalski", "jan@example.com", "+48222222222")
-
-        when: "The confirmed participant cancels"
-            def cancelled = service.cancelByParticipant(confirmed.cancellationToken())
-            def reservationsForTerm = reservations.findByTerm(term.id())
-
-        then: "The first waitlisted participant receives a time-limited offer"
+        then: "The reservation is closed"
             cancelled.status() == ReservationStatus.CANCELLED_BY_PARTICIPANT
-            statusByEmail(reservationsForTerm) == [
-                    "anna@example.com": ReservationStatus.CANCELLED_BY_PARTICIPANT,
-                    "jan@example.com" : ReservationStatus.WAITLIST_OFFERED
-            ]
-            notifications.waitlistOffers().first().waitlistConfirmationToken() != null
-            notifications.waitlistOffers().first().waitlistOfferExpiresAt() == Instant.parse("2026-05-09T10:00:00Z")
+            !cancelled.activeForDuplicateCheck()
     }
 
     def "waitlist confirmation link confirms the offered reservation"() {
-        given: "A waitlisted participant has received an offer"
-            def term = singleSeatTerm()
-            def confirmed = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111").reservation()
-            service.createReservation(term.id(), null, "Jan", "Kowalski", "jan@example.com", "+48222222222")
-            service.cancelByParticipant(confirmed.cancellationToken())
-            def token = notifications.waitlistOffers().first().waitlistConfirmationToken()
+        given: "A waitlist offer exists"
+            def offered = service.createWaitlistOffer(
+                    TermId.newId(),
+                    null,
+                    "Jan",
+                    "Nowak",
+                    new EmailAddress("jan@example.com"),
+                    "+48222222222",
+                    "cancel-token",
+                    Instant.parse("2026-05-09T10:00:00Z")
+            )
 
         when: "The participant confirms the offer"
-            def promoted = service.confirmWaitlistOffer(token)
+            def confirmed = service.confirmWaitlistOffer(offered, offered.waitlistConfirmationToken())
 
         then: "The reservation becomes confirmed"
-            promoted.status() == ReservationStatus.CONFIRMED
-            promoted.waitlistConfirmationToken() == null
+            confirmed.status() == ReservationStatus.CONFIRMED
+            confirmed.waitlistConfirmationToken() == null
+            confirmed.waitlistOfferExpiresAt() == null
     }
 
-    def "expired waitlist offer is closed and next waitlisted reservation is offered"() {
-        given: "Two participants are waiting and the first receives an offer"
-            def term = singleSeatTerm()
-            def confirmed = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111").reservation()
-            service.createReservation(term.id(), null, "Jan", "Kowalski", "jan@example.com", "+48222222222")
-            service.createReservation(term.id(), null, "Ewa", "Zielinska", "ewa@example.com", "+48333333333")
-            service.cancelByParticipant(confirmed.cancellationToken())
-
-        when: "The instructor expires stale offers after the link TTL"
+    def "expired waitlist offer is closed for a term"() {
+        given: "A waitlist offer is stale"
+            def termId = TermId.newId()
+            service.createWaitlistOffer(
+                    termId,
+                    null,
+                    "Jan",
+                    "Nowak",
+                    new EmailAddress("jan@example.com"),
+                    "+48222222222",
+                    "cancel-token",
+                    Instant.parse("2026-05-09T10:00:00Z")
+            )
             clock.instant = Instant.parse("2026-05-09T10:01:00Z")
-            def expired = service.expireWaitlistOffers(owner, term.id())
 
-        then: "The stale offer is expired and the next waitlisted reservation receives an offer"
+        when: "Expired offers are closed"
+            def expired = service.expireWaitlistOffers(termId)
+
+        then: "Only the stale offer is expired"
             expired == 1
-            statusByEmail(reservations.findByTerm(term.id())) == [
-                    "anna@example.com": ReservationStatus.CANCELLED_BY_PARTICIPANT,
-                    "jan@example.com" : ReservationStatus.WAITLIST_OFFER_EXPIRED,
-                    "ewa@example.com" : ReservationStatus.WAITLIST_OFFERED
-            ]
-    }
-
-    def "participant cannot cancel after configured cancellation deadline"() {
-        given: "A term starts too soon to cancel"
-            def term = singleSeatTerm()
-            def confirmed = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111").reservation()
-            clock.instant = Instant.parse("2026-05-31T00:00:01Z")
-
-        when: "The participant tries to cancel after the deadline"
-            service.cancelByParticipant(confirmed.cancellationToken())
-
-        then: "The cancellation is rejected"
-            thrown(ReservationValidationException)
-    }
-
-    def "rejects reservation after term has started"() {
-        given: "A term has already started"
-            def term = singleSeatTerm()
-            clock.instant = Instant.parse("2026-06-01T10:00:01Z")
-
-        when: "A participant tries to reserve it"
-            service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111")
-
-        then: "The domain rejects late reservations"
-            thrown(ReservationValidationException)
-    }
-
-    def "participant cancellation deadline uses Warsaw midnight before start date"() {
-        given: "A term starts at noon Warsaw time with one cancellation day"
-            def term = singleSeatTerm()
-            def confirmed = service.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111").reservation()
-
-        when: "The participant cancels exactly at the configured Warsaw midnight deadline"
-            clock.instant = Instant.parse("2026-05-30T22:00:00Z")
-            def cancelled = service.cancelByParticipant(confirmed.cancellationToken())
-
-        then: "The cancellation is still accepted"
-            cancelled.status() == ReservationStatus.CANCELLED_BY_PARTICIPANT
-    }
-
-    private Term singleSeatTerm() {
-        def enrollment = createEnrollment("Basic pistol", "", 1, 1, 60)
-        terms.save(termFrom(enrollment, LocalDateTime.parse("2026-06-01T12:00:00")))
-    }
-
-    private TrainingEnrollment createEnrollment(String name, String description, int capacity, int cancellationDeadlineDays, int durationMinutes) {
-        enrollments.save(TrainingEnrollment.create(owner, name, description, location(), capacity, cancellationDeadlineDays, durationMinutes, clock.instant()))
-    }
-
-    private Term termFrom(TrainingEnrollment enrollment, LocalDateTime startsAt) {
-        Term.create(
-                owner,
-                enrollment.name(),
-                enrollment.description(),
-                enrollment.location(),
-                enrollment.capacity(),
-                enrollment.cancellationDeadlineDays(),
-                enrollment.durationMinutes(),
-                startsAt,
-                clock.instant()
-        )
-    }
-
-    private static Location location() {
-        new Location("Range A", "Range Street 1", 52.2297d, 21.0122d)
-    }
-
-    private static Map<String, ReservationStatus> statusByEmail(List<Reservation> reservations) {
-        reservations.collectEntries { reservation -> [(reservation.email().value()): reservation.status()] }
+            reservations.findByTerm(termId).first().status() == ReservationStatus.WAITLIST_OFFER_EXPIRED
     }
 
     private static class MutableClock extends Clock {

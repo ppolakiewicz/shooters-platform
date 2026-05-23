@@ -1,10 +1,17 @@
 package com.shootersplatform.backend.bookings.usecase;
 
-import com.shootersplatform.backend.bookings.reservation.domain.CreatedBooking;
+import com.shootersplatform.backend.bookings.notification.domain.BookingNotification;
+import com.shootersplatform.backend.bookings.notification.domain.BookingNotificationService;
+import com.shootersplatform.backend.bookings.reservation.domain.Reservation;
 import com.shootersplatform.backend.bookings.reservation.domain.ReservationService;
 import com.shootersplatform.backend.bookings.reservation.domain.ReservationValidationException;
+import com.shootersplatform.backend.bookings.term.domain.Term;
 import com.shootersplatform.backend.bookings.term.domain.TermId;
+import com.shootersplatform.backend.bookings.term.domain.TermService;
+import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistEntry;
+import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistService;
 import com.shootersplatform.backend.identity.domain.AuthenticatedUser;
+import com.shootersplatform.backend.identity.domain.EmailAddress;
 import com.shootersplatform.backend.identity.domain.UserId;
 import com.shootersplatform.backend.identity.usecase.RegisterUserUseCase;
 import org.jspecify.annotations.Nullable;
@@ -15,10 +22,22 @@ import org.springframework.transaction.annotation.Transactional;
 public class CreateReservationUseCase {
 
     private final ReservationService reservationService;
+    private final TermService termService;
+    private final WaitlistService waitlistService;
+    private final BookingNotificationService notifications;
     private final RegisterUserUseCase registerUser;
 
-    public CreateReservationUseCase(ReservationService reservationService, RegisterUserUseCase registerUser) {
+    CreateReservationUseCase(
+            ReservationService reservationService,
+            TermService termService,
+            WaitlistService waitlistService,
+            BookingNotificationService notifications,
+            RegisterUserUseCase registerUser
+    ) {
         this.reservationService = reservationService;
+        this.termService = termService;
+        this.waitlistService = waitlistService;
+        this.notifications = notifications;
         this.registerUser = registerUser;
     }
 
@@ -49,7 +68,21 @@ public class CreateReservationUseCase {
             participantUserId = registeredUser.id();
         }
 
-        CreatedBooking created = reservationService.createReservation(termId, participantUserId, firstName, lastName, email, phoneNumber);
+        Term term = termService.requireReservable(termId);
+        EmailAddress emailAddress = new EmailAddress(email);
+        if (reservationService.hasActiveReservation(term.id(), emailAddress) || waitlistService.hasParticipant(term.id(), emailAddress)) {
+            throw new ReservationValidationException("Participant is already registered for this term");
+        }
+
+        CreatedBooking created;
+        if (reservationService.countOccupiedPlaces(term.id()) < term.capacity()) {
+            Reservation reservation = reservationService.createConfirmed(term.id(), participantUserId, firstName, lastName, email, phoneNumber);
+            notifications.send(BookingNotification.reservationConfirmed(term, reservation));
+            created = CreatedBooking.reservation(reservation);
+        } else {
+            WaitlistEntry entry = waitlistService.add(term.id(), participantUserId, firstName, lastName, email, phoneNumber);
+            created = CreatedBooking.waitlistEntry(entry);
+        }
         return new CreateReservationResult(created, registeredUser);
     }
 }

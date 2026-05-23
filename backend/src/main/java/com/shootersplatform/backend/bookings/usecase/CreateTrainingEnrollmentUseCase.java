@@ -12,7 +12,7 @@ public class CreateTrainingEnrollmentUseCase {
 
     private final TrainingEnrollmentService trainingEnrollments;
 
-    public CreateTrainingEnrollmentUseCase(TrainingEnrollmentService trainingEnrollments) {
+    CreateTrainingEnrollmentUseCase(TrainingEnrollmentService trainingEnrollments) {
         this.trainingEnrollments = trainingEnrollments;
     }
 

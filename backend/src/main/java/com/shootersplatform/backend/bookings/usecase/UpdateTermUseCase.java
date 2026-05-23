@@ -17,7 +17,7 @@ public class UpdateTermUseCase {
     private final TermService terms;
     private final ReservationService reservations;
 
-    public UpdateTermUseCase(TermService terms, ReservationService reservations) {
+    UpdateTermUseCase(TermService terms, ReservationService reservations) {
         this.terms = terms;
         this.reservations = reservations;
     }

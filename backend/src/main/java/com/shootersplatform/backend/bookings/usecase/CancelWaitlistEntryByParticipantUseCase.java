@@ -10,7 +10,7 @@ public class CancelWaitlistEntryByParticipantUseCase {
 
     private final WaitlistService waitlist;
 
-    public CancelWaitlistEntryByParticipantUseCase(WaitlistService waitlist) {
+    CancelWaitlistEntryByParticipantUseCase(WaitlistService waitlist) {
         this.waitlist = waitlist;
     }
 

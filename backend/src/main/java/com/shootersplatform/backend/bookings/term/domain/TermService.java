@@ -64,4 +64,37 @@ public class TermService {
     public List<Term> listOwner(UserId ownerId) {
         return terms.findByOwner(ownerId);
     }
+
+    public Term requireReservable(TermId termId) {
+        Term term = terms.findByIdForUpdate(termId).orElseThrow(TermNotFoundException::new);
+        if (!term.startsInFuture(clock.instant())) {
+            throw new TermValidationException("Term has already started");
+        }
+        return term;
+    }
+
+    public Term requireForUpdate(TermId termId) {
+        return terms.findByIdForUpdate(termId).orElseThrow(TermNotFoundException::new);
+    }
+
+    @Transactional(readOnly = true)
+    public Term requireOwned(UserId ownerId, TermId termId) {
+        return terms.findByIdAndOwner(termId, ownerId).orElseThrow(TermNotFoundException::new);
+    }
+
+    public Term requireOwnedForUpdate(UserId ownerId, TermId termId) {
+        Term term = terms.findByIdForUpdate(termId).orElseThrow(TermNotFoundException::new);
+        if (!term.ownerId().equals(ownerId)) {
+            throw new TermNotFoundException();
+        }
+        return term;
+    }
+
+    public Term requireParticipantCancellationAllowed(TermId termId) {
+        Term term = terms.findByIdForUpdate(termId).orElseThrow(TermNotFoundException::new);
+        if (!term.canParticipantCancel(clock.instant())) {
+            throw new TermValidationException("Cancellation deadline has passed");
+        }
+        return term;
+    }
 }

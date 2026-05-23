@@ -13,7 +13,7 @@ public class GetPublicTermUseCase {
     private final TermService terms;
     private final ReservationService reservations;
 
-    public GetPublicTermUseCase(TermService terms, ReservationService reservations) {
+    GetPublicTermUseCase(TermService terms, ReservationService reservations) {
         this.terms = terms;
         this.reservations = reservations;
     }

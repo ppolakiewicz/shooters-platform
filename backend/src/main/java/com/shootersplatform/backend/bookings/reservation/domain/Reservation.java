@@ -1,7 +1,6 @@
 package com.shootersplatform.backend.bookings.reservation.domain;
 
 import com.shootersplatform.backend.bookings.term.domain.TermId;
-import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistEntry;
 import com.shootersplatform.backend.identity.domain.EmailAddress;
 import com.shootersplatform.backend.identity.domain.UserId;
 import org.jspecify.annotations.Nullable;
@@ -41,20 +40,26 @@ public record Reservation(
     }
 
     public static Reservation createWaitlistOffer(
-            WaitlistEntry entry,
+            TermId termId,
+            @Nullable UserId participantUserId,
+            String firstName,
+            String lastName,
+            EmailAddress email,
+            String phoneNumber,
+            String cancellationToken,
             Instant expiresAt,
             Instant now
     ) {
         return new Reservation(
                 ReservationId.newId(),
-                entry.termId(),
-                entry.participantUserId(),
-                entry.firstName(),
-                entry.lastName(),
-                entry.email(),
-                entry.phoneNumber(),
+                termId,
+                participantUserId,
+                firstName,
+                lastName,
+                email,
+                phoneNumber,
                 ReservationStatus.WAITLIST_OFFERED,
-                entry.cancellationToken(),
+                cancellationToken,
                 newToken(),
                 expiresAt,
                 now,

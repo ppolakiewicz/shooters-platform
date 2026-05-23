@@ -14,7 +14,7 @@ public class CreateTermUseCase {
 
     private final TermService terms;
 
-    public CreateTermUseCase(TermService terms) {
+    CreateTermUseCase(TermService terms) {
         this.terms = terms;
     }
 

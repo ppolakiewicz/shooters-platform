@@ -1,5 +1,6 @@
-package com.shootersplatform.backend.bookings.reservation.domain;
+package com.shootersplatform.backend.bookings.usecase;
 
+import com.shootersplatform.backend.bookings.reservation.domain.Reservation;
 import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistEntry;
 import org.jspecify.annotations.Nullable;
 

@@ -1,6 +1,7 @@
 package com.shootersplatform.backend.bookings.usecase;
 
 import com.shootersplatform.backend.bookings.term.domain.TermId;
+import com.shootersplatform.backend.bookings.term.domain.TermService;
 import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistEntry;
 import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistService;
 import com.shootersplatform.backend.identity.domain.UserId;
@@ -13,13 +14,16 @@ import java.util.List;
 public class ListWaitlistEntriesUseCase {
 
     private final WaitlistService waitlist;
+    private final TermService terms;
 
-    public ListWaitlistEntriesUseCase(WaitlistService waitlist) {
+    ListWaitlistEntriesUseCase(WaitlistService waitlist, TermService terms) {
         this.waitlist = waitlist;
+        this.terms = terms;
     }
 
     @Transactional(readOnly = true)
     public List<WaitlistEntry> list(UserId ownerId, TermId termId) {
-        return waitlist.listEntries(ownerId, termId);
+        terms.requireOwned(ownerId, termId);
+        return waitlist.listEntries(termId);
     }
 }

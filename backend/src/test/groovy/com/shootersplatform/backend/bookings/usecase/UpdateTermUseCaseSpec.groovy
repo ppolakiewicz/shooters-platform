@@ -1,14 +1,11 @@
 package com.shootersplatform.backend.bookings.usecase
 
 import com.shootersplatform.backend.bookings.location.domain.Location
-import com.shootersplatform.backend.bookings.reservation.domain.InMemoryReservationNotificationPort
 import com.shootersplatform.backend.bookings.reservation.domain.InMemoryReservationRepository
 import com.shootersplatform.backend.bookings.reservation.domain.ReservationService
 import com.shootersplatform.backend.bookings.term.domain.InMemoryTermRepository
 import com.shootersplatform.backend.bookings.term.domain.Term
 import com.shootersplatform.backend.bookings.term.domain.TermService
-import com.shootersplatform.backend.bookings.waitlist.domain.InMemoryWaitlistRepository
-import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistService
 import com.shootersplatform.backend.identity.domain.UserId
 import spock.lang.Specification
 
@@ -27,10 +24,9 @@ class UpdateTermUseCaseSpec extends Specification {
         def clock = Clock.fixed(Instant.parse("2026-05-08T10:00:00Z"), ZoneOffset.UTC)
         terms = new InMemoryTermRepository()
         def reservations = new InMemoryReservationRepository()
-        def waitlist = new InMemoryWaitlistRepository()
         updateTerm = new UpdateTermUseCase(
                 new TermService(terms, clock),
-                new ReservationService(terms, reservations, waitlist, new WaitlistService(terms, waitlist, clock), new InMemoryReservationNotificationPort(), clock)
+                new ReservationService(reservations, clock)
         )
     }
 

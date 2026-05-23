@@ -13,7 +13,7 @@ public class UpdateTrainingEnrollmentUseCase {
 
     private final TrainingEnrollmentService trainingEnrollments;
 
-    public UpdateTrainingEnrollmentUseCase(TrainingEnrollmentService trainingEnrollments) {
+    UpdateTrainingEnrollmentUseCase(TrainingEnrollmentService trainingEnrollments) {
         this.trainingEnrollments = trainingEnrollments;
     }
 

@@ -61,6 +61,44 @@ class TermServiceSpec extends Specification {
             publicTerms*.id() == [future.id()]
     }
 
+    def "requires reservable term that starts in the future"() {
+        given: "A future term exists"
+            def future = createTerm()
+
+        expect: "The term can be reserved"
+            service.requireReservable(future.id()) == future
+    }
+
+    def "rejects reservable term that has already started"() {
+        given: "A past term exists"
+            def past = service.create(owner, "Past pistol", "", location(), 8, 2, 90, LocalDateTime.parse("2026-05-08T11:59:59"))
+
+        when: "The term is required for reservation"
+            service.requireReservable(past.id())
+
+        then: "The domain rejects late reservation"
+            thrown(TermValidationException)
+    }
+
+    def "requires owned term for update"() {
+        given: "A term belongs to the owner"
+            def term = createTerm()
+
+        expect: "The owner can lock the term"
+            service.requireOwnedForUpdate(owner, term.id()) == term
+    }
+
+    def "rejects participant cancellation after configured deadline"() {
+        given: "A term starts too soon to cancel"
+            def term = service.create(owner, "Soon pistol", "", location(), 8, 1, 90, LocalDateTime.parse("2026-05-09T12:00:00"))
+
+        when: "Cancellation is checked after Warsaw midnight deadline"
+            service.requireParticipantCancellationAllowed(term.id())
+
+        then: "The domain rejects cancellation"
+            thrown(TermValidationException)
+    }
+
     private static Location location() {
         new Location("Range A", "Range Street 1", 52.2297d, 21.0122d)
     }

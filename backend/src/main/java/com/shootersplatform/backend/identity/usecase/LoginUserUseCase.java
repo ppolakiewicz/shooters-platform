@@ -14,7 +14,7 @@ public class LoginUserUseCase {
     private final IdentityService identity;
     private final LoginRateLimiter rateLimiter;
 
-    public LoginUserUseCase(
+    LoginUserUseCase(
             IdentityService identity,
             LoginRateLimiter rateLimiter
     ) {

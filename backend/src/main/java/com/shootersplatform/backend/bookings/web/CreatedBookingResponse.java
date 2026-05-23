@@ -1,6 +1,6 @@
 package com.shootersplatform.backend.bookings.web;
 
-import com.shootersplatform.backend.bookings.reservation.domain.CreatedBooking;
+import com.shootersplatform.backend.bookings.usecase.CreatedBooking;
 import org.jspecify.annotations.Nullable;
 
 record CreatedBookingResponse(

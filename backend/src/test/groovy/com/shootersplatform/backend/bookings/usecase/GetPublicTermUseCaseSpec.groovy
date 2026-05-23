@@ -1,14 +1,11 @@
 package com.shootersplatform.backend.bookings.usecase
 
 import com.shootersplatform.backend.bookings.location.domain.Location
-import com.shootersplatform.backend.bookings.reservation.domain.InMemoryReservationNotificationPort
 import com.shootersplatform.backend.bookings.reservation.domain.InMemoryReservationRepository
 import com.shootersplatform.backend.bookings.reservation.domain.ReservationService
 import com.shootersplatform.backend.bookings.term.domain.InMemoryTermRepository
 import com.shootersplatform.backend.bookings.term.domain.Term
 import com.shootersplatform.backend.bookings.term.domain.TermService
-import com.shootersplatform.backend.bookings.waitlist.domain.InMemoryWaitlistRepository
-import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistService
 import com.shootersplatform.backend.identity.domain.UserId
 import spock.lang.Specification
 
@@ -28,9 +25,8 @@ class GetPublicTermUseCaseSpec extends Specification {
         def clock = Clock.fixed(Instant.parse("2026-05-08T10:00:00Z"), ZoneOffset.UTC)
         terms = new InMemoryTermRepository()
         def reservations = new InMemoryReservationRepository()
-        def waitlist = new InMemoryWaitlistRepository()
         def termService = new TermService(terms, clock)
-        reservationService = new ReservationService(terms, reservations, waitlist, new WaitlistService(terms, waitlist, clock), new InMemoryReservationNotificationPort(), clock)
+        reservationService = new ReservationService(reservations, clock)
         useCase = new GetPublicTermUseCase(termService, reservationService)
     }
 
@@ -39,7 +35,7 @@ class GetPublicTermUseCaseSpec extends Specification {
             def term = termWithCapacity(3)
 
         and: "One place is already reserved"
-            reservationService.createReservation(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111")
+            reservationService.createConfirmed(term.id(), null, "Anna", "Nowak", "anna@example.com", "+48111111111")
 
         when: "The term availability is read"
             def availableTerm = useCase.get(term.id())

@@ -15,7 +15,7 @@ public class ListOwnerTermsUseCase {
     private final TermService terms;
     private final ReservationService reservations;
 
-    public ListOwnerTermsUseCase(TermService terms, ReservationService reservations) {
+    ListOwnerTermsUseCase(TermService terms, ReservationService reservations) {
         this.terms = terms;
         this.reservations = reservations;
     }
