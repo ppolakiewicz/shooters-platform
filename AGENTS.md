@@ -15,6 +15,61 @@ Shooters Platform is a multi-stack training and booking app: Spring Boot backend
 - `e2e/` contains Playwright browser tests; `package.json` workspaces include `frontend` and `e2e`.
 - Backend features live under `backend/src/main/java/com/shootersplatform/backend/<feature>/` with observed `domain`, `web`, `infrastructure`, and `usecase` boundaries. Current top-level features include `identity`, `training`, `bookings`, `health`, and `shared`.
 
+## Backend Module Pattern
+
+Use the current `bookings` backend shape as the reference pattern for new backend work and for larger changes in
+existing modules. When touching an existing module that does not follow this structure yet, complete the requested
+change locally and include a clear structural alignment proposal for refactoring the whole module; do not perform a
+broad module-wide refactor without explicit approval.
+
+Target package shapes:
+
+```text
+<feature>.web -> <feature>.usecase -> <feature>.<submodule>.domain
+                                    -> <feature>.<submodule>.infrastructure
+```
+
+For simpler modules without submodules:
+
+```text
+<feature>.web -> <feature>.usecase -> <feature>.domain
+                                    -> <feature>.infrastructure
+```
+
+Boundary rules:
+
+- Controllers live in `web` and call use cases, not domain services or repositories.
+- Use cases are the application boundary, transaction boundary, and orchestration layer. Write operations and
+  cross-domain flows should start there; read-only use cases may use read-only transactions when useful.
+- Keep one public use case class per business operation, such as `CreateReservationUseCase`; do not create broad facade
+  classes such as `BookingUseCases`.
+- Use cases call only domain services. They must not inject repositories directly. If a read model is needed, add a
+  dedicated domain service for that read path.
+- Domain services expose business capabilities of their own model, not persistence mechanics.
+- Domain submodules do not orchestrate each other and do not call each other's services or repositories. They may share
+  stable value/domain types when practical, such as `UserId`, `TermId`, `EmailAddress`, or `Location`.
+- Cross-module flows belong in `usecase`, for example "reservation or waitlist entry", waitlist promotion, notification
+  dispatch decisions, and identity registration during booking.
+- Use cases may return domain types for simple single-model results. Create dedicated `*Result` classes for compound
+  orchestration results. HTTP DTOs stay in `web`.
+- Document any deviation from these boundaries in the final response or change documentation, including the reason and
+  the proposed path back to the standard.
+
+Testing rules:
+
+- Domain tests cover rules of one model or submodule without Spring and without orchestration across other submodules.
+- Use case tests cover orchestration, transaction-level business flows, compound results, and module cooperation. Prefer
+  real domain services with in-memory port implementations; use mocks only for external gateways/adapters or narrow
+  contract tests.
+- Web tests cover HTTP contracts, security, request/response mapping, and exception handling without duplicating the
+  full domain test matrix.
+
+Backend quality rules:
+
+- Every new backend production package must be under `@NullMarked` coverage with a `package-info.java`.
+- Schema changes must be expressed through Flyway migrations in `backend/src/main/resources/db/migration`; do not use
+  Hibernate DDL generation for schema control.
+
 ## Commands
 
 - `npm install` installs root workspace dependencies.
