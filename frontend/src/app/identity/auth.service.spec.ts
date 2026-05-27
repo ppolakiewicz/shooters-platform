@@ -1,10 +1,10 @@
-import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, TestRequest, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {provideHttpClient} from '@angular/common/http';
+import {HttpTestingController, provideHttpClientTesting, TestRequest} from '@angular/common/http/testing';
+import {provideZonelessChangeDetection} from '@angular/core';
+import {TestBed} from '@angular/core/testing';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import { AuthService, AuthUser } from './auth.service';
+import {AuthService, AuthUser} from './auth.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -76,6 +76,30 @@ describe('AuthService', () => {
 
     await logout;
     expect(service.currentUser()).toBeNull();
+  });
+
+  it('requests password reset with csrf', async () => {
+    const requestReset = service.requestPasswordReset({email: 'owner@example.com'});
+
+    http.expectOne('/api/auth/csrf').flush('');
+    const request = await nextRequest('/api/auth/password-reset-requests');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({email: 'owner@example.com'});
+    request.flush(null);
+
+    await expect(requestReset).resolves.toBeUndefined();
+  });
+
+  it('resets password with csrf', async () => {
+    const reset = service.resetPassword({token: 'reset-token', password: 'new correct password'});
+
+    http.expectOne('/api/auth/csrf').flush('');
+    const request = await nextRequest('/api/auth/password-reset');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({token: 'reset-token', password: 'new correct password'});
+    request.flush(null);
+
+    await expect(reset).resolves.toBeUndefined();
   });
 
   async function nextRequest(url: string): Promise<TestRequest> {

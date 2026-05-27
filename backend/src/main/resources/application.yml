@@ -24,3 +24,6 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+
+app:
+  frontend-base-url: ${APP_FRONTEND_BASE_URL:http://localhost:4200}

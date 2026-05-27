@@ -63,6 +63,45 @@ public class AuthApiClient {
                         """.formatted(email, password)));
     }
 
+    public ResultActions requestPasswordReset(String email) throws Exception {
+        return mockMvc.perform(post("/api/auth/password-reset-requests")
+                .with(csrf())
+                .contentType("application/json")
+                .content("""
+                        {"email":"%s"}
+                        """.formatted(email)));
+    }
+
+    public ResultActions requestPasswordReset(String email, String clientIp) throws Exception {
+        return mockMvc.perform(post("/api/auth/password-reset-requests")
+                .with(csrf())
+                .with(request -> {
+                    request.setRemoteAddr(clientIp);
+                    return request;
+                })
+                .contentType("application/json")
+                .content("""
+                        {"email":"%s"}
+                        """.formatted(email)));
+    }
+
+    public ResultActions requestPasswordResetWithoutCsrf(String email) throws Exception {
+        return mockMvc.perform(post("/api/auth/password-reset-requests")
+                .contentType("application/json")
+                .content("""
+                        {"email":"%s"}
+                        """.formatted(email)));
+    }
+
+    public ResultActions resetPassword(String token, String password) throws Exception {
+        return mockMvc.perform(post("/api/auth/password-reset")
+                .with(csrf())
+                .contentType("application/json")
+                .content("""
+                        {"token":"%s","password":"%s"}
+                        """.formatted(token, password)));
+    }
+
     public ResultActions me(MockHttpSession session) throws Exception {
         return mockMvc.perform(get("/api/auth/me").session(session));
     }

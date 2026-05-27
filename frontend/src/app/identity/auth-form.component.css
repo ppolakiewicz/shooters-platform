@@ -21,6 +21,9 @@ mat-card-content {
 }
 
 mat-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
   padding: 0 12px 18px;
 }
 
@@ -61,6 +64,12 @@ mat-spinner {
   color: #9f1239;
   font-weight: 700;
   margin: 0;
+}
+
+.form-success {
+    color: #166534;
+    font-weight: 700;
+    margin: 0;
 }
 
 @media (min-width: 480px) {

@@ -42,7 +42,13 @@ class SecurityConfiguration {
                 )
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.GET, "/api/health", "/api/auth/csrf").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/auth/register",
+                                "/api/auth/login",
+                                "/api/auth/password-reset-requests",
+                                "/api/auth/password-reset"
+                        ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/bookings/public/terms/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings/reservations").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings/reservations/confirm-waitlist-offer").permitAll()

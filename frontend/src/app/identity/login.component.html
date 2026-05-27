@@ -31,6 +31,10 @@
           <p class="form-error" role="alert">{{ error() | translate }}</p>
         }
 
+          @if (success()) {
+          <p class="form-success" role="status">{{ success() | translate }}</p>
+          }
+
         <button mat-flat-button type="submit" [disabled]="loginForm().invalid() || submitting()">
           @if (submitting()) {
             <mat-spinner diameter="18" aria-hidden="true"></mat-spinner>
@@ -44,6 +48,7 @@
 
     <mat-card-actions>
       <a mat-button routerLink="/register">{{ 'common.createAccount' | translate }}</a>
+        <a mat-button routerLink="/forgot-password">{{ 'auth.forgotPasswordLink' | translate }}</a>
     </mat-card-actions>
   </mat-card>
 </main>

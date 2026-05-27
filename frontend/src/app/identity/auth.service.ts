@@ -1,6 +1,6 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {computed, inject, Injectable, signal} from '@angular/core';
+import {firstValueFrom} from 'rxjs';
 
 export interface AuthUser {
   id: string;
@@ -16,6 +16,15 @@ interface LoginCredentials {
 
 interface RegistrationCredentials extends LoginCredentials {
   username: string;
+}
+
+interface PasswordResetRequest {
+    email: string;
+}
+
+interface ResetPasswordRequest {
+    token: string;
+    password: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -56,6 +65,14 @@ export class AuthService {
     return this.submitWithCsrf('/api/auth/login', credentials);
   }
 
+    async requestPasswordReset(request: PasswordResetRequest): Promise<void> {
+        await this.submitVoidWithCsrf('/api/auth/password-reset-requests', request);
+    }
+
+    async resetPassword(request: ResetPasswordRequest): Promise<void> {
+        await this.submitVoidWithCsrf('/api/auth/password-reset', request);
+    }
+
   async logout(): Promise<void> {
     await this.ensureCsrf();
     await firstValueFrom(this.http.post<void>('/api/auth/logout', {}));
@@ -76,6 +93,20 @@ export class AuthService {
       throw error;
     } finally {
       this.loading.set(false);
+    }
+  }
+
+    private async submitVoidWithCsrf(url: string, body: PasswordResetRequest | ResetPasswordRequest): Promise<void> {
+        this.loading.set(true);
+        this.error.set(null);
+        try {
+            await this.ensureCsrf();
+            await firstValueFrom(this.http.post<void>(url, body));
+        } catch (error) {
+            this.error.set(this.errorMessage(error));
+            throw error;
+        } finally {
+            this.loading.set(false);
     }
   }
 

@@ -111,6 +111,34 @@ class AuthControllerSecuritySpec extends AbstractIntegrationSpec {
                     .andExpect(jsonPath('$.title').value('Invalid credentials'))
     }
 
+    def "password reset request is public and always no content"() {
+        given: "A user has registered"
+            def email = uniqueEmail()
+            auth.register(email, uniqueUsername(), "correct horse battery").andExpect(status().isCreated())
+
+        expect: "Both known and unknown addresses receive the same empty response"
+            auth.requestPasswordReset(email).andExpect(status().isNoContent())
+            auth.requestPasswordReset(uniqueEmail()).andExpect(status().isNoContent())
+    }
+
+    def "password reset request requires csrf"() {
+        when: "Password reset is requested without a CSRF token"
+            def result = auth.requestPasswordResetWithoutCsrf(uniqueEmail())
+
+        then: "Spring Security rejects the request"
+            result.andExpect(status().isForbidden())
+    }
+
+    def "password reset rejects invalid token generically"() {
+        when: "Password reset is submitted with an invalid token"
+            def result = auth.resetPassword("not-a-real-token", "new correct password")
+
+        then: "The API returns a generic token error"
+            result.andExpect(status().isBadRequest())
+                    .andExpect(jsonPath('$.title').value('Invalid password reset link'))
+                    .andExpect(jsonPath('$.detail').value('Password reset link is invalid or expired'))
+    }
+
     def "rate limits repeated failed logins"() {
         given: "A client repeatedly fails login for the same email"
             def email = uniqueEmail()

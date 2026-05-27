@@ -34,6 +34,13 @@ class IdentityExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(InvalidPasswordResetTokenException.class)
+    ProblemDetail invalidPasswordResetToken(InvalidPasswordResetTokenException exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
+        problem.setTitle("Invalid password reset link");
+        return problem;
+    }
+
     @ExceptionHandler(IdentityValidationException.class)
     ProblemDetail identityValidation(IdentityValidationException exception) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());

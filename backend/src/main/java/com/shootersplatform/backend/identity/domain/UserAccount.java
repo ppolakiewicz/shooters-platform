@@ -21,4 +21,8 @@ public record UserAccount(
     public UserAccount {
         roles = Set.copyOf(roles);
     }
+
+    public UserAccount changePassword(String newPasswordHash, Instant now) {
+        return new UserAccount(id, email, username, newPasswordHash, enabled, roles, createdAt, now);
+    }
 }
