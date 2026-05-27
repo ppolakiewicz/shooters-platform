@@ -1,6 +1,7 @@
 package com.shootersplatform.backend.bookings.term.domain;
 
 import com.shootersplatform.backend.bookings.location.domain.Location;
+import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel;
 import com.shootersplatform.backend.identity.domain.UserId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,13 +26,14 @@ public class TermService {
             UserId ownerId,
             String name,
             String description,
+            TrainingLevel trainingLevel,
             Location location,
             int capacity,
             int cancellationDeadlineDays,
             int durationMinutes,
             LocalDateTime startsAt
     ) {
-        return terms.save(Term.create(ownerId, name, description, location, capacity, cancellationDeadlineDays, durationMinutes, startsAt, clock.instant()));
+        return terms.save(Term.create(ownerId, name, description, trainingLevel, location, capacity, cancellationDeadlineDays, durationMinutes, startsAt, clock.instant()));
     }
 
     public Term update(
@@ -39,13 +41,14 @@ public class TermService {
             TermId termId,
             String name,
             String description,
+            TrainingLevel trainingLevel,
             Location location,
             int cancellationDeadlineDays,
             int durationMinutes,
             LocalDateTime startsAt) {
 
         Term term = terms.findByIdAndOwner(termId, ownerId).orElseThrow(TermNotFoundException::new);
-        return terms.save(term.update(name, description, location, cancellationDeadlineDays, durationMinutes, startsAt, clock.instant()));
+        return terms.save(term.update(name, description, trainingLevel, location, cancellationDeadlineDays, durationMinutes, startsAt, clock.instant()));
     }
 
     @Transactional(readOnly = true)

@@ -3,6 +3,7 @@ package com.shootersplatform.backend.bookings.usecase
 import com.shootersplatform.backend.bookings.location.domain.Location
 import com.shootersplatform.backend.bookings.term.domain.Term
 import com.shootersplatform.backend.bookings.term.domain.TermNotFoundException
+import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel
 import com.shootersplatform.backend.identity.domain.UserId
 import spock.lang.Specification
 
@@ -24,6 +25,7 @@ class TermUseCasesSpec extends Specification {
 
         then: "The term is returned and visible to its owner"
             created.availablePlaces() == 4
+            created.term().trainingLevel() == TrainingLevel.BASIC
             booking.listOwnerTerms.list(owner)*.term()*.id() == [created.term().id()]
     }
 
@@ -80,6 +82,7 @@ class TermUseCasesSpec extends Specification {
                     term.id(),
                     "Advanced pistol",
                     "Updated",
+                    TrainingLevel.ADVANCED,
                     location(),
                     2,
                     90,
@@ -88,6 +91,7 @@ class TermUseCasesSpec extends Specification {
 
         then: "Capacity is preserved and availability is recalculated"
             updated.term().name() == "Advanced pistol"
+            updated.term().trainingLevel() == TrainingLevel.ADVANCED
             updated.term().capacity() == 3
             updated.term().cancellationDeadlineDays() == 2
             updated.term().durationMinutes() == 90
@@ -99,7 +103,7 @@ class TermUseCasesSpec extends Specification {
             def term = createTerm(2).term()
 
         when: "Another owner tries to update it"
-            booking.updateTerm.update(otherOwner, term.id(), "Advanced pistol", "", location(), 1, 60, LocalDateTime.parse("2026-06-01T14:00:00"))
+            booking.updateTerm.update(otherOwner, term.id(), "Advanced pistol", "", TrainingLevel.ADVANCED, location(), 1, 60, LocalDateTime.parse("2026-06-01T14:00:00"))
 
         then: "The term is hidden from the other owner"
             thrown(TermNotFoundException)
@@ -111,7 +115,7 @@ class TermUseCasesSpec extends Specification {
             String name = "Basic pistol",
             LocalDateTime startsAt = LocalDateTime.parse("2026-06-01T12:00:00")
     ) {
-        booking.createTerm.create(ownerId, name, "", location(), capacity, 1, 60, startsAt)
+        booking.createTerm.create(ownerId, name, "", TrainingLevel.BASIC, location(), capacity, 1, 60, startsAt)
     }
 
     private CreateReservationResult reserve(Term term, String firstName, String email) {

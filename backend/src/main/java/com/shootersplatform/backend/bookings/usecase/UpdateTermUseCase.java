@@ -5,6 +5,7 @@ import com.shootersplatform.backend.bookings.reservation.domain.ReservationServi
 import com.shootersplatform.backend.bookings.term.domain.Term;
 import com.shootersplatform.backend.bookings.term.domain.TermId;
 import com.shootersplatform.backend.bookings.term.domain.TermService;
+import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel;
 import com.shootersplatform.backend.identity.domain.UserId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,12 +29,13 @@ public class UpdateTermUseCase {
             TermId termId,
             String name,
             String description,
+            TrainingLevel trainingLevel,
             Location location,
             int cancellationDeadlineDays,
             int durationMinutes,
             LocalDateTime startsAt
     ) {
-        Term term = terms.update(ownerId, termId, name, description, location, cancellationDeadlineDays, durationMinutes, startsAt);
+        Term term = terms.update(ownerId, termId, name, description, trainingLevel, location, cancellationDeadlineDays, durationMinutes, startsAt);
         long occupiedPlaces = reservations.countOccupiedPlaces(term.id());
         return new AvailableTerm(term, Math.max(0, term.capacity() - Math.toIntExact(occupiedPlaces)));
     }

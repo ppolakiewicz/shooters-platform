@@ -1,5 +1,6 @@
 package com.shootersplatform.backend.bookings.web;
 
+import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -17,22 +18,27 @@ public class TrainingEnrollmentApiClient {
     }
 
     public ResultActions create(MockHttpSession session, String name, int capacity) throws Exception {
+        return create(session, name, TrainingLevel.BASIC, capacity);
+    }
+
+    public ResultActions create(MockHttpSession session, String name, TrainingLevel trainingLevel, int capacity) throws Exception {
         return mockMvc.perform(post("/api/bookings/training-enrollments")
             .session(session)
             .with(csrf())
             .contentType("application/json")
-            .content(enrollmentBody(name, capacity)));
+                .content(enrollmentBody(name, trainingLevel, capacity)));
     }
 
     public ResultActions list(MockHttpSession session) throws Exception {
         return mockMvc.perform(get("/api/bookings/training-enrollments").session(session));
     }
 
-    private static String enrollmentBody(String name, int capacity) {
+    private static String enrollmentBody(String name, TrainingLevel trainingLevel, int capacity) {
         return """
             {
               "name": "%s",
               "description": "",
+                  "trainingLevel": "%s",
               "location": {
                 "placeName": "Range A",
                 "address": "Range Street 1",
@@ -43,6 +49,6 @@ public class TrainingEnrollmentApiClient {
               "cancellationDeadlineDays": 1,
               "durationMinutes": 60
             }
-            """.formatted(name, capacity);
+                """.formatted(name, trainingLevel, capacity);
     }
 }

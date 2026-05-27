@@ -2,6 +2,7 @@ package com.shootersplatform.backend.bookings.web
 
 import com.jayway.jsonpath.JsonPath
 import com.shootersplatform.backend.AbstractIntegrationSpec
+import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel
 import com.shootersplatform.backend.identity.web.AuthApiClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.mock.web.MockHttpSession
@@ -52,6 +53,7 @@ class TermUserPathIntegrationSpec extends AbstractIntegrationSpec {
             def created = terms.create(session, name, 8, FUTURE_START)
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath('$.name').value(name))
+                    .andExpect(jsonPath('$.trainingLevel').value('BASIC'))
                     .andExpect(jsonPath('$.capacity').value(8))
                     .andReturn()
             def termId = UUID.fromString(json(created, '$.id') as String)
@@ -59,13 +61,16 @@ class TermUserPathIntegrationSpec extends AbstractIntegrationSpec {
         then: "The owner sees the term in management listing"
             def ownerTerms = terms.list(session).andExpect(status().isOk()).andReturn()
             termById(ownerTerms, termId).name == name
+            termById(ownerTerms, termId).trainingLevel == 'BASIC'
 
         and: "Public users see the same term details"
             def publicTerms = terms.publicTerms().andExpect(status().isOk()).andReturn()
             termById(publicTerms, termId).name == name
+            termById(publicTerms, termId).trainingLevel == 'BASIC'
             terms.publicTerm(termId)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath('$.name').value(name))
+                    .andExpect(jsonPath('$.trainingLevel').value('BASIC'))
                     .andExpect(jsonPath('$.location.placeName').value('Range A'))
     }
 
@@ -76,6 +81,7 @@ class TermUserPathIntegrationSpec extends AbstractIntegrationSpec {
             def updatedBody = TermApiClient.termBody(
                     "Updated pistol",
                     "Advanced safety",
+                    TrainingLevel.ADVANCED,
                     "Range B",
                     "Second Street 2",
                     50.0614d,
@@ -94,6 +100,7 @@ class TermUserPathIntegrationSpec extends AbstractIntegrationSpec {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath('$.name').value('Updated pistol'))
                     .andExpect(jsonPath('$.description').value('Advanced safety'))
+                    .andExpect(jsonPath('$.trainingLevel').value('ADVANCED'))
                     .andExpect(jsonPath('$.location.placeName').value('Range B'))
                     .andExpect(jsonPath('$.capacity').value(4))
                     .andExpect(jsonPath('$.durationMinutes').value(90))
@@ -111,11 +118,45 @@ class TermUserPathIntegrationSpec extends AbstractIntegrationSpec {
             body << [
                     TermApiClient.termBody("", 1, FUTURE_START),
                     TermApiClient.termBody("No capacity", 0, FUTURE_START),
-                    TermApiClient.termBody("Bad latitude", "", "Range A", "Range Street 1", 91.0d, 21.0122d, 1, 1, 60, FUTURE_START),
+                    TermApiClient.termBody("Bad latitude", "", TrainingLevel.BASIC, "Range A", "Range Street 1", 91.0d, 21.0122d, 1, 1, 60, FUTURE_START),
+                    """
+          {
+            "name": "Missing level",
+            "description": "",
+            "location": {
+              "placeName": "Range A",
+              "address": "Range Street 1",
+              "latitude": 52.2297,
+              "longitude": 21.0122
+            },
+            "capacity": 1,
+            "cancellationDeadlineDays": 1,
+            "durationMinutes": 60,
+            "startsAt": "${FUTURE_START}"
+          }
+          """,
+                    """
+          {
+            "name": "Bad level",
+            "description": "",
+            "trainingLevel": "EXPERT",
+            "location": {
+              "placeName": "Range A",
+              "address": "Range Street 1",
+              "latitude": 52.2297,
+              "longitude": 21.0122
+            },
+            "capacity": 1,
+            "cancellationDeadlineDays": 1,
+            "durationMinutes": 60,
+            "startsAt": "${FUTURE_START}"
+          }
+          """,
                     """
           {
             "name": "Missing start",
             "description": "",
+            "trainingLevel": "BASIC",
             "location": {
               "placeName": "Range A",
               "address": "Range Street 1",

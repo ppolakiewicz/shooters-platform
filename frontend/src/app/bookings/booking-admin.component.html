@@ -37,6 +37,14 @@
           <mat-label>{{ 'common.description' | translate }}</mat-label>
           <textarea matInput rows="3" [formField]="enrollmentForm.description"></textarea>
         </mat-form-field>
+          <mat-form-field appearance="outline">
+              <mat-label>{{ 'bookings.trainingLevel.label' | translate }}</mat-label>
+              <mat-select [formField]="enrollmentForm.trainingLevel">
+                  @for (level of trainingLevels; track level) {
+                  <mat-option [value]="level">{{ trainingLevelKey(level) | translate }}</mat-option>
+                  }
+              </mat-select>
+          </mat-form-field>
         <div class="form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'common.place' | translate }}</mat-label>
@@ -95,6 +103,14 @@
           <mat-label>{{ 'common.description' | translate }}</mat-label>
           <textarea matInput rows="3" [formField]="termForm.description"></textarea>
         </mat-form-field>
+          <mat-form-field appearance="outline">
+              <mat-label>{{ 'bookings.trainingLevel.label' | translate }}</mat-label>
+              <mat-select [formField]="termForm.trainingLevel">
+                  @for (level of trainingLevels; track level) {
+                  <mat-option [value]="level">{{ trainingLevelKey(level) | translate }}</mat-option>
+                  }
+              </mat-select>
+          </mat-form-field>
         <div class="form-grid">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'common.place' | translate }}</mat-label>
@@ -150,6 +166,7 @@
             <tr>
               <th>{{ 'bookings.startsAt' | translate }}</th>
               <th>{{ 'common.name' | translate }}</th>
+                <th>{{ 'bookings.trainingLevel.label' | translate }}</th>
               <th>{{ 'common.place' | translate }}</th>
               <th>{{ 'common.capacity' | translate }}</th>
               <th [attr.aria-label]="'common.actions' | translate"></th>
@@ -160,6 +177,9 @@
               <tr>
                 <td [attr.data-label]="'bookings.startsAt' | translate">{{ term.startsAt | date:'medium':undefined:i18n.locale() }}</td>
                 <td [attr.data-label]="'common.name' | translate">{{ term.name }}</td>
+                  <td [attr.data-label]="'bookings.trainingLevel.label' | translate">{{
+                      trainingLevelKey(term.trainingLevel) | translate }}
+                  </td>
                 <td [attr.data-label]="'common.place' | translate">{{ term.location.placeName }}</td>
                 <td [attr.data-label]="'common.capacity' | translate">{{ term.capacity }}</td>
                 <td class="row-actions" [attr.data-label]="'common.actions' | translate">

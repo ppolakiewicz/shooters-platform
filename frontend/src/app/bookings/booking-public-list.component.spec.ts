@@ -1,11 +1,11 @@
-import { provideZonelessChangeDetection } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { describe, expect, it, vi } from 'vitest';
+import {provideZonelessChangeDetection} from '@angular/core';
+import {TestBed} from '@angular/core/testing';
+import {provideRouter} from '@angular/router';
+import {describe, expect, it, vi} from 'vitest';
 
-import { BookingPublicListComponent } from './booking-public-list.component';
-import { BookingService } from './booking.service';
-import { Term } from './booking.models';
+import {BookingPublicListComponent} from './booking-public-list.component';
+import {BookingService} from './booking.service';
+import {Term} from './booking.models';
 
 describe('BookingPublicListComponent', () => {
   it('loads public terms', async () => {
@@ -33,17 +33,22 @@ describe('BookingPublicListComponent', () => {
     const content = fixture.nativeElement.textContent;
     const reserveLink = fixture.nativeElement.querySelector('a[href="/booking-terms/term-id"]');
     expect(content).toContain('Range A');
-    expect(content).toContain('Range Street 1');
     expect(content).toContain('90 min');
-    expect(content).toContain('5 places');
-    expect(content).toContain('Cancel up to 2 days before start');
+      expect(content).toContain('5 places available');
+      expect(content).not.toContain('No description provided.');
+      expect(content).not.toContain('Cancel up to 2 days before start');
     expect(reserveLink).not.toBeNull();
   });
 
-  it('renders terms as list rows with the current public fields', async () => {
+    it('renders terms as event list rows with decision details', async () => {
     const service = {
       publicTerms: vi.fn().mockResolvedValue([
-        sampleTerm({ id: 'first-term-id', name: 'First training', description: 'First description' }),
+          sampleTerm({
+              id: 'first-term-id',
+              name: 'First training',
+              description: 'First description',
+              trainingLevel: 'BASIC'
+          }),
         sampleTerm({
           id: 'second-term-id',
           name: 'Second training',
@@ -67,14 +72,27 @@ describe('BookingPublicListComponent', () => {
     const firstRow = rows[0];
     expect(list).not.toBeNull();
     expect(firstRow.querySelector('.term-main')?.textContent).toContain('First training');
+        expect(firstRow.querySelector('.level-chip')?.textContent).toContain('Basic');
     expect(firstRow.querySelector('.term-main')?.textContent).toContain('First description');
-    expect(fieldText(firstRow, 'Place')).toContain('Range A');
-    expect(fieldText(firstRow, 'Place')).toContain('Range Street 1');
-    expect(fieldText(firstRow, 'Duration')).toContain('90 min');
-    expect(fieldText(firstRow, 'Available')).toContain('5 places');
-    expect(fieldText(firstRow, 'Cancellation')).toContain('Cancel up to 2 days before start');
+        expect(firstRow.querySelector('.term-meta')?.textContent).toContain('Range A');
+        expect(firstRow.querySelector('.term-meta')?.textContent).toContain('90 min');
+        expect(firstRow.querySelector('.availability-badge')?.textContent).toContain('5 places available');
     expect(firstRow.querySelector('a[href="/booking-terms/first-term-id"]')?.textContent).toContain('Reserve');
   });
+
+    it('uses waitlist copy when a term has no places left', async () => {
+        const service = {
+            publicTerms: vi.fn().mockResolvedValue([sampleTerm({availablePlaces: 0})]),
+            error: vi.fn()
+        };
+
+        const {fixture} = await createComponent(service);
+
+        await vi.waitFor(() => expect(fixture.nativeElement.querySelectorAll('.term-row')).toHaveLength(1));
+
+        expect(fixture.nativeElement.querySelector('.availability-badge')?.textContent).toContain('No places left');
+        expect(fixture.nativeElement.querySelector('a[href="/booking-terms/term-id"]')?.textContent).toContain('Join waitlist');
+    });
 
   it('sorts public terms by earliest start date', async () => {
     const service = {
@@ -114,16 +132,12 @@ interface BookingPublicListComponentTestAccess {
   terms: () => Term[];
 }
 
-function fieldText(row: HTMLElement, label: string): string {
-  const facts = Array.from(row.querySelectorAll('.fact')) as HTMLElement[];
-  return facts.find((fact) => fact.querySelector('dt')?.textContent?.trim() === label)?.textContent ?? '';
-}
-
 function sampleTerm(overrides: Partial<Term> = {}): Term {
   return {
     id: 'term-id',
     name: 'Basic pistol',
     description: '',
+      trainingLevel: 'BASIC',
     location: { placeName: 'Range A', address: 'Range Street 1', latitude: 52.2297, longitude: 21.0122 },
     capacity: 8,
     availablePlaces: 5,

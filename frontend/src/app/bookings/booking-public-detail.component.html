@@ -41,8 +41,15 @@
     <section class="detail-grid">
       <article class="panel">
         <p class="term-date">{{ term()?.startsAt | date:'medium':undefined:i18n.locale() }}</p>
+          @if (term()?.trainingLevel; as level) {
+          <span class="level-chip">{{ trainingLevelKey(level) | translate }}</span>
+          }
         <p>{{ term()?.description || ('bookings.public.noDescription' | translate) }}</p>
         <dl>
+            <div>
+                <dt>{{ 'bookings.trainingLevel.label' | translate }}</dt>
+                <dd>{{ trainingLevelKey(term()!.trainingLevel) | translate }}</dd>
+            </div>
           <div>
             <dt>{{ 'common.place' | translate }}</dt>
             <dd>{{ term()?.location?.placeName }}</dd>

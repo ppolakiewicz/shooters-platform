@@ -1,5 +1,6 @@
 package com.shootersplatform.backend.bookings.web;
 
+import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -62,12 +63,17 @@ public class TermApiClient {
     }
 
     public static String termBody(String name, int capacity, LocalDateTime startsAt) {
-        return termBody(name, "", "Range A", "Range Street 1", 52.2297d, 21.0122d, capacity, 1, 60, startsAt);
+        return termBody(name, "", TrainingLevel.BASIC, "Range A", "Range Street 1", 52.2297d, 21.0122d, capacity, 1, 60, startsAt);
+    }
+
+    public static String termBody(String name, TrainingLevel trainingLevel, int capacity, LocalDateTime startsAt) {
+        return termBody(name, "", trainingLevel, "Range A", "Range Street 1", 52.2297d, 21.0122d, capacity, 1, 60, startsAt);
     }
 
     public static String termBody(
             String name,
             String description,
+            TrainingLevel trainingLevel,
             String placeName,
             String address,
             double latitude,
@@ -81,6 +87,7 @@ public class TermApiClient {
                 {
                   "name": "%s",
                   "description": "%s",
+                  "trainingLevel": "%s",
                   "location": {
                     "placeName": "%s",
                     "address": "%s",
@@ -92,6 +99,6 @@ public class TermApiClient {
                   "durationMinutes": %d,
                   "startsAt": "%s"
                 }
-                """.formatted(name, description, placeName, address, latitude, longitude, capacity, cancellationDeadlineDays, durationMinutes, startsAt);
+                """.formatted(name, description, trainingLevel, placeName, address, latitude, longitude, capacity, cancellationDeadlineDays, durationMinutes, startsAt);
     }
 }

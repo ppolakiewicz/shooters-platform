@@ -1,19 +1,19 @@
-import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { email, form, FormField, maxLength, minLength, pattern, required, submit } from '@angular/forms/signals';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {DatePipe} from '@angular/common';
+import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
+import {ActivatedRoute, RouterLink} from '@angular/router';
+import {email, form, FormField, maxLength, minLength, pattern, required, submit} from '@angular/forms/signals';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
-import { TranslatePipe } from '../shared/i18n/translate.pipe';
-import { TranslationService } from '../shared/i18n/translation.service';
-import { CreatedBooking, Term } from './booking.models';
-import { BookingService } from './booking.service';
+import {TranslatePipe} from '../shared/i18n/translate.pipe';
+import {TranslationService} from '../shared/i18n/translation.service';
+import {CreatedBooking, Term, TrainingLevel} from './booking.models';
+import {BookingService} from './booking.service';
 
 @Component({
   selector: 'app-booking-public-detail',
@@ -127,4 +127,8 @@ export class BookingPublicDetailComponent {
       }
     });
   }
+
+    protected trainingLevelKey(level: TrainingLevel): string {
+        return `bookings.trainingLevel.${level}`;
+    }
 }

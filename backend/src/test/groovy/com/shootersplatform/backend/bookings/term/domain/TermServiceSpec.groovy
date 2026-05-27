@@ -2,6 +2,7 @@ package com.shootersplatform.backend.bookings.term.domain
 
 
 import com.shootersplatform.backend.bookings.location.domain.Location
+import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel
 import com.shootersplatform.backend.identity.domain.UserId
 import spock.lang.Specification
 
@@ -28,6 +29,7 @@ class TermServiceSpec extends Specification {
         then: "The term stores copied editable fields"
             term.name() == "Basic pistol"
             term.description() == "Safety"
+            term.trainingLevel() == TrainingLevel.BASIC
             term.location().address() == "Range Street 1"
             term.capacity() == 8
             term.cancellationDeadlineDays() == 2
@@ -40,10 +42,11 @@ class TermServiceSpec extends Specification {
             def term = createTerm()
 
         when: "The instructor updates editable fields"
-            def updated = service.update(owner, term.id(), "Updated pistol", "", location(), 3, 120, LocalDateTime.parse("2026-06-01T14:30:00"))
+            def updated = service.update(owner, term.id(), "Updated pistol", "", TrainingLevel.ADVANCED, location(), 3, 120, LocalDateTime.parse("2026-06-01T14:30:00"))
 
         then: "Capacity stays at the value chosen during creation"
             updated.name() == "Updated pistol"
+            updated.trainingLevel() == TrainingLevel.ADVANCED
             updated.capacity() == 8
             updated.cancellationDeadlineDays() == 3
             updated.durationMinutes() == 120
@@ -51,8 +54,8 @@ class TermServiceSpec extends Specification {
 
     def "lists only public terms that start in the future"() {
         given: "Past and future terms exist"
-            service.create(owner, "Past pistol", "", location(), 8, 2, 90, LocalDateTime.parse("2026-05-08T11:59:59"))
-            def future = service.create(owner, "Future pistol", "", location(), 8, 2, 90, LocalDateTime.parse("2026-05-08T12:00:01"))
+            service.create(owner, "Past pistol", "", TrainingLevel.BASIC, location(), 8, 2, 90, LocalDateTime.parse("2026-05-08T11:59:59"))
+            def future = service.create(owner, "Future pistol", "", TrainingLevel.BASIC, location(), 8, 2, 90, LocalDateTime.parse("2026-05-08T12:00:01"))
 
         when: "Public terms are listed"
             def publicTerms = service.listPublic()
@@ -71,7 +74,7 @@ class TermServiceSpec extends Specification {
 
     def "rejects reservable term that has already started"() {
         given: "A past term exists"
-            def past = service.create(owner, "Past pistol", "", location(), 8, 2, 90, LocalDateTime.parse("2026-05-08T11:59:59"))
+            def past = service.create(owner, "Past pistol", "", TrainingLevel.BASIC, location(), 8, 2, 90, LocalDateTime.parse("2026-05-08T11:59:59"))
 
         when: "The term is required for reservation"
             service.requireReservable(past.id())
@@ -90,7 +93,7 @@ class TermServiceSpec extends Specification {
 
     def "rejects participant cancellation after configured deadline"() {
         given: "A term starts too soon to cancel"
-            def term = service.create(owner, "Soon pistol", "", location(), 8, 1, 90, LocalDateTime.parse("2026-05-09T12:00:00"))
+            def term = service.create(owner, "Soon pistol", "", TrainingLevel.BASIC, location(), 8, 1, 90, LocalDateTime.parse("2026-05-09T12:00:00"))
 
         when: "Cancellation is checked after Warsaw midnight deadline"
             service.requireParticipantCancellationAllowed(term.id())
@@ -104,6 +107,6 @@ class TermServiceSpec extends Specification {
     }
 
     private Term createTerm() {
-        service.create(owner, "Basic pistol", "Safety", location(), 8, 2, 90, LocalDateTime.parse("2026-06-01T12:30:00"))
+        service.create(owner, "Basic pistol", "Safety", TrainingLevel.BASIC, location(), 8, 2, 90, LocalDateTime.parse("2026-06-01T12:30:00"))
     }
 }

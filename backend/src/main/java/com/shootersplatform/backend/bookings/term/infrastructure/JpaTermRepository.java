@@ -57,6 +57,7 @@ class JpaTermRepository implements TermRepository {
                 new UserId(entity.getOwnerUserId()),
                 entity.getName(),
                 entity.getDescription(),
+                entity.getTrainingLevel(),
                 new Location(entity.getPlaceName(), entity.getAddress(), entity.getLatitude(), entity.getLongitude()),
                 entity.getCapacity(),
                 entity.getCancellationDeadlineDays(),
@@ -73,6 +74,7 @@ class JpaTermRepository implements TermRepository {
         entity.setOwnerUserId(term.ownerId().value());
         entity.setName(term.name());
         entity.setDescription(term.description());
+        entity.setTrainingLevel(term.trainingLevel());
         entity.setPlaceName(term.location().placeName());
         entity.setAddress(term.location().address());
         entity.setLatitude(term.location().latitude());

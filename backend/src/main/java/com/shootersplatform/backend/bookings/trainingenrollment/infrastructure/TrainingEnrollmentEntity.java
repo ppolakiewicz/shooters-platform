@@ -1,9 +1,7 @@
 package com.shootersplatform.backend.bookings.trainingenrollment.infrastructure;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel;
+import jakarta.persistence.*;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -24,6 +22,10 @@ class TrainingEnrollmentEntity {
 
     @Column(name = "description", nullable = false, length = 2048)
     private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "training_level", nullable = false, length = 20)
+    private TrainingLevel trainingLevel;
 
     @Column(name = "place_name", nullable = false, length = 240)
     private String placeName;
@@ -82,6 +84,14 @@ class TrainingEnrollmentEntity {
 
     void setDescription(String description) {
         this.description = description;
+    }
+
+    TrainingLevel getTrainingLevel() {
+        return trainingLevel;
+    }
+
+    void setTrainingLevel(TrainingLevel trainingLevel) {
+        this.trainingLevel = trainingLevel;
     }
 
     String getPlaceName() {

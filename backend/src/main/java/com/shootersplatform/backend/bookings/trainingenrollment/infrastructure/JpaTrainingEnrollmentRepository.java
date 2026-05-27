@@ -42,6 +42,7 @@ class JpaTrainingEnrollmentRepository implements TrainingEnrollmentRepository {
                 new UserId(entity.getOwnerUserId()),
                 entity.getName(),
                 entity.getDescription(),
+                entity.getTrainingLevel(),
                 new Location(entity.getPlaceName(), entity.getAddress(), entity.getLatitude(), entity.getLongitude()),
                 entity.getCapacity(),
                 entity.getCancellationDeadlineDays(),
@@ -57,6 +58,7 @@ class JpaTrainingEnrollmentRepository implements TrainingEnrollmentRepository {
         entity.setOwnerUserId(enrollment.ownerId().value());
         entity.setName(enrollment.name());
         entity.setDescription(enrollment.description());
+        entity.setTrainingLevel(enrollment.trainingLevel());
         entity.setPlaceName(enrollment.location().placeName());
         entity.setAddress(enrollment.location().address());
         entity.setLatitude(enrollment.location().latitude());

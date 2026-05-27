@@ -5,6 +5,8 @@ export type ReservationStatus =
   | 'CANCELLED_BY_INSTRUCTOR'
   | 'WAITLIST_OFFER_EXPIRED';
 
+export type TrainingLevel = 'BASIC' | 'INTERMEDIATE' | 'ADVANCED';
+
 export interface BookingLocation {
   placeName: string;
   address: string;
@@ -16,6 +18,7 @@ export interface TrainingEnrollment {
   id: string;
   name: string;
   description: string;
+  trainingLevel: TrainingLevel;
   location: BookingLocation;
   capacity: number;
   cancellationDeadlineDays: number;
@@ -28,6 +31,7 @@ export interface Term {
   id: string;
   name: string;
   description: string;
+  trainingLevel: TrainingLevel;
   location: BookingLocation;
   capacity: number;
   availablePlaces: number;
@@ -80,6 +84,7 @@ export type CreatedBooking =
 export interface UpsertTrainingEnrollment {
   name: string;
   description: string;
+  trainingLevel: TrainingLevel;
   location: BookingLocation;
   capacity: number;
   cancellationDeadlineDays: number;

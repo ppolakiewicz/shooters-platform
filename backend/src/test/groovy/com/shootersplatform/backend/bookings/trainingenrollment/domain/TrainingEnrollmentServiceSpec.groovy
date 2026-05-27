@@ -2,6 +2,7 @@ package com.shootersplatform.backend.bookings.trainingenrollment.domain
 
 
 import com.shootersplatform.backend.bookings.location.domain.Location
+import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel
 import com.shootersplatform.backend.identity.domain.UserId
 import spock.lang.Specification
 
@@ -22,11 +23,12 @@ class TrainingEnrollmentServiceSpec extends Specification {
 
     def "creates training enrollment with normalized details"() {
         when: "The instructor creates a training enrollment template"
-            def enrollment = service.create(owner, " Basic pistol ", " Safety and stance ", location(), 8, 2, 90)
+            def enrollment = service.create(owner, " Basic pistol ", " Safety and stance ", TrainingLevel.INTERMEDIATE, location(), 8, 2, 90)
 
         then: "The template is stored with normalized fields"
             enrollment.name() == "Basic pistol"
             enrollment.description() == "Safety and stance"
+            enrollment.trainingLevel() == TrainingLevel.INTERMEDIATE
             enrollment.location().placeName() == "Range A"
             enrollment.capacity() == 8
             repository.findByOwner(owner)*.id() == [enrollment.id()]
@@ -34,7 +36,7 @@ class TrainingEnrollmentServiceSpec extends Specification {
 
     def "rejects invalid capacity"() {
         when: "The instructor creates a training enrollment without seats"
-            service.create(owner, "Basic pistol", "", location(), 0, 2, 90)
+            service.create(owner, "Basic pistol", "", TrainingLevel.BASIC, location(), 0, 2, 90)
 
         then: "The domain rejects the template"
             thrown(TrainingEnrollmentValidationException)
@@ -42,7 +44,7 @@ class TrainingEnrollmentServiceSpec extends Specification {
 
     def "reports missing training enrollment with dedicated exception"() {
         when: "The instructor updates a missing training enrollment"
-            service.update(owner, TrainingEnrollmentId.newId(), "Basic pistol", "", location(), 8, 2, 90)
+            service.update(owner, TrainingEnrollmentId.newId(), "Basic pistol", "", TrainingLevel.BASIC, location(), 8, 2, 90)
 
         then: "The module reports a training enrollment specific not found error"
             thrown(TrainingEnrollmentNotFoundException)

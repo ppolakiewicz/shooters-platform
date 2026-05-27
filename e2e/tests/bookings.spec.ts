@@ -122,6 +122,8 @@ test('updates available places on the public term list after reservation', async
   const enrollmentForm = page.locator('form').filter({ has: page.getByRole('heading', { name: 'New TrainingEnrollment' }) });
   const termForm = page.locator('form').filter({ has: page.getByRole('heading', { name: 'New Term' }) });
   await enrollmentForm.getByLabel('Name').fill(termName);
+  await enrollmentForm.getByLabel('Training level').click();
+  await page.getByRole('option', {name: 'Intermediate'}).click();
   await enrollmentForm.getByLabel('Capacity').fill('3');
   const enrollmentResponse = page.waitForResponse((response) =>
     response.url().endsWith('/api/bookings/training-enrollments') && response.request().method() === 'POST'
@@ -129,24 +131,29 @@ test('updates available places on the public term list after reservation', async
   await page.getByRole('button', { name: 'Create enrollment' }).click();
   expect((await enrollmentResponse).ok()).toBeTruthy();
   await expect(termForm.getByLabel('Name')).toHaveValue(termName);
+  await expect(termForm.getByLabel('Training level')).toContainText('Intermediate');
   await expect(termForm.getByLabel('Capacity')).toHaveValue('3');
 
   const termResponse = page.waitForResponse((response) =>
     response.url().endsWith('/api/bookings/terms') && response.request().method() === 'POST'
   );
   await termForm.getByRole('button', { name: 'Create term' }).click();
-  expect((await termResponse).ok()).toBeTruthy();
+  const createdTermResponse = await termResponse;
+  expect(createdTermResponse.ok()).toBeTruthy();
+  const createdTerm = await createdTermResponse.json() as { id: string; trainingLevel: string };
+  expect(createdTerm.trainingLevel).toBe('INTERMEDIATE');
 
   // when: public users view the term before reservation
   await page.getByRole('link', { name: 'Public terms' }).click();
   const termRow = page.locator('.term-row').filter({ has: page.getByRole('heading', { name: termName }) });
 
   // then: all three places are available
-  await expect(termRow).toContainText('Available');
-  await expect(termRow).toContainText('3 places');
+  await expect(termRow).toContainText('Intermediate');
+  await expect(termRow).toContainText('3 places available');
 
   // when: a guest reserves one place
   await termRow.getByRole('link', { name: 'Reserve' }).click();
+  await expect(page.locator('.level-chip')).toContainText('Intermediate');
   await page.getByLabel('First name').fill('Anna');
   await page.getByLabel('Last name').fill('Nowak');
   await page.getByLabel('Email').fill(`availability-${Date.now()}@example.com`);

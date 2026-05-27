@@ -31,48 +31,42 @@
       <div class="term-list">
         @for (term of sortedTerms(); track term.id) {
           <article class="term-row">
-            <div class="term-main">
-              <p class="term-date">{{ term.startsAt | date:'medium':undefined:i18n.locale() }}</p>
-              <h2>{{ term.name }}</h2>
-              <p class="term-description">{{ term.description || ('bookings.public.noDescription' | translate) }}</p>
+            <div class="term-date-card" aria-hidden="true">
+              <span class="term-day">{{ term.startsAt | date:'d':undefined:i18n.locale() }}</span>
+              <span class="term-month">{{ term.startsAt | date:'MMM':undefined:i18n.locale() }}</span>
+              <span class="term-time">{{ term.startsAt | date:'HH:mm':undefined:i18n.locale() }}</span>
             </div>
 
-            <dl class="term-facts">
-              <div class="fact fact-place">
-                <mat-icon aria-hidden="true">location_on</mat-icon>
-                <div>
-                  <dt>{{ 'common.place' | translate }}</dt>
-                  <dd>{{ term.location.placeName }}</dd>
-                  <dd class="muted">{{ term.location.address }}</dd>
-                </div>
+            <div class="term-main">
+              <div class="term-title-line">
+                <h2>{{ term.name }}</h2>
+                @if (term.trainingLevel; as level) {
+                <span class="level-chip">{{ trainingLevelKey(level) | translate }}</span>
+                }
               </div>
-              <div class="fact">
-                <mat-icon aria-hidden="true">schedule</mat-icon>
-                <div>
-                  <dt>{{ 'common.duration' | translate }}</dt>
-                  <dd>{{ 'bookings.public.duration' | translate:{ count: term.durationMinutes } }}</dd>
-                </div>
+              <div class="term-meta" [attr.aria-label]="'bookings.public.termDetails' | translate">
+                <span>
+                  <mat-icon aria-hidden="true">location_on</mat-icon>
+                  {{ term.location.placeName }}
+                </span>
+                <span>
+                  <mat-icon aria-hidden="true">schedule</mat-icon>
+                  {{ 'bookings.public.duration' | translate:{ count: term.durationMinutes } }}
+                </span>
               </div>
-              <div class="fact">
-                <mat-icon aria-hidden="true">groups</mat-icon>
-                <div>
-                  <dt>{{ 'bookings.public.available' | translate }}</dt>
-                  <dd>{{ 'bookings.public.availablePlaces' | translate:{ count: term.availablePlaces } }}</dd>
-                </div>
-              </div>
-              <div class="fact">
-                <mat-icon aria-hidden="true">event_busy</mat-icon>
-                <div>
-                  <dt>{{ 'common.cancellation' | translate }}</dt>
-                  <dd>{{ 'bookings.public.cancellationFull' | translate:{ count: term.cancellationDeadlineDays } }}</dd>
-                </div>
-              </div>
-            </dl>
+              @if (hasDescription(term)) {
+              <p class="term-description">{{ term.description }}</p>
+              }
+            </div>
 
-            <div class="term-action">
+            <div class="term-booking">
+              <span class="availability-badge" [class.waitlist]="isWaitlistTerm(term)">
+                <mat-icon aria-hidden="true">{{ isWaitlistTerm(term) ? 'pending_actions' : 'groups' }}</mat-icon>
+                {{ availabilityStatusKey(term) | translate:{ count: term.availablePlaces } }}
+              </span>
               <a mat-flat-button [routerLink]="['/booking-terms', term.id]">
                 <mat-icon aria-hidden="true">event_available</mat-icon>
-                {{ 'common.reserve' | translate }}
+                {{ reserveActionKey(term) | translate }}
               </a>
             </div>
           </article>

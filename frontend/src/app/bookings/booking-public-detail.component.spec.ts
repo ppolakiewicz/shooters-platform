@@ -1,11 +1,11 @@
-import { provideZonelessChangeDetection } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { describe, expect, it, vi } from 'vitest';
+import {provideZonelessChangeDetection} from '@angular/core';
+import {TestBed} from '@angular/core/testing';
+import {ActivatedRoute, convertToParamMap, provideRouter} from '@angular/router';
+import {describe, expect, it, vi} from 'vitest';
 
-import { BookingPublicDetailComponent } from './booking-public-detail.component';
-import { BookingService } from './booking.service';
-import { CreatedBooking, Term } from './booking.models';
+import {BookingPublicDetailComponent} from './booking-public-detail.component';
+import {BookingService} from './booking.service';
+import {CreatedBooking, Term} from './booking.models';
 
 describe('BookingPublicDetailComponent', () => {
   it('loads term and prepares an OpenStreetMap preview URL', async () => {
@@ -16,6 +16,15 @@ describe('BookingPublicDetailComponent', () => {
     await vi.waitFor(() => expect(component.term()?.id).toBe('term-id'));
     expect(component.mapUrl()).not.toBeNull();
   });
+
+    it('shows the training level on the public detail view', async () => {
+        const service = serviceMock(sampleTerm());
+
+        const {fixture} = await createComponent(service);
+
+        await vi.waitFor(() => expect(fixture.nativeElement.textContent).toContain('Intermediate'));
+        expect(fixture.nativeElement.querySelector('.level-chip')?.textContent).toContain('Intermediate');
+    });
 
   it('submits participant data with optional account fields', async () => {
     const service = serviceMock(sampleTerm());
@@ -59,7 +68,7 @@ async function createComponent(service: unknown) {
 
   const fixture = TestBed.createComponent(BookingPublicDetailComponent);
   await fixture.whenStable();
-  return { component: fixture.componentInstance as unknown as BookingPublicDetailComponentTestAccess };
+    return {component: fixture.componentInstance as unknown as BookingPublicDetailComponentTestAccess, fixture};
 }
 
 interface BookingPublicDetailComponentTestAccess {
@@ -110,6 +119,7 @@ function sampleTerm(): Term {
     id: 'term-id',
     name: 'Basic pistol',
     description: 'Safety and stance',
+      trainingLevel: 'INTERMEDIATE',
     location: { placeName: 'Range A', address: 'Range Street 1', latitude: 52.2297, longitude: 21.0122 },
     capacity: 8,
     availablePlaces: 5,

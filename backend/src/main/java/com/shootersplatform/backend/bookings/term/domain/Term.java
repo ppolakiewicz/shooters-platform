@@ -1,6 +1,7 @@
 package com.shootersplatform.backend.bookings.term.domain;
 
 import com.shootersplatform.backend.bookings.location.domain.Location;
+import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel;
 import com.shootersplatform.backend.identity.domain.UserId;
 import org.jspecify.annotations.Nullable;
 
@@ -8,12 +9,14 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Objects;
 
 public record Term(
         TermId id,
         UserId ownerId,
         String name,
         String description,
+        TrainingLevel trainingLevel,
         Location location,
         int capacity,
         int cancellationDeadlineDays,
@@ -34,6 +37,7 @@ public record Term(
             UserId ownerId,
             String name,
             String description,
+            TrainingLevel trainingLevel,
             Location location,
             int capacity,
             int cancellationDeadlineDays,
@@ -46,6 +50,7 @@ public record Term(
                 ownerId,
                 name,
                 description,
+                trainingLevel,
                 location,
                 capacity,
                 cancellationDeadlineDays,
@@ -59,6 +64,7 @@ public record Term(
     public Term {
         name = normalizeName(name);
         description = normalizeDescription(description);
+        Objects.requireNonNull(trainingLevel, "Training level is required");
         if (capacity < CAPACITY_MIN) {
             throw new TermValidationException("Capacity must be at least " + CAPACITY_MIN);
         }
@@ -73,13 +79,14 @@ public record Term(
     public Term update(
             String updatedName,
             String updatedDescription,
+            TrainingLevel updatedTrainingLevel,
             Location updatedLocation,
             int updatedCancellationDeadlineDays,
             int updatedDurationMinutes,
             LocalDateTime updatedStartsAt,
             Instant now
     ) {
-        return new Term(id, ownerId, updatedName, updatedDescription, updatedLocation, capacity, updatedCancellationDeadlineDays, updatedDurationMinutes, updatedStartsAt, createdAt, now);
+        return new Term(id, ownerId, updatedName, updatedDescription, updatedTrainingLevel, updatedLocation, capacity, updatedCancellationDeadlineDays, updatedDurationMinutes, updatedStartsAt, createdAt, now);
     }
 
     public boolean canParticipantCancel(Instant now) {

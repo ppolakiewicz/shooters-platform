@@ -1,6 +1,7 @@
 package com.shootersplatform.backend.bookings.web;
 
 import com.shootersplatform.backend.bookings.trainingenrollment.domain.TrainingEnrollment;
+import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -9,6 +10,7 @@ record TrainingEnrollmentResponse(
         UUID id,
         String name,
         String description,
+        TrainingLevel trainingLevel,
         LocationResponse location,
         int capacity,
         int cancellationDeadlineDays,
@@ -22,6 +24,7 @@ record TrainingEnrollmentResponse(
                 enrollment.id().value(),
                 enrollment.name(),
                 enrollment.description(),
+                enrollment.trainingLevel(),
                 LocationResponse.from(enrollment.location()),
                 enrollment.capacity(),
                 enrollment.cancellationDeadlineDays(),

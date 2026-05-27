@@ -1,16 +1,19 @@
 package com.shootersplatform.backend.bookings.trainingenrollment.domain;
 
 import com.shootersplatform.backend.bookings.location.domain.Location;
+import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel;
 import com.shootersplatform.backend.identity.domain.UserId;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
+import java.util.Objects;
 
 public record TrainingEnrollment(
         TrainingEnrollmentId id,
         UserId ownerId,
         String name,
         String description,
+        TrainingLevel trainingLevel,
         Location location,
         int capacity,
         int cancellationDeadlineDays,
@@ -26,31 +29,34 @@ public record TrainingEnrollment(
             UserId ownerId,
             String name,
             String description,
+            TrainingLevel trainingLevel,
             Location location,
             int capacity,
             int cancellationDeadlineDays,
             int durationMinutes,
             Instant now
     ) {
-        return new TrainingEnrollment(TrainingEnrollmentId.newId(), ownerId, name, description, location, capacity, cancellationDeadlineDays, durationMinutes, now, now);
+        return new TrainingEnrollment(TrainingEnrollmentId.newId(), ownerId, name, description, trainingLevel, location, capacity, cancellationDeadlineDays, durationMinutes, now, now);
     }
 
     public TrainingEnrollment {
         name = normalizeName(name);
         description = normalizeDescription(description);
+        Objects.requireNonNull(trainingLevel, "Training level is required");
         validateNumbers(capacity, cancellationDeadlineDays, durationMinutes);
     }
 
     public TrainingEnrollment update(
             String updatedName,
             String updatedDescription,
+            TrainingLevel updatedTrainingLevel,
             Location updatedLocation,
             int updatedCapacity,
             int updatedCancellationDeadlineDays,
             int updatedDurationMinutes,
             Instant now
     ) {
-        return new TrainingEnrollment(id, ownerId, updatedName, updatedDescription, updatedLocation, updatedCapacity, updatedCancellationDeadlineDays, updatedDurationMinutes, createdAt, now);
+        return new TrainingEnrollment(id, ownerId, updatedName, updatedDescription, updatedTrainingLevel, updatedLocation, updatedCapacity, updatedCancellationDeadlineDays, updatedDurationMinutes, createdAt, now);
     }
 
     private static void validateNumbers(int capacity, int cancellationDeadlineDays, int durationMinutes) {

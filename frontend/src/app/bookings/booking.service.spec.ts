@@ -98,6 +98,7 @@ function sampleTerm() {
     id: 'term-id',
     name: 'Basic pistol',
     description: '',
+      trainingLevel: 'BASIC',
     location: { placeName: 'Range A', address: 'Range Street 1', latitude: 52.2297, longitude: 21.0122 },
     capacity: 8,
     availablePlaces: 5,

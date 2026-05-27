@@ -1,18 +1,18 @@
-import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { form, FormField, max, maxLength, min, required, submit } from '@angular/forms/signals';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
+import {DatePipe} from '@angular/common';
+import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
+import {RouterLink} from '@angular/router';
+import {form, FormField, max, maxLength, min, required, submit} from '@angular/forms/signals';
+import {MatButtonModule} from '@angular/material/button';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatSelectModule} from '@angular/material/select';
 
-import { TranslatePipe } from '../shared/i18n/translate.pipe';
-import { TranslationService } from '../shared/i18n/translation.service';
-import { ReservationSummary, Term, TrainingEnrollment, WaitlistEntrySummary } from './booking.models';
-import { BookingService } from './booking.service';
+import {TranslatePipe} from '../shared/i18n/translate.pipe';
+import {TranslationService} from '../shared/i18n/translation.service';
+import {ReservationSummary, Term, TrainingEnrollment, TrainingLevel, WaitlistEntrySummary} from './booking.models';
+import {BookingService} from './booking.service';
 
 @Component({
   selector: 'app-booking-admin',
@@ -47,12 +47,14 @@ export class BookingAdminComponent {
   protected readonly savingTerm = signal(false);
   protected readonly loadingReservations = signal(false);
   protected readonly error = signal<string | null>(null);
+    protected readonly trainingLevels: readonly TrainingLevel[] = ['BASIC', 'INTERMEDIATE', 'ADVANCED'];
 
   protected readonly selectedTerm = computed(() => this.terms().find((term) => term.id === this.selectedTermId()) ?? null);
 
   protected readonly enrollmentModel = signal({
     name: 'Basic pistol',
     description: '',
+      trainingLevel: 'BASIC' as TrainingLevel,
     placeName: 'Range A',
     address: 'Range Street 1',
     latitude: 52.2297,
@@ -65,6 +67,7 @@ export class BookingAdminComponent {
     required(path.name, { message: 'validation.nameRequired' });
     maxLength(path.name, 120, { message: 'validation.useAtMost' });
     maxLength(path.description, 2048, { message: 'validation.useAtMost' });
+      required(path.trainingLevel, {message: 'validation.trainingLevelRequired'});
     required(path.placeName, { message: 'validation.placeRequired' });
     required(path.address, { message: 'validation.addressRequired' });
     min(path.latitude, -90, { message: 'validation.latitudeMin' });
@@ -80,6 +83,7 @@ export class BookingAdminComponent {
     enrollmentId: '',
     name: '',
     description: '',
+      trainingLevel: 'BASIC' as TrainingLevel,
     placeName: '',
     address: '',
     latitude: 52.2297,
@@ -94,6 +98,7 @@ export class BookingAdminComponent {
     required(path.name, { message: 'validation.nameRequired' });
     maxLength(path.name, 120, { message: 'validation.useAtMost' });
     maxLength(path.description, 2048, { message: 'validation.useAtMost' });
+      required(path.trainingLevel, {message: 'validation.trainingLevelRequired'});
     required(path.placeName, { message: 'validation.placeRequired' });
     required(path.address, { message: 'validation.addressRequired' });
     min(path.latitude, -90, { message: 'validation.latitudeMin' });
@@ -139,6 +144,7 @@ export class BookingAdminComponent {
         const enrollment = await this.bookings.createEnrollment({
           name: model.name,
           description: model.description,
+            trainingLevel: model.trainingLevel,
           location: {
             placeName: model.placeName,
             address: model.address,
@@ -168,6 +174,7 @@ export class BookingAdminComponent {
         const term = await this.bookings.createTerm({
           name: model.name,
           description: model.description,
+            trainingLevel: model.trainingLevel,
           location: {
             placeName: model.placeName,
             address: model.address,
@@ -219,6 +226,7 @@ export class BookingAdminComponent {
       enrollmentId,
       name: enrollment.name,
       description: enrollment.description,
+        trainingLevel: enrollment.trainingLevel,
       placeName: enrollment.location.placeName,
       address: enrollment.location.address,
       latitude: enrollment.location.latitude,
@@ -273,6 +281,10 @@ export class BookingAdminComponent {
       this.error.set(this.bookings.error() ?? 'errors.expireOffersFailed');
     }
   }
+
+    protected trainingLevelKey(level: TrainingLevel): string {
+        return `bookings.trainingLevel.${level}`;
+    }
 }
 
 function nextWeekLocalDateTime(): string {

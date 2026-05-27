@@ -3,6 +3,7 @@ package com.shootersplatform.backend.bookings.usecase
 import com.shootersplatform.backend.bookings.location.domain.Location
 import com.shootersplatform.backend.bookings.term.domain.Term
 import com.shootersplatform.backend.bookings.term.domain.TermNotFoundException
+import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel
 import com.shootersplatform.backend.identity.domain.UserId
 import spock.lang.Specification
 
@@ -79,7 +80,7 @@ class WaitlistUseCasesSpec extends Specification {
     }
 
     private Term fullTermWithTwoWaitlistEntries() {
-        def term = booking.createTerm.create(owner, "Basic pistol", "", location(), 1, 1, 60, LocalDateTime.parse("2026-06-01T12:00:00")).term()
+        def term = booking.createTerm.create(owner, "Basic pistol", "", TrainingLevel.BASIC, location(), 1, 1, 60, LocalDateTime.parse("2026-06-01T12:00:00")).term()
         reserve(term, "Anna", "anna@example.com")
         reserve(term, "Jan", "jan@example.com")
         reserve(term, "Ewa", "ewa@example.com")

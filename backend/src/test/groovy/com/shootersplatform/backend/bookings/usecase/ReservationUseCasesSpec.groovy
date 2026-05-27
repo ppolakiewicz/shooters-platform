@@ -7,6 +7,7 @@ import com.shootersplatform.backend.bookings.reservation.domain.ReservationValid
 import com.shootersplatform.backend.bookings.term.domain.Term
 import com.shootersplatform.backend.bookings.term.domain.TermNotFoundException
 import com.shootersplatform.backend.bookings.term.domain.TermValidationException
+import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel
 import com.shootersplatform.backend.identity.domain.AuthenticatedUser
 import com.shootersplatform.backend.identity.domain.UserId
 import spock.lang.Specification
@@ -211,7 +212,7 @@ class ReservationUseCasesSpec extends Specification {
     }
 
     private Term createTerm(int capacity) {
-        booking.createTerm.create(owner, "Basic pistol", "", location(), capacity, 1, 60, LocalDateTime.parse("2026-06-01T12:00:00")).term()
+        booking.createTerm.create(owner, "Basic pistol", "", TrainingLevel.BASIC, location(), capacity, 1, 60, LocalDateTime.parse("2026-06-01T12:00:00")).term()
     }
 
     private CreateReservationResult reserve(Term term, String firstName, String email, boolean createAccount = false) {

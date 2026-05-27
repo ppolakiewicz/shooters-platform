@@ -1,6 +1,7 @@
 package com.shootersplatform.backend.bookings.trainingenrollment.domain;
 
 import com.shootersplatform.backend.bookings.location.domain.Location;
+import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel;
 import com.shootersplatform.backend.identity.domain.UserId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,12 +30,13 @@ public class TrainingEnrollmentService {
             UserId ownerId,
             String name,
             String description,
+            TrainingLevel trainingLevel,
             Location location,
             int capacity,
             int cancellationDeadlineDays,
             int durationMinutes
     ) {
-        return trainingEnrollments.save(TrainingEnrollment.create(ownerId, name, description, location, capacity, cancellationDeadlineDays, durationMinutes, clock.instant()));
+        return trainingEnrollments.save(TrainingEnrollment.create(ownerId, name, description, trainingLevel, location, capacity, cancellationDeadlineDays, durationMinutes, clock.instant()));
     }
 
     public TrainingEnrollment update(
@@ -42,12 +44,13 @@ public class TrainingEnrollmentService {
             TrainingEnrollmentId enrollmentId,
             String name,
             String description,
+            TrainingLevel trainingLevel,
             Location location,
             int capacity,
             int cancellationDeadlineDays,
             int durationMinutes
     ) {
         TrainingEnrollment enrollment = trainingEnrollments.findByIdAndOwner(enrollmentId, ownerId).orElseThrow(TrainingEnrollmentNotFoundException::new);
-        return trainingEnrollments.save(enrollment.update(name, description, location, capacity, cancellationDeadlineDays, durationMinutes, clock.instant()));
+        return trainingEnrollments.save(enrollment.update(name, description, trainingLevel, location, capacity, cancellationDeadlineDays, durationMinutes, clock.instant()));
     }
 }

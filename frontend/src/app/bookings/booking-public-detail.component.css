@@ -69,6 +69,22 @@ h1 {
   gap: 10px;
 }
 
+.level-chip {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    min-height: 30px;
+    margin-bottom: 12px;
+    border: 1px solid #d9dee8;
+    border-radius: 999px;
+    background: #f2f5f0;
+    padding: 5px 10px;
+    color: #3f4f3b;
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
 dl {
   display: grid;
   grid-template-columns: 1fr;

@@ -1,11 +1,11 @@
-import { provideZonelessChangeDetection } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { describe, expect, it, vi } from 'vitest';
+import {provideZonelessChangeDetection} from '@angular/core';
+import {TestBed} from '@angular/core/testing';
+import {provideRouter} from '@angular/router';
+import {describe, expect, it, vi} from 'vitest';
 
-import { BookingAdminComponent } from './booking-admin.component';
-import { BookingService } from './booking.service';
-import { ReservationSummary, Term, TrainingEnrollment, WaitlistEntrySummary } from './booking.models';
+import {BookingAdminComponent} from './booking-admin.component';
+import {BookingService} from './booking.service';
+import {ReservationSummary, Term, TrainingEnrollment, WaitlistEntrySummary} from './booking.models';
 
 describe('BookingAdminComponent', () => {
   it('loads enrollments and terms for management', async () => {
@@ -35,6 +35,7 @@ describe('BookingAdminComponent', () => {
 
     await vi.waitFor(() => expect(fixture.nativeElement.querySelector('td[data-label="Start"]')).not.toBeNull());
     expect(fixture.nativeElement.querySelector('td[data-label="Name"]')?.textContent).toContain('Basic pistol');
+      expect(fixture.nativeElement.querySelector('td[data-label="Training level"]')?.textContent).toContain('Intermediate');
 
     await component.openReservations(sampleTerm());
     fixture.detectChanges();
@@ -43,6 +44,51 @@ describe('BookingAdminComponent', () => {
     expect(fixture.nativeElement.querySelector('td[data-label="Status"]')?.textContent).toContain('CONFIRMED');
     expect(fixture.nativeElement.querySelector('td[data-label="Position"]')?.textContent).toContain('1');
   });
+
+    it('sends training level when creating an enrollment', async () => {
+        const service = serviceMock();
+        service.createEnrollment.mockResolvedValue(sampleEnrollment({
+            id: 'new-enrollment-id',
+            trainingLevel: 'ADVANCED'
+        }));
+        const {component} = await createComponent(service);
+
+        component.enrollmentModel.set({
+            name: 'Advanced pistol',
+            description: '',
+            trainingLevel: 'ADVANCED',
+            placeName: 'Range A',
+            address: 'Range Street 1',
+            latitude: 52.2297,
+            longitude: 21.0122,
+            capacity: 8,
+            cancellationDeadlineDays: 2,
+            durationMinutes: 90
+        });
+        component.createEnrollment();
+
+        await vi.waitFor(() => expect(service.createEnrollment).toHaveBeenCalled());
+        expect(service.createEnrollment).toHaveBeenCalledWith(expect.objectContaining({trainingLevel: 'ADVANCED'}));
+    });
+
+    it('copies enrollment training level to the term form', async () => {
+        const service = serviceMock();
+        const {component} = await createComponent(service);
+
+        await vi.waitFor(() => expect(component.termModel().trainingLevel).toBe('INTERMEDIATE'));
+    });
+
+    it('sends copied training level when creating a term', async () => {
+        const service = serviceMock();
+        service.createTerm.mockResolvedValue(sampleTerm({trainingLevel: 'INTERMEDIATE'}));
+        const {component} = await createComponent(service);
+
+        await vi.waitFor(() => expect(component.termModel().trainingLevel).toBe('INTERMEDIATE'));
+        component.createTerm();
+
+        await vi.waitFor(() => expect(service.createTerm).toHaveBeenCalled());
+        expect(service.createTerm).toHaveBeenCalledWith(expect.objectContaining({trainingLevel: 'INTERMEDIATE'}));
+    });
 });
 
 async function createComponent(service: unknown) {
@@ -65,6 +111,27 @@ interface BookingAdminComponentTestAccess {
   terms: () => Term[];
   reservations: () => ReservationSummary[];
   waitlistEntries: () => WaitlistEntrySummary[];
+    enrollmentModel: {
+        set(value: {
+            name: string;
+            description: string;
+            trainingLevel: 'BASIC' | 'INTERMEDIATE' | 'ADVANCED';
+            placeName: string;
+            address: string;
+            latitude: number;
+            longitude: number;
+            capacity: number;
+            cancellationDeadlineDays: number;
+            durationMinutes: number;
+        }): void;
+    };
+    termModel: () => {
+        trainingLevel: 'BASIC' | 'INTERMEDIATE' | 'ADVANCED';
+    };
+
+    createEnrollment(): void;
+
+    createTerm(): void;
   openReservations(term: Term): Promise<void>;
 }
 
@@ -106,25 +173,28 @@ function serviceMock() {
   };
 }
 
-function sampleEnrollment(): TrainingEnrollment {
+function sampleEnrollment(overrides: Partial<TrainingEnrollment> = {}): TrainingEnrollment {
   return {
     id: 'enrollment-id',
     name: 'Basic pistol',
     description: '',
+      trainingLevel: 'INTERMEDIATE',
     location: { placeName: 'Range A', address: 'Range Street 1', latitude: 52.2297, longitude: 21.0122 },
     capacity: 8,
     cancellationDeadlineDays: 2,
     durationMinutes: 90,
     createdAt: '2026-05-08T10:00:00Z',
-    updatedAt: '2026-05-08T10:00:00Z'
+      updatedAt: '2026-05-08T10:00:00Z',
+      ...overrides
   };
 }
 
-function sampleTerm(): Term {
+function sampleTerm(overrides: Partial<Term> = {}): Term {
   return {
     ...sampleEnrollment(),
     id: 'term-id',
     availablePlaces: 5,
-    startsAt: '2026-06-01T12:00:00'
+      startsAt: '2026-06-01T12:00:00',
+      ...overrides
   };
 }

@@ -1,6 +1,7 @@
 package com.shootersplatform.backend.bookings.web;
 
 import com.shootersplatform.backend.bookings.term.domain.Term;
+import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel;
 import com.shootersplatform.backend.bookings.usecase.AvailableTerm;
 
 import java.time.Instant;
@@ -11,6 +12,7 @@ record TermResponse(
         UUID id,
         String name,
         String description,
+        TrainingLevel trainingLevel,
         LocationResponse location,
         int capacity,
         int availablePlaces,
@@ -26,6 +28,7 @@ record TermResponse(
                 term.id().value(),
                 term.name(),
                 term.description(),
+                term.trainingLevel(),
                 LocationResponse.from(term.location()),
                 term.capacity(),
                 availablePlaces,
