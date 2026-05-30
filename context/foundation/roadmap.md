@@ -9,160 +9,130 @@ main_goal: market-feedback
 top_blocker: decisions
 ---
 
-# Roadmap
+# Roadmapa
 
-## Vision recap
+## Przypomnienie Wizji
 
-Shooters Platform reduces repeated organizer work and participant uncertainty around shooting-course availability. The
-MVP should prove that an organizer can reuse course information for a dated session, publish it, and let a participant
-register or join the waitlist without exceeding capacity.
+Shooters Platform ogranicza powtarzalną pracę organizatorów i niepewność uczestników wokół dostępności kursów strzeleckich. MVP powinno udowodnić, że organizator może ponownie użyć informacji o kursie dla datowanej sesji, opublikować ją i pozwolić uczestnikowi zarejestrować się albo dołączyć do listy rezerwowej bez przekraczania pojemności.
 
-The existing codebase already has the main application layers in place, so the roadmap focuses on closing the product
-gaps against the PRD rather than creating broad technical foundations.
+Istniejący codebase ma już główne warstwy aplikacji, więc roadmapa skupia się na domykaniu luk produktowych względem PRD zamiast na budowaniu szerokich fundamentów technicznych.
 
-## North star
+## Gwiazda Północna
 
-North star means the smallest end-to-end user-visible flow that proves the product works. For this PRD, that flow is: an
-organizer publishes a dated session from reusable course information, and a participant finds it and either registers
-when places are available or joins the waitlist when the session is full.
+Gwiazda północna oznacza najmniejszy widoczny dla użytkownika przepływ end-to-end, który dowodzi, że produkt działa. Dla tego PRD ten przepływ to: organizator publikuje datowaną sesję z informacji o kursie nadających się do ponownego użycia, a uczestnik znajduje ją i albo rejestruje się, gdy są dostępne miejsca, albo dołącza do listy rezerwowej, gdy sesja jest pełna.
 
-- Roadmap item: S-02
-- Why this proves the product: it exercises the organizer setup flow, public discovery, capacity enforcement, and
-  waitlist rule in one participant-facing path.
-- PRD refs: US-01, FR-001, FR-002, FR-003, FR-004, FR-005, FR-006
+- Element roadmapy: S-02
+- Dlaczego to dowodzi produktu: uruchamia przepływ konfiguracji organizatora, publiczne odkrywanie, egzekwowanie pojemności i regułę listy rezerwowej w jednej ścieżce uczestnika.
+- Referencje PRD: US-01, FR-001, FR-002, FR-003, FR-004, FR-005, FR-006
 
-## At a glance
+## W Skrócie
 
-| ID   | Outcome                                                                                                     | Change ID                              | Prerequisites | PRD refs                      | Status   |
-|------|-------------------------------------------------------------------------------------------------------------|----------------------------------------|---------------|-------------------------------|----------|
-| S-01 | Organizer can create reusable course information and publish an editable dated session from it.             | course-template-session-publishing     | -             | FR-001, FR-002, FR-003        | ready    |
-| S-02 | Participant can browse a published session and register or join the waitlist under capacity rules.          | participant-registration-waitlist-flow | S-01          | US-01, FR-004, FR-005, FR-006 | proposed |
-| S-03 | Registered participants receive scheduled session-details communication and organizers can see send status. | scheduled-session-communication        | S-02          | FR-007                        | blocked  |
-| S-04 | Organizer or instructor can confirm attendance before the course.                                           | pre-course-attendance-confirmation     | S-02          | US-01, FR-008                 | proposed |
+| ID   | Rezultat                                                                                                      | Change ID                              | Wymagania wstępne | Referencje PRD                 | Status   |
+|------|---------------------------------------------------------------------------------------------------------------|----------------------------------------|-------------------|-------------------------------|----------|
+| S-01 | Organizator może tworzyć informacje o kursie do ponownego użycia i publikować z nich edytowalną datowaną sesję. | course-template-session-publishing     | -                 | FR-001, FR-002, FR-003        | ready    |
+| S-02 | Uczestnik może przeglądać opublikowaną sesję i zarejestrować się albo dołączyć do listy rezerwowej według reguł pojemności. | participant-registration-waitlist-flow | S-01              | US-01, FR-004, FR-005, FR-006 | proposed |
+| S-03 | Zarejestrowani uczestnicy otrzymują zaplanowaną komunikację ze szczegółami sesji, a organizatorzy widzą status wysyłki. | scheduled-session-communication        | S-02              | FR-007                        | blocked  |
+| S-04 | Organizator albo instruktor może potwierdzić obecność przed kursem.                                           | pre-course-attendance-confirmation     | S-02              | US-01, FR-008                 | proposed |
 
-## Streams
+## Strumienie
 
-| Stream            | Chain      | Purpose                                                                                         |
-|-------------------|------------|-------------------------------------------------------------------------------------------------|
-| Booking core      | S-01, S-02 | Proves the template-to-session-to-participant path and capacity rule.                           |
-| Course operations | S-03, S-04 | Adds pre-course communication and organizer confirmation work after the booking path is stable. |
+| Strumień         | Łańcuch    | Cel                                                                                                  |
+|------------------|------------|-------------------------------------------------------------------------------------------------------|
+| Rdzeń rezerwacji | S-01, S-02 | Dowodzi ścieżki od szablonu przez sesję do uczestnika oraz reguły pojemności.                         |
+| Operacje kursu   | S-03, S-04 | Dodaje komunikację przed kursem i pracę organizatora nad potwierdzeniem po ustabilizowaniu rezerwacji. |
 
-## Baseline
+## Stan Bazowy
 
-- Frontend: present. Routed booking, identity, and training screens exist, including public booking list/detail and
-  organizer booking management.
-- Backend/API: present. The API already contains identity, training, bookings, health, web controllers, use cases,
-  domain services, and persistence adapters.
-- Data: present. Database schema is managed through migrations, with identity and booking tables already represented.
-- Auth: present. Email/password registration and login, session handling, CSRF, and route-level authorization are
-  implemented.
-- Deploy/infra: partial. Local database setup and CI with backend, frontend, and end-to-end checks exist; no production
-  deployment target was found.
-- Observability: partial. Health checks and application logging exist; dedicated metrics, tracing, and error reporting
-  were not found.
+- Frontend: obecny. Istnieją routowane ekrany rezerwacji, tożsamości i szkoleń, w tym publiczna lista/szczegóły rezerwacji i zarządzanie rezerwacjami przez organizatora.
+- Backend/API: obecne. API zawiera już identity, training, bookings, health, kontrolery web, use case'y, serwisy domenowe i adaptery persystencji.
+- Dane: obecne. Schemat bazy danych jest zarządzany migracjami, z tabelami identity i booking już reprezentowanymi.
+- Auth: obecny. Rejestracja i logowanie e-mail/hasło, obsługa sesji, CSRF i autoryzacja na poziomie tras są zaimplementowane.
+- Deploy/infra: częściowe. Istnieją lokalna konfiguracja bazy danych i CI z kontrolami backendu, frontendu oraz end-to-end; nie znaleziono produkcyjnego celu wdrożenia.
+- Obserwowalność: częściowa. Istnieją health checki i logowanie aplikacji; nie znaleziono dedykowanych metryk, tracingu ani raportowania błędów.
 
-## Foundations
+## Fundamenty
 
-No separate foundation items are needed before the first roadmap slice. The codebase already has the frontend, backend,
-data, and auth foundations required to start the PRD-aligned product flow.
+Nie są potrzebne osobne elementy fundamentów przed pierwszym wycinkiem roadmapy. Codebase ma już fundamenty frontendu, backendu, danych i auth wymagane do rozpoczęcia przepływu produktowego zgodnego z PRD.
 
-## Slices
+## Wycinki
 
-### S-01: Organizer can create reusable course information and publish an editable dated session from it.
+### S-01: Organizator może tworzyć informacje o kursie do ponownego użycia i publikować z nich edytowalną datowaną sesję.
 
-- Outcome: Organizer can create reusable course information, use it to prefill a dated session, edit copied details, and
-  publish the session.
+- Rezultat: Organizator może utworzyć informacje o kursie do ponownego użycia, użyć ich do wstępnego wypełnienia datowanej sesji, edytować skopiowane szczegóły i opublikować sesję.
 - Change ID: course-template-session-publishing
-- PRD refs: FR-001, FR-002, FR-003
-- Prerequisites: -
-- Parallel with: -
-- Blockers: -
-- Unknowns:
-    - Is the existing reusable course concept the canonical course template, or should the product language and model be
-      adjusted? Owner: user/product. Block: no.
-- Risk: This comes first because the participant booking path depends on having a published dated session with trusted
-  copied details.
+- Referencje PRD: FR-001, FR-002, FR-003
+- Wymagania wstępne: -
+- Równolegle z: -
+- Blokery: -
+- Niewiadome:
+    - Czy istniejące pojęcie kursu do ponownego użycia jest kanonicznym szablonem kursu, czy język produktu i model powinny zostać dostosowane? Właściciel: user/product. Blokuje: nie.
+- Ryzyko: To idzie jako pierwsze, ponieważ ścieżka rezerwacji uczestnika zależy od opublikowanej datowanej sesji z wiarygodnie skopiowanymi szczegółami.
 - Status: ready
 
-### S-02: Participant can browse a published session and register or join the waitlist under capacity rules.
+### S-02: Uczestnik może przeglądać opublikowaną sesję i zarejestrować się albo dołączyć do listy rezerwowej według reguł pojemności.
 
-- Outcome: Participant can browse or find published sessions, register only while places are available, and join the
-  waitlist only after capacity is full.
+- Rezultat: Uczestnik może przeglądać albo znajdować opublikowane sesje, rejestrować się tylko wtedy, gdy miejsca są dostępne, i dołączać do listy rezerwowej dopiero po zapełnieniu pojemności.
 - Change ID: participant-registration-waitlist-flow
-- PRD refs: US-01, FR-004, FR-005, FR-006
-- Prerequisites: S-01
-- Parallel with: -
-- Blockers: -
-- Unknowns:
-    - What public discovery surface is sufficient for MVP: chronological browse only, search, filters, or direct links?
-      Owner: user/product. Block: no.
-- Risk: This is the central product proof; it should follow S-01 so the participant path tests real organizer-published
-  sessions rather than synthetic data.
+- Referencje PRD: US-01, FR-004, FR-005, FR-006
+- Wymagania wstępne: S-01
+- Równolegle z: -
+- Blokery: -
+- Niewiadome:
+    - Jaka publiczna powierzchnia odkrywania wystarczy dla MVP: tylko przegląd chronologiczny, wyszukiwanie, filtry czy bezpośrednie linki? Właściciel: user/product. Blokuje: nie.
+- Ryzyko: To centralny dowód produktu; powinno nastąpić po S-01, aby ścieżka uczestnika testowała realne sesje opublikowane przez organizatora, a nie dane syntetyczne.
 - Status: proposed
 
-### S-03: Registered participants receive scheduled session-details communication and organizers can see send status.
+### S-03: Zarejestrowani uczestnicy otrzymują zaplanowaną komunikację ze szczegółami sesji, a organizatorzy widzą status wysyłki.
 
-- Outcome: Registered participants receive templated session details according to session configuration, and organizers
-  can see whether communication was sent.
+- Rezultat: Zarejestrowani uczestnicy otrzymują szablonowe szczegóły sesji zgodnie z konfiguracją sesji, a organizatorzy widzą, czy komunikacja została wysłana.
 - Change ID: scheduled-session-communication
-- PRD refs: FR-007
-- Prerequisites: S-02
-- Parallel with: S-04
-- Blockers: -
-- Unknowns:
-    - What counts as sent status for MVP: attempted, accepted by delivery provider, or manually marked as sent? Owner:
-      user/product. Block: yes.
-    - Should MVP use a real delivery channel immediately or record the workflow first and replace the delivery adapter
-      later? Owner: user/technical. Block: yes.
-- Risk: Sequencing this after S-02 avoids building communication around unstable booking states, but the send-status
-  decision must be made before planning the slice.
+- Referencje PRD: FR-007
+- Wymagania wstępne: S-02
+- Równolegle z: S-04
+- Blokery: -
+- Niewiadome:
+    - Co liczy się jako status wysłania dla MVP: próba wysyłki, akceptacja przez dostawcę dostarczania czy ręczne oznaczenie jako wysłane? Właściciel: user/product. Blokuje: tak.
+    - Czy MVP powinno od razu użyć realnego kanału dostarczania, czy najpierw zapisać workflow i później wymienić adapter dostarczania? Właściciel: user/technical. Blokuje: tak.
+- Ryzyko: Sekwencjonowanie tego po S-02 pozwala uniknąć budowania komunikacji wokół niestabilnych stanów rezerwacji, ale decyzja o statusie wysyłki musi zostać podjęta przed planowaniem wycinka.
 - Status: blocked
 
-### S-04: Organizer or instructor can confirm attendance before the course.
+### S-04: Organizator albo instruktor może potwierdzić obecność przed kursem.
 
-- Outcome: Organizer or instructor can mark whether a registered participant is confirmed for attendance before the
-  course.
+- Rezultat: Organizator albo instruktor może oznaczyć, czy zarejestrowany uczestnik jest potwierdzony do obecności przed kursem.
 - Change ID: pre-course-attendance-confirmation
-- PRD refs: US-01, FR-008
-- Prerequisites: S-02
-- Parallel with: S-03
-- Blockers: -
-- Unknowns:
-    - Which statuses are enough for MVP: unconfirmed and confirmed, or also declined/no response? Owner: user/product.
-      Block: no.
-- Risk: This should follow the booking path because attendance confirmation needs a stable list of registered
-  participants, but it can proceed independently from scheduled communication once S-02 is done.
+- Referencje PRD: US-01, FR-008
+- Wymagania wstępne: S-02
+- Równolegle z: S-03
+- Blokery: -
+- Niewiadome:
+    - Jakie statusy wystarczą dla MVP: niepotwierdzony i potwierdzony, czy także odmówił/brak odpowiedzi? Właściciel: user/product. Blokuje: nie.
+- Ryzyko: To powinno nastąpić po ścieżce rezerwacji, ponieważ potwierdzanie obecności wymaga stabilnej listy zarejestrowanych uczestników, ale po ukończeniu S-02 może iść niezależnie od zaplanowanej komunikacji.
 - Status: proposed
 
-## Backlog Handoff
+## Przekazanie Backlogu
 
-| Roadmap ID | Change ID                              | Recommended skill                                | Handoff note                                                                                                     |
-|------------|----------------------------------------|--------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
-| S-01       | course-template-session-publishing     | /10x-plan course-template-session-publishing     | Align reusable course information with dated session publishing and editable copied details.                     |
-| S-02       | participant-registration-waitlist-flow | /10x-plan participant-registration-waitlist-flow | Complete the participant browse, registration, capacity, and waitlist path against organizer-published sessions. |
-| S-03       | scheduled-session-communication        | /10x-plan scheduled-session-communication        | Plan only after send-status and delivery-channel decisions are resolved.                                         |
-| S-04       | pre-course-attendance-confirmation     | /10x-plan pre-course-attendance-confirmation     | Add organizer/instructor confirmation over registered participants.                                              |
+| ID roadmapy | Change ID                              | Rekomendowana umiejętność                         | Notatka przekazania                                                                                              |
+|------------|----------------------------------------|---------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
+| S-01       | course-template-session-publishing     | /10x-plan course-template-session-publishing      | Wyrównać informacje o kursie do ponownego użycia z publikowaniem datowanych sesji i edytowalnymi skopiowanymi szczegółami. |
+| S-02       | participant-registration-waitlist-flow | /10x-plan participant-registration-waitlist-flow  | Ukończyć ścieżkę przeglądania, rejestracji, pojemności i listy rezerwowej uczestnika względem sesji opublikowanych przez organizatora. |
+| S-03       | scheduled-session-communication        | /10x-plan scheduled-session-communication         | Planować dopiero po rozstrzygnięciu decyzji o statusie wysyłki i kanale dostarczania.                            |
+| S-04       | pre-course-attendance-confirmation     | /10x-plan pre-course-attendance-confirmation      | Dodać potwierdzanie przez organizatora/instruktora dla zarejestrowanych uczestników.                              |
 
-## Open Roadmap Questions
+## Otwarte Pytania Roadmapy
 
-1. **Course template mapping** - Is the existing reusable course concept the canonical course template, or should
-   product language and behavior be adjusted before S-01? Owner: user/product. Blocks: none.
-2. **Public discovery scope** - Is chronological browse enough for MVP, or does FR-004 require search or filtering in
-   the first slice? Owner: user/product. Blocks: none.
-3. **Communication send status** - What status is enough for MVP: attempted, accepted by delivery provider, or manually
-   marked as sent? Owner: user/product. Blocks: S-03.
-4. **Communication delivery path** - Should MVP use a real delivery channel immediately or record the workflow first and
-   replace delivery later? Owner: user/technical. Blocks: S-03.
-5. **Attendance status vocabulary** - Which statuses are enough before the course? Owner: user/product. Blocks: none.
+1. **Mapowanie szablonu kursu** - Czy istniejące pojęcie kursu do ponownego użycia jest kanonicznym szablonem kursu, czy przed S-01 należy dostosować język i zachowanie produktu? Właściciel: user/product. Blokuje: nic.
+2. **Zakres publicznego odkrywania** - Czy przegląd chronologiczny wystarczy dla MVP, czy FR-004 wymaga wyszukiwania albo filtrowania w pierwszym wycinku? Właściciel: user/product. Blokuje: nic.
+3. **Status wysyłki komunikacji** - Jaki status wystarczy dla MVP: próba wysyłki, akceptacja przez dostawcę czy ręczne oznaczenie jako wysłane? Właściciel: user/product. Blokuje: S-03.
+4. **Ścieżka dostarczania komunikacji** - Czy MVP powinno od razu użyć realnego kanału dostarczania, czy najpierw zapisać workflow i później wymienić dostarczanie? Właściciel: user/technical. Blokuje: S-03.
+5. **Słownik statusów obecności** - Jakie statusy wystarczą przed kursem? Właściciel: user/product. Blokuje: nic.
 
-## Parked
+## Zaparkowane
 
-- Waitlist promotion after participant cancellation. Reason: PRD marks it desirable but outside the primary MVP flow.
-- Waitlist notification after organizer manual participant removal. Reason: PRD marks it desirable but outside the
-  primary MVP flow.
-- Payment or billing module. Reason: PRD explicitly excludes payments; organizer confirms attendance manually.
-- Advanced admin management. Reason: PRD keeps only Organizer and Participant roles for MVP.
+- Promowanie z listy rezerwowej po anulowaniu przez uczestnika. Powód: PRD oznacza to jako pożądane, ale poza głównym przepływem MVP.
+- Powiadomienie listy rezerwowej po ręcznym usunięciu uczestnika przez organizatora. Powód: PRD oznacza to jako pożądane, ale poza głównym przepływem MVP.
+- Moduł płatności albo billingowy. Powód: PRD jawnie wyklucza płatności; organizator ręcznie potwierdza obecność.
+- Zaawansowane zarządzanie administracyjne. Powód: PRD zachowuje tylko role Organizator i Uczestnik dla MVP.
 
-## Done
+## Ukończone
 
-No roadmap items are done yet.
+Żaden element roadmapy nie jest jeszcze ukończony.

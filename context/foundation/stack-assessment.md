@@ -4,112 +4,112 @@ assessed_at: 2026-05-19T21:11:42.7117489+02:00
 agent_readiness: ready
 context_type: brownfield
 stack_components:
-  language: TypeScript 5.9 and Java 25
-  framework: Angular 21.2 frontend and Spring Boot 4.0.5 backend
+  language: TypeScript 5.9 i Java 25
+  framework: frontend Angular 21.2 i backend Spring Boot 4.0.5
   build_tool: Angular CLI / @angular/build, Gradle Wrapper, npm workspaces
-  test_runner: Vitest, Spock on JUnit Platform, Playwright
-  package_manager: npm and Gradle
+  test_runner: Vitest, Spock na JUnit Platform, Playwright
+  package_manager: npm i Gradle
   ci_provider: GitHub Actions
-  deployment_target: Docker Compose local PostgreSQL; no production target detected
+  deployment_target: lokalny PostgreSQL przez Docker Compose; nie wykryto celu produkcyjnego
 gates_passed: 20
 gates_failed: 0
 ---
 
-## Stack Components
+## Komponenty Stosu
 
-`shooters-platform` is an npm workspace rooted at `package.json`, with `frontend` and `e2e` workspaces and Node `>=20.19.0`. Package management is npm, proven by `package-lock.json`.
+`shooters-platform` to npm workspace z korzeniem w `package.json`, z workspace'ami `frontend` i `e2e` oraz Node `>=20.19.0`. Menedżerem pakietów jest npm, co potwierdza `package-lock.json`.
 
-The frontend is `shooters-platform-frontend`, an Angular 21.2 application using TypeScript 5.9, Angular Material/CDK, RxJS, and Angular CLI builders. `frontend/tsconfig.json` enables `strict`, `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch`, strict injection parameters, strict input access modifiers, and strict templates.
+Frontend to `shooters-platform-frontend`, aplikacja Angular 21.2 używająca TypeScript 5.9, Angular Material/CDK, RxJS i builderów Angular CLI. `frontend/tsconfig.json` włącza `strict`, `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch`, rygorystyczne parametry injection, rygorystyczne modyfikatory dostępu inputów oraz rygorystyczne szablony.
 
-The backend is a Java 25 Spring Boot 4.0.5 service built with the Gradle Wrapper. `backend/build.gradle` applies the Java, Groovy, Spring Boot, dependency management, Error Prone, and NullAway plugins. The backend uses Spring Web MVC, Spring Security, Spring Data JPA, Bean Validation, Flyway, PostgreSQL, and Bouncy Castle. Source layout follows feature packages such as `identity`, `training`, `bookings`, `health`, and `shared`, with visible `domain`, `web`, `infrastructure`, and `usecase` boundaries.
+Backend to usługa Java 25 Spring Boot 4.0.5 budowana Gradle Wrapperem. `backend/build.gradle` stosuje pluginy Java, Groovy, Spring Boot, dependency management, Error Prone i NullAway. Backend używa Spring Web MVC, Spring Security, Spring Data JPA, Bean Validation, Flyway, PostgreSQL i Bouncy Castle. Układ źródeł idzie za pakietami funkcjonalnymi, takimi jak `identity`, `training`, `bookings`, `health` i `shared`, z widocznymi granicami `domain`, `web`, `infrastructure` i `usecase`.
 
-Testing is split by layer. The frontend uses Angular's unit-test builder with Vitest and jsdom. The backend uses Spock 2.4 on JUnit Platform, Spring Boot test support, Spring Security test support, and Testcontainers. The `e2e` workspace uses Playwright 1.59.1 with a typed `playwright.config.ts`.
+Testy są podzielone warstwami. Frontend używa angularowego buildera testów jednostkowych z Vitest i jsdom. Backend używa Spock 2.4 na JUnit Platform, wsparcia testowego Spring Boot, wsparcia testowego Spring Security i Testcontainers. Workspace `e2e` używa Playwright 1.59.1 z typowanym `playwright.config.ts`.
 
-CI is GitHub Actions in `.github/workflows/ci.yml`. It installs npm dependencies, builds and tests the backend, builds and tests the frontend, starts both apps, waits on health checks, and runs Playwright e2e tests in the official Playwright container. Local infrastructure is `docker-compose.yml` with PostgreSQL 18.3 and a healthcheck. No production deployment target was detected.
+CI działa w GitHub Actions w `.github/workflows/ci.yml`. Instaluje zależności npm, buduje i testuje backend, buduje i testuje frontend, uruchamia obie aplikacje, czeka na health checki i uruchamia testy e2e Playwright w oficjalnym kontenerze Playwright. Lokalna infrastruktura to `docker-compose.yml` z PostgreSQL 18.3 i healthcheckiem. Nie wykryto produkcyjnego celu wdrożenia.
 
-## Quality Gate Assessment
+## Ocena Bram Jakości
 
-| Component | Typed | Convention | Training Data | Documented | Verdict |
+| Komponent | Typowany | Konwencja | Dane treningowe | Udokumentowany | Werdykt |
 | --- | --- | --- | --- | --- | --- |
-| TypeScript frontend language | pass | n/a | n/a | n/a | pass |
-| Java backend language | pass | n/a | n/a | n/a | pass |
-| Angular frontend framework | n/a | pass | pass | pass | pass |
-| Spring Boot backend framework | n/a | pass | pass | pass | pass |
+| Język frontendu TypeScript | pass | n/a | n/a | n/a | pass |
+| Język backendu Java | pass | n/a | n/a | n/a | pass |
+| Framework frontendu Angular | n/a | pass | pass | pass | pass |
+| Framework backendu Spring Boot | n/a | pass | pass | pass | pass |
 | Angular CLI / @angular/build | n/a | pass | pass | pass | pass |
 | Gradle Wrapper | n/a | pass | pass | pass | pass |
-| Vitest unit tests | n/a | n/a | pass | pass | pass |
-| Spock / JUnit Platform backend tests | n/a | n/a | pass | pass | pass |
-| Playwright e2e tests | n/a | n/a | pass | pass | pass |
+| Testy jednostkowe Vitest | n/a | n/a | pass | pass | pass |
+| Testy backendu Spock / JUnit Platform | n/a | n/a | pass | pass | pass |
+| Testy e2e Playwright | n/a | n/a | pass | pass | pass |
 
-Legend: `pass` = criterion met, `fail` = criterion missed, `n/a` = not applicable for this component.
+Legenda: `pass` = kryterium spełnione, `fail` = kryterium niespełnione, `n/a` = nie dotyczy tego komponentu.
 
-### Gate Details
+### Szczegóły Bram
 
-Type safety passes strongly. The frontend is strict TypeScript via `frontend/tsconfig.json`, including strict Angular template checking. The backend is Java 25 and also configures NullAway with JSpecify mode in `backend/build.gradle`; `backend/src/main/java/com/shootersplatform/backend/package-info.java` marks the root package with `@NullMarked`.
+Bezpieczeństwo typów wypada bardzo dobrze. Frontend ma rygorystyczny TypeScript przez `frontend/tsconfig.json`, w tym rygorystyczne sprawdzanie szablonów Angular. Backend używa Java 25 i konfiguruje NullAway w trybie JSpecify w `backend/build.gradle`; `backend/src/main/java/com/shootersplatform/backend/package-info.java` oznacza pakiet główny przez `@NullMarked`.
 
-Framework convention strength passes. Angular supplies CLI project structure, `src/app`, `app.routes.ts`, component/test naming, and Angular builder conventions in `frontend/angular.json`. Spring Boot supplies application wiring, externalized configuration, auto-configuration, and standard application/test layouts. The backend also has a visible package convention around `domain`, `web`, `infrastructure`, and `usecase`.
+Siła konwencji frameworków jest spełniona. Angular dostarcza strukturę projektu CLI, `src/app`, `app.routes.ts`, nazewnictwo komponentów i testów oraz konwencje builderów Angular w `frontend/angular.json`. Spring Boot dostarcza spinanie aplikacji, konfigurację zewnętrzną, autokonfigurację i standardowe układy aplikacji oraz testów. Backend ma też widoczną konwencję pakietów wokół `domain`, `web`, `infrastructure` i `usecase`.
 
-Training-data familiarity passes within each language family. Angular is a mainstream TypeScript frontend framework. Spring Boot is a mainstream Java backend framework. Gradle, Vitest, Spock/JUnit, and Playwright are common tools in their respective ecosystems, so agents can usually lean on established idioms.
+Znajomość w danych treningowych jest spełniona w każdej rodzinie językowej. Angular to główny framework frontendowy TypeScript. Spring Boot to główny framework backendowy Java. Gradle, Vitest, Spock/JUnit i Playwright są popularnymi narzędziami w swoich ekosystemach, więc agenci zwykle mogą opierać się na utrwalonych idiomach.
 
-Documentation passes. Angular's official release documentation shows Angular 21 under support on the assessment date. Spring's official documentation lists Spring Boot 4.0.x as a stable documented line, and Spring announced 4.0.5 as available. Gradle, Vitest, Playwright, and Spock all have official reference or user documentation. Spring Boot 4.0.6 is already listed as the current stable patch line, so this project is one Spring Boot patch behind, but that is not an agent-readiness problem.
+Dokumentacja jest spełniona. Oficjalna dokumentacja wydań Angular pokazuje Angular 21 jako wspierany w dniu oceny. Oficjalna dokumentacja Spring wymienia Spring Boot 4.0.x jako stabilną, udokumentowaną linię, a Spring ogłosił dostępność 4.0.5. Gradle, Vitest, Playwright i Spock mają oficjalną dokumentację referencyjną lub użytkownika. Spring Boot 4.0.6 jest już wskazywany jako aktualna stabilna linia patch, więc projekt jest o jeden patch Spring Boot z tyłu, ale nie jest to problem gotowości dla agentów.
 
-## Gaps & Compensation
+## Luki I Kompensacja
 
-No quality-gate failures were found. The stack is typed, convention-heavy, mainstream for its ecosystems, and backed by official documentation.
+Nie znaleziono niezaliczonych bram jakości. Stos jest typowany, mocno konwencyjny, popularny w swoich ekosystemach i wsparty oficjalną dokumentacją.
 
-The main improvement opportunity is not a stack gap. `AGENTS.md` currently documents the 10x workflow but not the codebase's own implementation conventions. Adding project-specific instructions would reduce agent rediscovery work, especially around backend package boundaries and Angular feature layout.
+Główna szansa na poprawę nie jest luką stosu. `AGENTS.md` obecnie dokumentuje workflow 10x, ale nie własne konwencje implementacyjne codebase'u. Dodanie instrukcji specyficznych dla projektu zmniejszyłoby pracę agentów nad ponownym odkrywaniem, szczególnie wokół granic pakietów backendu i układu funkcji Angular.
 
-### Recommended Instruction File Additions
+### Rekomendowane Dodatki Do Pliku Instrukcji
 
-These additions are optional because the stack already passes the assessment criteria, but they are ready to paste into `AGENTS.md` or `CLAUDE.md`.
+Te dodatki są opcjonalne, ponieważ stos już spełnia kryteria oceny, ale są gotowe do wklejenia do `AGENTS.md` albo `CLAUDE.md`.
 
 ```markdown
-## Project Stack
+## Stos Projektu
 
-This repository is an npm workspace with `frontend` and `e2e`, plus a Java backend in `backend`.
+To repozytorium jest npm workspace z `frontend` i `e2e`, plus backend Java w `backend`.
 
 - Frontend: Angular 21, TypeScript 5.9, Angular Material, RxJS.
 - Backend: Java 25, Spring Boot 4.0, Gradle Wrapper, Spring Web MVC, Spring Security, Spring Data JPA, Flyway, PostgreSQL.
-- Tests: Vitest for Angular unit tests, Spock/JUnit Platform for backend tests, Playwright for e2e tests.
-- Local infrastructure: PostgreSQL is provided by `docker-compose.yml`.
+- Testy: Vitest dla testów jednostkowych Angular, Spock/JUnit Platform dla testów backendu, Playwright dla testów e2e.
+- Lokalna infrastruktura: PostgreSQL jest dostarczany przez `docker-compose.yml`.
 ```
 
 ```markdown
-## Backend Conventions
+## Konwencje Backendu
 
-Backend code lives under `backend/src/main/java/com/shootersplatform/backend`.
+Kod backendu mieszka pod `backend/src/main/java/com/shootersplatform/backend`.
 
-- Keep domain rules in `domain` packages.
-- Keep HTTP controllers, request/response DTOs, and exception handlers in `web` packages.
-- Keep JPA entities, Spring Data repositories, and persistence adapters in `infrastructure` packages.
-- Keep orchestration that crosses domain boundaries in `usecase` packages.
-- Preserve Java null-safety discipline: new backend packages should be covered by `@NullMarked`, and new code must satisfy NullAway.
-- Use Flyway migrations in `backend/src/main/resources/db/migration` for schema changes; do not rely on Hibernate DDL generation.
+- Trzymaj reguły domenowe w pakietach `domain`.
+- Trzymaj kontrolery HTTP, DTO request/response i handlery wyjątków w pakietach `web`.
+- Trzymaj encje JPA, repozytoria Spring Data i adaptery persystencji w pakietach `infrastructure`.
+- Trzymaj orkiestrację przechodzącą przez granice domen w pakietach `usecase`.
+- Zachowaj dyscyplinę null-safety w Java: nowe pakiety backendu powinny być objęte `@NullMarked`, a nowy kod musi spełniać NullAway.
+- Używaj migracji Flyway w `backend/src/main/resources/db/migration` do zmian schematu; nie polegaj na generowaniu DDL przez Hibernate.
 ```
 
 ```markdown
-## Frontend Conventions
+## Konwencje Frontendu
 
-Frontend code lives under `frontend/src/app`.
+Kod frontendu mieszka pod `frontend/src/app`.
 
-- Keep feature code grouped by domain folder such as `identity`, `training`, `bookings`, and `home`.
-- Keep routes in `app.routes.ts`.
-- Prefer Angular standalone components and typed services that match existing component/service/spec naming.
-- Preserve strict TypeScript and strict Angular template compatibility.
-- Add or update `*.spec.ts` tests when changing components, guards, or services.
+- Grupuj kod funkcji według folderów domenowych, takich jak `identity`, `training`, `bookings` i `home`.
+- Trzymaj trasy w `app.routes.ts`.
+- Preferuj standalone components Angular i typowane serwisy pasujące do istniejącego nazewnictwa component/service/spec.
+- Zachowaj zgodność z rygorystycznym TypeScript i rygorystycznymi szablonami Angular.
+- Dodawaj lub aktualizuj testy `*.spec.ts` przy zmianach komponentów, guardów albo serwisów.
 ```
 
 ```markdown
-## Test Commands
+## Komendy Testowe
 
-- Full frontend build: `npm run frontend:build`
-- Frontend unit tests: `npm run test --workspace frontend`
-- Backend build and tests: run `.\gradlew.bat build` from `backend` on Windows, or `./gradlew build` from `backend` on Unix.
-- E2E tests: `npm run e2e:test`
+- Pełny build frontendu: `npm run frontend:build`
+- Testy jednostkowe frontendu: `npm run test --workspace frontend`
+- Build i testy backendu: uruchom `.\gradlew.bat build` z `backend` na Windows albo `./gradlew build` z `backend` na Unix.
+- Testy E2E: `npm run e2e:test`
 ```
 
-## Summary
+## Podsumowanie
 
-Overall verdict: ready. The strongest agent-readiness signals are strict TypeScript, Java with NullAway, convention-based Angular and Spring Boot structure, and a CI workflow that exercises backend, frontend, and e2e tests.
+Werdykt ogólny: ready. Najmocniejsze sygnały gotowości dla agentów to rygorystyczny TypeScript, Java z NullAway, konwencyjna struktura Angular i Spring Boot oraz workflow CI, który uruchamia backend, frontend i testy e2e.
 
-No stack compensation is required. The recommended next step is `/10x-health-check`, focused on dependency health, test reliability, CI coverage, and any project-specific risks outside the stack-selection criteria.
+Nie jest wymagana kompensacja stosu. Rekomendowany następny krok to `/10x-health-check`, skupiony na kondycji zależności, niezawodności testów, pokryciu CI i ryzykach specyficznych dla projektu poza kryteriami wyboru stosu.

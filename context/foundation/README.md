@@ -1,15 +1,15 @@
-# Foundation Docs
+# Dokumenty Fundamentów
 
-Cross-change living documents that span multiple changes. Each project picks which foundation docs it needs (e.g. product requirements, tech-stack, roadmap, glossary, test-stack). Foundation docs are owned by the skills that read and write them; this README describes the conventions that apply to all of them.
+Żywe dokumenty przekrojowe, wspólne dla wielu zmian. Każdy projekt wybiera, których dokumentów fundamentów potrzebuje, np. wymagań produktowych, stosu technologicznego, roadmapy, glosariusza albo stosu testowego. Dokumenty fundamentów są własnością umiejętności, które je czytają i zapisują; ten README opisuje konwencje wspólne dla wszystkich takich dokumentów.
 
-## Update convention
+## Konwencja Aktualizacji
 
-**Edit-in-place.** Foundation docs evolve over the lifetime of the project. When something changes incrementally (a new dependency, a refined product goal, a shifted milestone), edit the existing file. Don't create dated copies.
+**Edytuj w miejscu.** Dokumenty fundamentów rozwijają się przez cały czas życia projektu. Gdy coś zmienia się przyrostowo, na przykład dochodzi nowa zależność, doprecyzowany cel produktowy albo przesunięty kamień milowy, edytuj istniejący plik. Nie twórz kopii z datą.
 
-## Archive convention
+## Konwencja Archiwizacji
 
-When a foundation doc is fully superseded -- replaced by a new approach rather than refined -- move it to `foundation/archive/YYYY-MM-DD-<doc>.md` and write the replacement at the original path. The archive folder is a historical record; nothing reads from it routinely.
+Gdy dokument fundamentów zostanie w pełni zastąpiony, czyli wymieniony przez nowe podejście zamiast doprecyzowany, przenieś go do `foundation/archive/YYYY-MM-DD-<doc>.md` i zapisz następcę pod pierwotną ścieżką. Folder archiwum jest zapisem historycznym; nic rutynowo z niego nie czyta.
 
-## Anti-pattern
+## Antywzorzec
 
-Do **not** put change-scoped docs here. Anything tied to a single change (its plan, its research, its review) belongs under `context/changes/<change-id>/`. Foundation is for what outlives any one change.
+**Nie** umieszczaj tutaj dokumentów ograniczonych do jednej zmiany. Wszystko, co dotyczy pojedynczej zmiany, czyli jej plan, research, review albo inne artefakty, należy do `context/changes/<change-id>/`. Fundamenty są na to, co przeżywa więcej niż jedną zmianę.

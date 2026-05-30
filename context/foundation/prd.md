@@ -15,141 +15,108 @@ timeline_budget:
   after_hours_only: true
 ---
 
-# Product Requirements Document
+# Dokument Wymagań Produktowych
 
-## Vision & Problem Statement
+## Wizja I Opis Problemu
 
-Training organizers repeat course setup and confirmation work, while participants looking to sign up for a training
-session must manually track availability when a session is full. The pain appears when organizers create a new dated
-training session from scratch instead of reusing a template, when participants cannot join a waiting list and get
-notified when a spot opens, and when instructors must manually send emails before each training session to confirm
-attendance.
+Organizatorzy szkoleń powtarzają pracę związaną z przygotowaniem kursów i potwierdzaniem udziału, a uczestnicy chcący zapisać się na szkolenie muszą ręcznie śledzić dostępność, gdy sesja jest pełna. Problem pojawia się, gdy organizatorzy tworzą nową datowaną sesję szkoleniową od zera zamiast użyć szablonu, gdy uczestnicy nie mogą dołączyć do listy rezerwowej i otrzymać powiadomienia po zwolnieniu miejsca oraz gdy instruktorzy muszą ręcznie wysyłać e-maile przed każdą sesją, aby potwierdzić obecność.
 
-The cost today is repeated course-description entry when only the date changes, missed registrations, manual pre-session
-email work, and participant uncertainty around availability. The key insight is that course templates, active waitlist
-notifications, and automated pre-session attendance confirmation together remove the current manual work and
-missed-registration risk.
+Dzisiejszy koszt to wielokrotne wpisywanie opisu kursu, gdy zmienia się tylko data, utracone rejestracje, ręczna praca e-mailowa przed sesją i niepewność uczestników wokół dostępności. Kluczowy wniosek jest taki, że szablony kursów, aktywne powiadomienia listy rezerwowej i automatyczne potwierdzanie obecności przed sesją razem usuwają obecną pracę ręczną i ryzyko utraconych rejestracji.
 
-## User & Persona
+## Użytkownik I Persona
 
-### Primary personas
+### Główne persony
 
-- Training organizer: creates and manages shooting-course sessions, reuses course information across dates, manages
-  registrations and waitlists, and needs attendance confirmation before each session.
-- Participant: looks for available shooting-course sessions, signs up, joins a waiting list when a session is full, and
-  needs to know when a spot opens.
+- Organizator szkolenia: tworzy i zarządza sesjami kursów strzeleckich, ponownie używa informacji o kursie między terminami, zarządza rejestracjami i listami rezerwowymi oraz potrzebuje potwierdzenia obecności przed każdą sesją.
+- Uczestnik: szuka dostępnych sesji kursów strzeleckich, zapisuje się, dołącza do listy rezerwowej, gdy sesja jest pełna, i musi wiedzieć, kiedy zwolni się miejsce.
 
-## Success Criteria
+## Kryteria Sukcesu
 
-### Primary
+### Główne
 
-- The MVP works when an organizer can create or reuse a course template, publish a dated session with editable prefilled
-  data, and a participant can register only when places are available.
-- If no places are available, the participant can join the waitlist; a participant cannot join the waitlist while places
-  are still available.
-- Registered participants receive a templated session-details email a configured number of days before the session, and
-  the instructor or organizer can confirm attendance before the course.
+- MVP działa, gdy organizator może utworzyć albo ponownie użyć szablonu kursu, opublikować datowaną sesję z edytowalnymi, wstępnie wypełnionymi danymi, a uczestnik może zarejestrować się tylko wtedy, gdy są dostępne miejsca.
+- Jeśli nie ma dostępnych miejsc, uczestnik może dołączyć do listy rezerwowej; uczestnik nie może dołączyć do listy rezerwowej, gdy miejsca są nadal dostępne.
+- Zarejestrowani uczestnicy otrzymują szablonowy e-mail ze szczegółami sesji określoną liczbę dni przed sesją, a instruktor albo organizator może potwierdzić obecność przed kursem.
 
-### Secondary
+### Drugorzędne
 
-- Waitlist promotion after cancellation is desirable but not part of the primary MVP flow.
-- Waitlist notification after organizer manual participant removal is desirable but not part of the primary MVP flow.
+- Promowanie z listy rezerwowej po anulowaniu jest pożądane, ale nie należy do głównego przepływu MVP.
+- Powiadomienie listy rezerwowej po ręcznym usunięciu uczestnika przez organizatora jest pożądane, ale nie należy do głównego przepływu MVP.
 
-### Guardrails
+### Ograniczenia Bezpieczeństwa
 
-- Session capacity must not be exceeded.
+- Pojemność sesji nie może zostać przekroczona.
 
-## User Stories
+## Historie Użytkownika
 
-### US-01: Participant registers for a dated shooting course
+### US-01: Uczestnik rejestruje się na datowany kurs strzelecki
 
-- **Given** an organizer has published a dated session from a course template
-- **When** a participant finds the session and places are available
-- **Then** the participant can register for the session and is counted against session capacity
+- **Given** organizator opublikował datowaną sesję z szablonu kursu
+- **When** uczestnik znajduje sesję i są dostępne miejsca
+- **Then** uczestnik może zarejestrować się na sesję i jest wliczany do pojemności sesji
 
-#### Acceptance Criteria
+#### Kryteria Akceptacji
 
-- Participant cannot register if session capacity is already full.
-- Participant cannot join the waitlist while places are still available.
-- Participant can join the waitlist when no places are available.
-- Registered participants receive the session-details email based on the session's assigned email template.
-- Instructor or organizer can confirm attendance before the course.
+- Uczestnik nie może się zarejestrować, jeśli pojemność sesji jest już pełna.
+- Uczestnik nie może dołączyć do listy rezerwowej, gdy miejsca są nadal dostępne.
+- Uczestnik może dołączyć do listy rezerwowej, gdy nie ma dostępnych miejsc.
+- Zarejestrowani uczestnicy otrzymują e-mail ze szczegółami sesji na podstawie szablonu e-maila przypisanego do sesji.
+- Instruktor albo organizator może potwierdzić obecność przed kursem.
 
-## Functional Requirements
+## Wymagania Funkcjonalne
 
-### Course setup
+### Konfiguracja kursu
 
-- FR-001: Organizer can create course templates. Priority: must-have
-  > Socrates: Counter-argument considered: templates may be overkill if there are only a few course types or if copying
-  a previous session is simpler. Resolution: kept; session is a different business concept with a different lifecycle,
-  and the same session can have multiple templates based on season.
-- FR-002: Organizer can reuse a course template when creating a dated session. Priority: must-have
-  > Socrates: Counter-argument considered: template reuse could create stale session details or conflict with
-  session-specific customization. Resolution: kept; there will not be much session-specific customization, and using a
-  template is faster: select template, set date, approve, and create the new session.
-- FR-003: Organizer can edit prefilled session data before publishing. Priority: must-have
-  > Socrates: Counter-argument considered: editing copied data could cause inconsistencies between template and session,
-  or make templates less valuable. Resolution: kept; editing is needed for quick adjustments.
+- FR-001: Organizator może tworzyć szablony kursów. Priorytet: must-have
+  > Socrates: Rozważony kontrargument: szablony mogą być nadmiarowe, jeśli jest tylko kilka typów kursów albo jeśli skopiowanie poprzedniej sesji jest prostsze. Rozstrzygnięcie: utrzymane; sesja jest innym pojęciem biznesowym z innym cyklem życia, a ta sama sesja może mieć wiele szablonów zależnie od sezonu.
+- FR-002: Organizator może ponownie użyć szablonu kursu przy tworzeniu datowanej sesji. Priorytet: must-have
+  > Socrates: Rozważony kontrargument: ponowne użycie szablonu może utworzyć nieaktualne szczegóły sesji albo kolidować z dostosowaniem konkretnej sesji. Rozstrzygnięcie: utrzymane; nie będzie dużo dostosowania specyficznego dla sesji, a użycie szablonu jest szybsze: wybrać szablon, ustawić datę, zatwierdzić i utworzyć nową sesję.
+- FR-003: Organizator może edytować wstępnie wypełnione dane sesji przed publikacją. Priorytet: must-have
+  > Socrates: Rozważony kontrargument: edycja skopiowanych danych może powodować niespójności między szablonem i sesją albo zmniejszać wartość szablonów. Rozstrzygnięcie: utrzymane; edycja jest potrzebna do szybkich korekt.
 
-### Registration and waitlist
+### Rejestracja i lista rezerwowa
 
-- FR-004: Participant can browse or find a session. Priority: must-have
-  > Socrates: Counter-argument considered: participants may arrive through direct links, and search or browse may be too
-  broad for MVP. Resolution: kept; sharing links with participants is currently inconvenient, and participants should be
-  able to search on their own without organizer interaction.
-- FR-005: Participant can register only when places are available. Priority: must-have
-  > Socrates: Counter-argument considered: overbooking might be useful for no-show risk, or organizer approval may be
-  needed before counting someone as registered. Resolution: kept; shooting sessions have limited capacity for safety
-  reasons and overbooking is not allowed.
-- FR-006: Participant can join the waitlist only when no places are available. Priority: must-have
-  > Socrates: Counter-argument considered: some participants may prefer waitlist even when places are available, or
-  organizers may want manual control over whether waitlist opens. Resolution: kept; there is no reason to join the
-  waitlist when a place is available.
+- FR-004: Uczestnik może przeglądać albo znaleźć sesję. Priorytet: must-have
+  > Socrates: Rozważony kontrargument: uczestnicy mogą trafiać przez bezpośrednie linki, a wyszukiwanie albo przeglądanie może być zbyt szerokie dla MVP. Rozstrzygnięcie: utrzymane; udostępnianie linków uczestnikom jest obecnie niewygodne, a uczestnicy powinni móc samodzielnie wyszukiwać bez interakcji z organizatorem.
+- FR-005: Uczestnik może zarejestrować się tylko wtedy, gdy są dostępne miejsca. Priorytet: must-have
+  > Socrates: Rozważony kontrargument: overbooking mógłby być użyteczny przy ryzyku nieobecności, albo przed zaliczeniem kogoś jako zarejestrowanego może być potrzebna akceptacja organizatora. Rozstrzygnięcie: utrzymane; sesje strzeleckie mają ograniczoną pojemność ze względów bezpieczeństwa i overbooking nie jest dozwolony.
+- FR-006: Uczestnik może dołączyć do listy rezerwowej tylko wtedy, gdy nie ma dostępnych miejsc. Priorytet: must-have
+  > Socrates: Rozważony kontrargument: niektórzy uczestnicy mogą preferować listę rezerwową nawet przy dostępnych miejscach albo organizatorzy mogą chcieć ręcznie kontrolować, czy lista rezerwowa jest otwarta. Rozstrzygnięcie: utrzymane; nie ma powodu, by dołączać do listy rezerwowej, gdy dostępne jest miejsce.
 
-### Session communication and attendance
+### Komunikacja sesji i obecność
 
-- FR-007: System sends registered participants a templated session-details email a configured number of days before the
-  session. Priority: must-have
-  > Socrates: Counter-argument considered: manual review may be needed before official course details are sent, or email
-  delivery issues may make automated email risky as a must-have. Resolution: kept; the email template is assigned to the
-  session template and copied to the session when created, its content is stable, and the application must know the
-  email was sent so the organizer can manually follow up if the participant does not confirm participation.
-- FR-008: Instructor or organizer can confirm attendance before the course. Priority: must-have
-  > Socrates: Counter-argument considered: participant self-confirmation might be more useful, or attendance
-  confirmation might belong after the course. Resolution: kept; participation is confirmed by wire transfer, and because
-  the MVP has no billing or payment module, the organizer must manually confirm attendance based on received payment.
+- FR-007: System wysyła zarejestrowanym uczestnikom szablonowy e-mail ze szczegółami sesji określoną liczbę dni przed sesją. Priorytet: must-have
+  > Socrates: Rozważony kontrargument: przed wysłaniem oficjalnych szczegółów kursu może być potrzebny ręczny przegląd albo problemy z dostarczaniem e-maili mogą czynić automatyczny e-mail ryzykownym jako must-have. Rozstrzygnięcie: utrzymane; szablon e-maila jest przypisany do szablonu sesji i kopiowany do sesji przy tworzeniu, jego treść jest stabilna, a aplikacja musi wiedzieć, że e-mail został wysłany, aby organizator mógł ręcznie skontaktować się z uczestnikiem, jeśli ten nie potwierdzi udziału.
+- FR-008: Instruktor albo organizator może potwierdzić obecność przed kursem. Priorytet: must-have
+  > Socrates: Rozważony kontrargument: samodzielne potwierdzenie przez uczestnika mogłoby być bardziej użyteczne albo potwierdzanie obecności mogłoby należeć po kursie. Rozstrzygnięcie: utrzymane; udział jest potwierdzany przelewem, a ponieważ MVP nie ma modułu billingowego ani płatności, organizator musi ręcznie potwierdzić obecność na podstawie otrzymanej płatności.
 
-## Non-Functional Requirements
+## Wymagania Niefunkcjonalne
 
-- Organizers can see whether scheduled participant emails were sent.
-- Participant contact and registration data is visible only to authorized organizers and the participant.
-- The product never displays or confirms registrations above the configured session capacity.
-- Participants can browse and register from a phone as well as desktop.
+- Organizatorzy mogą zobaczyć, czy zaplanowane e-maile do uczestników zostały wysłane.
+- Dane kontaktowe i rejestracyjne uczestnika są widoczne tylko dla upoważnionych organizatorów i danego uczestnika.
+- Produkt nigdy nie wyświetla ani nie potwierdza rejestracji ponad skonfigurowaną pojemność sesji.
+- Uczestnicy mogą przeglądać i rejestrować się zarówno z telefonu, jak i z desktopu.
 
-## Business Logic
+## Logika Biznesowa
 
-The application enforces session-capacity rules by registering participants only while places are available, allowing
-waitlist entry only after capacity is full, and triggering scheduled participant communication before the session.
+Aplikacja egzekwuje reguły pojemności sesji przez rejestrowanie uczestników tylko wtedy, gdy są dostępne miejsca, dopuszczanie wejścia na listę rezerwową dopiero po zapełnieniu pojemności i wyzwalanie zaplanowanej komunikacji z uczestnikami przed sesją.
 
-The rule consumes the configured session capacity, the current number of registered participants, the participant's
-registration attempt, and the session's configured communication timing. Its output is whether the participant becomes
-registered, is allowed to join the waitlist, or is blocked from waitlist entry because places are still available.
+Reguła zużywa skonfigurowaną pojemność sesji, bieżącą liczbę zarejestrowanych uczestników, próbę rejestracji uczestnika oraz skonfigurowany timing komunikacji sesji. Jej wynikiem jest informacja, czy uczestnik zostaje zarejestrowany, może dołączyć do listy rezerwowej, czy jest zablokowany przed wejściem na listę rezerwową, ponieważ miejsca są nadal dostępne.
 
-The user encounters this rule when browsing and registering for a session, when a full session offers waitlist entry
-instead of registration, and when registered participants receive session details before the course.
+Użytkownik napotyka tę regułę podczas przeglądania i rejestrowania się na sesję, gdy pełna sesja oferuje wejście na listę rezerwową zamiast rejestracji oraz gdy zarejestrowani uczestnicy otrzymują szczegóły sesji przed kursem.
 
-## Access Control
+## Kontrola Dostępu
 
-Users log in with email and password.
+Użytkownicy logują się e-mailem i hasłem.
 
-- Organizer: can manage course templates, dated sessions, registrations, waitlists, and attendance confirmation.
-- Participant: can browse sessions, register, join waitlists, and confirm attendance.
+- Organizator: może zarządzać szablonami kursów, datowanymi sesjami, rejestracjami, listami rezerwowymi i potwierdzaniem obecności.
+- Uczestnik: może przeglądać sesje, rejestrować się, dołączać do list rezerwowych i potwierdzać obecność.
 
-## Non-Goals
+## Poza Zakresem
 
-- No payment or billing module: organizer confirms attendance manually based on wire transfer.
-- No advanced admin management: MVP keeps only Organizer and Participant roles.
+- Brak modułu płatności albo billingowego: organizator potwierdza obecność ręcznie na podstawie przelewu.
+- Brak zaawansowanego zarządzania administracyjnego: MVP zachowuje tylko role Organizator i Uczestnik.
 
-## Open Questions
+## Otwarte Pytania
 
-No open questions captured in shape notes.
+Nie zapisano otwartych pytań w shape notes.

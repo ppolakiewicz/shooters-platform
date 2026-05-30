@@ -1,5 +1,5 @@
-# Changes
+# Zmiany
 
-In-flight changes. One folder per change at `context/changes/<change-id>/`, identified by a `change.md` identity file. Created via `/10x-new`. Holds research, frame, plan, reviews, and other change-scoped artifacts.
+Zmiany w toku. Jeden folder na zmianę w `context/changes/<change-id>/`, identyfikowany przez plik tożsamości `change.md`. Tworzone przez `/10x-new`. Przechowuje research, framing, plan, review i inne artefakty ograniczone do danej zmiany.
 
-When a change is complete, archive it with `/10x-archive` to move it under `context/archive/`.
+Gdy zmiana jest ukończona, zarchiwizuj ją przez `/10x-archive`, aby przenieść ją pod `context/archive/`.

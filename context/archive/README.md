@@ -1,3 +1,3 @@
-# Archive
+# Archiwum
 
-Completed changes. Folders moved here from `context/changes/` when archived (see `/10x-archive`). Read-only by convention; skills refuse to write here.
+Ukończone zmiany. Foldery są przenoszone tutaj z `context/changes/` po archiwizacji (zobacz `/10x-archive`). Tylko do odczytu według konwencji; umiejętności odmawiają zapisu tutaj.

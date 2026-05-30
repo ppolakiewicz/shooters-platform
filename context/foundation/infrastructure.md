@@ -11,10 +11,10 @@ tech_stack:
   e2e: Playwright
 decision_inputs:
   persistent_connections: no
-  cost_sensitivity: free or very cheap
-  platform_familiarity: none
-  reach: Europe/Poland is enough
-  co_location_preference: prefer co-located on one platform
+  cost_sensitivity: darmowo albo bardzo tanio
+  platform_familiarity: brak
+  reach: Europa/Polska wystarczy
+  co_location_preference: preferowana kolokacja na jednej platformie
 inputs_used:
   - context/foundation/stack-assessment.md
   - AGENTS.md
@@ -23,134 +23,189 @@ missing_inputs:
   - context/foundation/prd.md
 ---
 
-# Infrastructure Recommendation
+# Rekomendacja Infrastruktury
 
-## Recommendation
+## Rekomendacja
 
-Use Railway for the MVP deployment.
+Użyj Railway do wdrożenia MVP.
 
-The deployment shape should be one Railway project in the EU West Metal region (`europe-west4-drams3a`, Amsterdam), with:
+Docelowy kształt wdrożenia powinien być jednym projektem Railway w regionie EU West Metal (`europe-west4-drams3a`,
+Amsterdam), z:
 
-- One Spring Boot web service.
-- One Railway PostgreSQL service.
-- Angular built into static assets and served by the Spring Boot service for the first MVP deploy.
+- Jedną usługą webową Spring Boot.
+- Jedną usługą Railway PostgreSQL.
+- Angularem zbudowanym do statycznych assetów i serwowanym przez usługę Spring Boot dla pierwszego wdrożenia MVP.
 
-Serving the Angular build from Spring Boot is the cheapest co-located shape for this repository because it avoids paying for a second always-on frontend service while keeping `/api` and browser routing under one origin. The repo can still keep the local developer split (`npm run frontend:start` plus `bootRun`), but production should start as a single web process.
+Serwowanie buildu Angulara ze Spring Boot to najtańszy kolokowany kształt dla tego repozytorium, bo unika opłacania
+drugiej zawsze uruchomionej usługi frontendowej, a jednocześnie utrzymuje `/api` i routing przeglądarkowy pod jednym
+originem. Repo nadal może zachować lokalny podział developerski (`npm run frontend:start` plus `bootRun`), ale produkcja
+powinna zacząć jako jeden proces webowy.
 
-Railway is the best fit because it has a current official Spring Boot guide, supports deploys from CLI, GitHub, and Dockerfile, provides PostgreSQL as a service in the same project, supports a European region, has monorepo guidance, exposes pre-deploy commands for migrations, and now exposes both local and hosted MCP support for agent operations. Current Railway Hobby pricing is $5/month with $5 of included usage; the Free tier has $1 credit and tighter resource limits, so MVP production should assume Hobby rather than "free forever."
+Railway jest najlepszym dopasowaniem, ponieważ ma aktualny oficjalny przewodnik Spring Boot, wspiera wdrożenia z CLI,
+GitHuba i Dockerfile, dostarcza PostgreSQL jako usługę w tym samym projekcie, wspiera region europejski, ma wskazówki
+dla monorepo, udostępnia pre-deploy commands dla migracji oraz obecnie udostępnia zarówno lokalne, jak i hostowane
+wsparcie MCP dla operacji agentów. Obecna cena Railway Hobby to $5/miesiąc z $5 wliczonego użycia; Free tier ma $1
+kredytu i ciaśniejsze limity zasobów, więc produkcyjne MVP powinno zakładać Hobby zamiast "free forever".
 
-## Runner-Up
+## Drugi Wybór
 
-Render is the runner-up.
+Render jest drugim wyborem.
 
-Render is more explicit about free web services and has Frankfurt as a region, Docker builds, managed PostgreSQL, infrastructure-as-code, a CLI, an API, and a hosted MCP server for Codex-compatible agent operations. The problem is database durability on the free tier: Free Render Postgres expires 30 days after creation. A real MVP with persistent bookings therefore starts at roughly the paid web service plus paid Postgres floor, not truly free.
+Render bardziej jednoznacznie opisuje darmowe usługi webowe i ma Frankfurt jako region, buildy Docker, zarządzany
+PostgreSQL, infrastructure-as-code, CLI, API i hostowany serwer MCP dla operacji agentowych kompatybilnych z Codex.
+Problemem jest trwałość bazy danych na darmowym tierze: Free Render Postgres wygasa 30 dni po utworzeniu. Prawdziwe MVP
+z trwałymi rezerwacjami startuje więc mniej więcej od kosztu płatnej usługi webowej plus płatnego Postgresa, a nie jest
+naprawdę darmowe.
 
-## Hard Filters
+## Twarde Filtry
 
-The current hard stack is Java 25 Spring Boot, Angular, and PostgreSQL. Platforms that cannot host a normal Spring Boot JVM process without replacing the backend architecture are not acceptable as the primary full-stack host.
+Obecny twardy stos to Java 25 Spring Boot, Angular i PostgreSQL. Platformy, które nie mogą hostować normalnego procesu
+JVM Spring Boot bez wymiany architektury backendu, nie są akceptowalne jako główny host full-stack.
 
-Cloudflare, Vercel, and Netlify remain useful future options for static frontend hosting, CDN, or edge functions, but they should not be the primary MVP platform for this repository unless the backend is moved to another host or rewritten. Current official runtime support does not make a Spring Boot service a first-class deployment target:
+Cloudflare, Vercel i Netlify pozostają użytecznymi przyszłymi opcjami dla statycznego hostingu frontendu, CDN albo edge
+functions, ale nie powinny być główną platformą MVP dla tego repozytorium, chyba że backend zostanie przeniesiony do
+innego hosta albo przepisany. Obecne oficjalne wsparcie runtime nie czyni usługi Spring Boot pierwszoklasowym celem
+wdrożeniowym:
 
-- Cloudflare Workers first-class languages are JavaScript, TypeScript, Python Workers, and Rust, with other languages only via Wasm.
-- Vercel official function runtimes include Node.js, Bun, Python, Rust, Go, Ruby, Wasm, and Edge, not Java.
-- Netlify Functions currently support TypeScript, JavaScript, and Go.
+- Języki pierwszej klasy Cloudflare Workers to JavaScript, TypeScript, Python Workers i Rust, a inne języki tylko przez
+  Wasm.
+- Oficjalne runtime'y funkcji Vercel obejmują Node.js, Bun, Python, Rust, Go, Ruby, Wasm i Edge, ale nie Java.
+- Netlify Functions obecnie wspiera TypeScript, JavaScript i Go.
 
-## Platform Comparison
+## Porównanie Platform
 
-| Platform | Stack fit | CLI-first | Managed/serverless | Agent-readable docs | Scriptable deploy API | MCP / agent integration | Cost fit | EU fit | Co-location fit | Verdict |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Railway | Pass | Pass | Pass | Pass | Pass | Pass | Pass | Pass | Pass | Recommended |
-| Render | Pass | Pass | Pass | Pass | Pass | Pass | Partial | Pass | Pass | Runner-up |
-| Fly.io | Pass | Pass | Partial | Pass | Pass | Partial | Fail | Pass | Partial | Good runtime, poor cheap-DB fit |
-| Vercel | Fail | Pass | Pass | Pass | Pass | Partial | Pass | Pass | Fail | Frontend-only for this repo |
-| Netlify | Fail | Pass | Pass | Pass | Pass | Partial | Pass | Partial | Fail | Frontend-only for this repo |
-| Cloudflare | Fail | Pass | Pass | Pass | Pass | Partial | Pass | Pass | Fail | Edge/static-only for this repo |
+| Platforma  | Dopasowanie stosu | CLI-first | Managed/serverless | Dokumentacja czytelna dla agentów | Skryptowalne API deployu | MCP / integracja agentowa | Dopasowanie kosztu | Dopasowanie EU | Dopasowanie kolokacji | Werdykt                         |
+|------------|-------------------|-----------|--------------------|-----------------------------------|--------------------------|---------------------------|--------------------|----------------|-----------------------|---------------------------------|
+| Railway    | Pass              | Pass      | Pass               | Pass                              | Pass                     | Pass                      | Pass               | Pass           | Pass                  | Rekomendowana                   |
+| Render     | Pass              | Pass      | Pass               | Pass                              | Pass                     | Pass                      | Partial            | Pass           | Pass                  | Drugi wybór                     |
+| Fly.io     | Pass              | Pass      | Partial            | Pass                              | Pass                     | Partial                   | Fail               | Pass           | Partial               | Dobry runtime, słabe tanie DB   |
+| Vercel     | Fail              | Pass      | Pass               | Pass                              | Pass                     | Partial                   | Pass               | Pass           | Fail                  | Tylko frontend dla tego repo    |
+| Netlify    | Fail              | Pass      | Pass               | Pass                              | Pass                     | Partial                   | Pass               | Partial        | Fail                  | Tylko frontend dla tego repo    |
+| Cloudflare | Fail              | Pass      | Pass               | Pass                              | Pass                     | Partial                   | Pass               | Pass           | Fail                  | Tylko edge/static dla tego repo |
 
-## Notes By Platform
+## Notatki Według Platform
 
 ### Railway
 
-Railway has an official Spring Boot deployment guide updated on 2026-05-21, including CLI, GitHub, and Dockerfile deploy paths. It also has a PostgreSQL service based on an SSL-enabled Postgres image, a monorepo guide, pre-deploy commands for migrations, rollback/redeploy actions, and public/custom domains. Railway's EU West Metal region is Amsterdam. Railway for Agents, checked 2026-05-21, documents CLI, local MCP, hosted MCP, and agent skills support.
+Railway ma oficjalny przewodnik wdrożenia Spring Boot zaktualizowany 2026-05-21, obejmujący ścieżki deployu przez CLI,
+GitHub i Dockerfile. Ma też usługę PostgreSQL opartą o obraz Postgres z włączonym SSL, przewodnik monorepo, pre-deploy
+commands dla migracji, akcje rollback/redeploy oraz domeny publiczne/custom. Region EU West Metal Railway to Amsterdam.
+Railway for Agents, sprawdzone 2026-05-21, dokumentuje CLI, lokalne MCP, hostowane MCP i wsparcie agent skills.
 
-Cost posture: assume Hobby at $5/month. Free has only $1/month credit and 0.5 GB RAM per service, which is too tight for a reliable Java + PostgreSQL MVP. Add a budget alert/spend limit before deploy.
+Postawa kosztowa: zakładaj Hobby za $5/miesiąc. Free ma tylko $1/miesiąc kredytu i 0.5 GB RAM na usługę, co jest zbyt
+ciasne dla niezawodnego MVP Java + PostgreSQL. Dodaj alert budżetowy/limit wydatków przed deployem.
 
 ### Render
 
-Render supports Docker web services, managed Postgres, static sites, private networking, environment variables, monorepo support, deploy hooks, pre-deploy commands, instant rollbacks, a CLI, a REST API, and a hosted MCP server. Frankfurt is available for services and datastores. Free web services spin down after 15 minutes idle, and Free Postgres expires after 30 days, so the free tier is suitable for demos but not a durable booking MVP.
+Render wspiera web services Docker, zarządzany Postgres, static sites, private networking, zmienne środowiskowe,
+wsparcie monorepo, deploy hooks, pre-deploy commands, natychmiastowe rollbacki, CLI, REST API i hostowany serwer MCP.
+Frankfurt jest dostępny dla usług i datastore'ów. Darmowe usługi webowe usypiają po 15 minutach bezczynności, a Free
+Postgres wygasa po 30 dniach, więc darmowy tier nadaje się do demo, ale nie do trwałego MVP rezerwacji.
 
-Cost posture: durable MVP starts above free. Check the current web-service and Postgres pricing during deploy planning because Render has recently changed workspace and Postgres plan language.
+Postawa kosztowa: trwałe MVP startuje powyżej free. Sprawdź aktualne ceny web-service i Postgres podczas planowania
+deployu, ponieważ Render ostatnio zmieniał język planów workspace i Postgres.
 
 ### Fly.io
 
-Fly.io can run a Dockerized Spring Boot service well and has strong CLI deploy mechanics (`fly deploy`, rolling/canary/blue-green strategies) plus European Postgres regions including Amsterdam and Frankfurt. It is less aligned with the "free or very cheap plus managed co-location" requirement because managed Postgres starts at $38/month before storage. A cheaper self-managed Postgres-on-volume shape is possible but increases operational burden and backup risk.
+Fly.io może dobrze uruchomić zdockeryzowaną usługę Spring Boot i ma mocne mechanizmy deployu CLI (`fly deploy`,
+strategie rolling/canary/blue-green) oraz europejskie regiony Postgres, w tym Amsterdam i Frankfurt. Jest mniej
+dopasowane do wymagania "darmowo albo bardzo tanio plus zarządzana kolokacja", ponieważ managed Postgres zaczyna się
+od $38/miesiąc przed storage. Tańszy kształt self-managed Postgres-on-volume jest możliwy, ale zwiększa ciężar
+operacyjny i ryzyko backupu.
 
 ### Vercel
 
-Vercel is excellent for frontend deployments and has a beta official MCP server, checked 2026-05-21. It is not a good primary host for this repository because Java is not an official function runtime and a persistent Spring Boot service is outside the normal platform model.
+Vercel jest świetny dla wdrożeń frontendu i ma beta oficjalny serwer MCP, sprawdzone 2026-05-21. Nie jest dobrym głównym
+hostem dla tego repozytorium, ponieważ Java nie jest oficjalnym runtime'em funkcji, a trwała usługa Spring Boot wychodzi
+poza normalny model platformy.
 
 ### Netlify
 
-Netlify is strong for static frontend hosting, deploy previews, and serverless functions, but Netlify Functions currently support TypeScript, JavaScript, and Go. That excludes the existing Spring Boot backend as a first-class target.
+Netlify jest mocne dla statycznego hostingu frontendu, deploy previews i funkcji serverless, ale Netlify Functions
+obecnie wspiera TypeScript, JavaScript i Go. To wyklucza istniejący backend Spring Boot jako pierwszoklasowy cel.
 
 ### Cloudflare
 
-Cloudflare is strong for edge/static workloads, has agent-readable docs and Cloudflare MCP/documentation support, and would be a good later CDN/DNS choice. Workers do not fit the current Spring Boot backend without a rewrite or unusual Wasm/native approach, so it is not the MVP full-stack host.
+Cloudflare jest mocne dla zadań edge/static, ma dokumentację czytelną dla agentów i wsparcie Cloudflare
+MCP/dokumentacji, a później byłoby dobrym wyborem dla CDN/DNS. Workers nie pasują do obecnego backendu Spring Boot bez
+przepisu albo nietypowego podejścia Wasm/native, więc nie jest to host full-stack dla MVP.
 
-## Anti-Bias Cross-Check
+## Kontrola Anty-Bias
 
-### Devil's Advocate Against Railway
+### Devil's Advocate Przeciw Railway
 
-1. The cheap Railway story can become misleading because $5/month is a subscription floor plus usage accounting, not a hard cap for an always-on Java service and Postgres.
-2. Java 25 may require a Dockerfile to make runtime selection explicit; relying on automatic detection could create deploy drift.
-3. Serving Angular from Spring Boot reduces cost, but it couples frontend releases to backend deploys and requires careful browser-history fallback configuration.
-4. Railway EU West is Amsterdam, not Poland. That is acceptable for the stated requirement, but it is still not local Polish hosting.
-5. Railway MCP and agent operations are powerful enough to mutate live infrastructure, so token scope and human confirmation matter from day one.
+1. Tania opowieść Railway może być myląca, ponieważ $5/miesiąc to podłoga subskrypcji plus rozliczenie użycia, a nie
+   twardy limit dla zawsze uruchomionej usługi Java i Postgres.
+2. Java 25 może wymagać Dockerfile, żeby jawnie wybrać runtime; poleganie na automatycznym wykrywaniu może spowodować
+   dryf deployu.
+3. Serwowanie Angulara ze Spring Boot obniża koszt, ale wiąże wydania frontendu z deployami backendu i wymaga ostrożnej
+   konfiguracji fallbacku historii przeglądarki.
+4. Railway EU West to Amsterdam, nie Polska. To akceptowalne dla deklarowanego wymagania, ale nadal nie jest lokalnym
+   polskim hostingiem.
+5. Railway MCP i operacje agentów są na tyle silne, że mogą mutować żywą infrastrukturę, więc zakres tokenów i
+   potwierdzenie człowieka mają znaczenie od pierwszego dnia.
 
 ### Pre-Mortem
 
-Six months after launch, the Railway decision failed because the project treated a cheap prototype setup like a production boundary. The Spring Boot service was deployed without a Dockerfile, so a platform build change caused a Java runtime mismatch during a routine redeploy. The Angular assets were bundled into the backend, which kept costs low, but frontend fixes now waited on backend builds and Flyway migration checks. The database grew modestly, but logs, builds, and always-on memory pushed usage above the expected floor. Nobody had configured budget alerts or a spend ceiling. Agent access was added through MCP for convenience, but the API token was too broad, so routine troubleshooting became uncomfortable around production secrets and variables. The root mistake was not choosing Railway; it was failing to write down the exact production shape, resource assumptions, deploy commands, rollback path, and permission boundary before first deploy.
+Sześć miesięcy po starcie decyzja o Railway zawiodła, bo projekt potraktował tanie ustawienie prototypowe jak granicę
+produkcyjną. Usługa Spring Boot została wdrożona bez Dockerfile, więc zmiana buildu platformy spowodowała niedopasowanie
+runtime'u Java podczas rutynowego redeployu. Assety Angulara były bundlowane do backendu, co trzymało koszty nisko, ale
+poprawki frontendu zaczęły czekać na buildy backendu i kontrole migracji Flyway. Baza danych urosła umiarkowanie, ale
+logi, buildy i pamięć always-on wypchnęły użycie ponad oczekiwaną podłogę. Nikt nie skonfigurował alertów budżetowych
+ani limitu wydatków. Dostęp agentowy dodano przez MCP dla wygody, ale token API był zbyt szeroki, więc rutynowe
+debugowanie stało się niekomfortowe wokół sekretów produkcyjnych i zmiennych. Głównym błędem nie był wybór Railway; było
+nim niezapisanie dokładnego kształtu produkcji, założeń zasobów, komend deployu, ścieżki rollbacku i granicy uprawnień
+przed pierwszym deployem.
 
-### Unknown Unknowns
+### Nieznane Niewiadome
 
-1. Railway's Java autodetection path may lag behind Java 25 expectations; Dockerfile-based deployment is the safer first production contract.
-2. The cheapest viable memory size for Spring Boot 4 plus PostgreSQL client pools is not known until measured under the real app jar.
-3. Angular-on-Spring production routing may expose missing fallback behavior that local Angular dev-server proxying hides.
-4. Railway's agent tooling is current and useful, but practical least-privilege controls for agent sessions need to be verified during setup, not assumed.
+1. Ścieżka autodetekcji Java w Railway może opóźniać się względem oczekiwań Java 25; wdrożenie oparte o Dockerfile jest
+   bezpieczniejszym pierwszym kontraktem produkcyjnym.
+2. Najtańszy realny rozmiar pamięci dla Spring Boot 4 plus pule klientów PostgreSQL nie jest znany, dopóki nie zostanie
+   zmierzony na prawdziwym jarze aplikacji.
+3. Produkcyjny routing Angular-on-Spring może ujawnić brakujące zachowanie fallback, które lokalne proxy dev-servera
+   Angular ukrywa.
+4. Narzędzia agentowe Railway są aktualne i użyteczne, ale praktyczne kontrole least-privilege dla sesji agentów trzeba
+   zweryfikować podczas konfiguracji, a nie zakładać.
 
-## Operational Story
+## Historia Operacyjna
 
-| Axis | Railway MVP answer |
-| --- | --- |
-| Preview | Use Railway environments only after the first production deploy is stable. For the first deploy, keep GitHub Actions as the quality gate and deploy `main` manually. |
-| Secrets | Store `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, and any auth secrets in Railway variables. Do not commit secrets or place them in MCP config. |
-| Database | Use a Railway PostgreSQL service in the same project and EU West region. Let Flyway run at app startup for MVP; move to Railway pre-deploy command if migrations become risky or slow. |
-| Build | Add a production Dockerfile that builds Angular, copies the built assets into Spring Boot static resources, builds the backend jar, and runs one JVM process. |
-| Deploy | Use Railway CLI for the first deploy: link the project/service, set variables, then deploy the Dockerfile-backed service. Use GitHub auto-deploy only after manual deploy is verified. |
-| Rollback | Use Railway deployment rollback to restore the previous successful image and variables. Treat database migrations as forward-only; test destructive migrations locally before production. |
-| Logs | Start with Railway service logs. Add structured JSON logging later if debugging production issues becomes slow. |
-| Approval | Production deploys and variable changes require a human approval step. Agent can prepare commands and inspect logs; destructive database actions remain human-only. |
+| Oś          | Odpowiedź Railway MVP                                                                                                                                                                                                 |
+|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Preview     | Użyj Railway environments dopiero po ustabilizowaniu pierwszego deployu produkcyjnego. Dla pierwszego deployu zachowaj GitHub Actions jako bramę jakości i deployuj `main` ręcznie.                                   |
+| Sekrety     | Przechowuj `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD` i wszystkie sekrety auth w zmiennych Railway. Nie commituj sekretów i nie umieszczaj ich w konfiguracji MCP.           |
+| Baza danych | Użyj usługi Railway PostgreSQL w tym samym projekcie i regionie EU West. Pozwól Flyway działać przy starcie aplikacji dla MVP; przenieś do Railway pre-deploy command, jeśli migracje staną się ryzykowne albo wolne. |
+| Build       | Dodaj produkcyjny Dockerfile, który buduje Angulara, kopiuje zbudowane assety do zasobów statycznych Spring Boot, buduje jar backendu i uruchamia jeden proces JVM.                                                   |
+| Deploy      | Użyj Railway CLI dla pierwszego deployu: połącz projekt/usługę, ustaw zmienne, a potem wdroż usługę opartą o Dockerfile. Włącz GitHub auto-deploy dopiero po zweryfikowaniu ręcznego deployu.                         |
+| Rollback    | Użyj rollbacku deploymentu Railway, aby przywrócić poprzedni udany obraz i zmienne. Traktuj migracje bazy jako forward-only; testuj destrukcyjne migracje lokalnie przed produkcją.                                   |
+| Logi        | Zacznij od logów usług Railway. Dodaj ustrukturyzowane logowanie JSON później, jeśli debugowanie problemów produkcyjnych stanie się powolne.                                                                          |
+| Akceptacja  | Deploye produkcyjne i zmiany zmiennych wymagają kroku akceptacji człowieka. Agent może przygotować komendy i analizować logi; destrukcyjne akcje na bazie danych pozostają wyłącznie dla człowieka.                   |
 
-## Risk Register
+## Rejestr Ryzyk
 
-| Risk | Source lens | Impact | Mitigation |
-| --- | --- | --- | --- |
-| Railway usage exceeds the expected cheap MVP floor. | Devil's advocate | Medium | Configure spending controls before deploy and record the initial monthly budget. |
-| Java 25 support drifts in automatic build detection. | Unknown unknowns | High | Use a Dockerfile with an explicit Java 25 base image. |
-| Serving Angular through Spring Boot breaks SPA fallback routing. | Pre-mortem | Medium | Add production route fallback and verify browser refresh on deep routes. |
-| Flyway runs a risky migration during app startup. | Research finding | High | Keep migrations additive for MVP; move to pre-deploy migration command before destructive changes. |
-| Agent/MCP permissions are too broad. | Devil's advocate | High | Use scoped tokens, keep secrets in environment variables, and require human confirmation for mutations. |
-| Render looks cheaper than it is because Free Postgres expires. | Research finding | Medium | Treat Render free as demo-only; compare against paid durable floor. |
-| Fly.io appears operationally elegant but managed Postgres violates the cheap requirement. | Research finding | Medium | Do not pick Fly.io unless cost preference changes or self-managed DB is accepted. |
+| Ryzyko                                                                               | Soczewka źródłowa   | Wpływ  | Mitygacja                                                                                                               |
+|--------------------------------------------------------------------------------------|---------------------|--------|-------------------------------------------------------------------------------------------------------------------------|
+| Użycie Railway przekracza oczekiwaną tanią podłogę MVP.                              | Devil's advocate    | Medium | Skonfiguruj kontrolę wydatków przed deployem i zapisz początkowy miesięczny budżet.                                     |
+| Wsparcie Java 25 dryfuje w automatycznej detekcji buildu.                            | Nieznane niewiadome | High   | Użyj Dockerfile z jawnym obrazem bazowym Java 25.                                                                       |
+| Serwowanie Angulara przez Spring Boot psuje fallback routing SPA.                    | Pre-mortem          | Medium | Dodaj produkcyjny fallback tras i zweryfikuj odświeżanie przeglądarki na głębokich trasach.                             |
+| Flyway uruchamia ryzykowną migrację przy starcie aplikacji.                          | Wynik researchu     | High   | Trzymaj migracje addytywne dla MVP; przenieś do pre-deploy migration command przed destrukcyjnymi zmianami.             |
+| Uprawnienia Agent/MCP są zbyt szerokie.                                              | Devil's advocate    | High   | Używaj zakresowanych tokenów, trzymaj sekrety w zmiennych środowiskowych i wymagaj potwierdzenia człowieka dla mutacji. |
+| Render wygląda taniej niż jest, bo Free Postgres wygasa.                             | Wynik researchu     | Medium | Traktuj Render free jako tylko demo; porównuj z płatną trwałą podłogą.                                                  |
+| Fly.io wygląda operacyjnie elegancko, ale managed Postgres łamie wymaganie taniości. | Wynik researchu     | Medium | Nie wybieraj Fly.io, chyba że zmieni się preferencja kosztowa albo zaakceptowany zostanie self-managed DB.              |
 
-## Source Checks
+## Sprawdzone Źródła
 
-- Railway Spring Boot deployment guide, checked 2026-05-21: https://docs.railway.com/guides/spring-boot
-- Railway PostgreSQL service docs, checked 2026-05-21: https://docs.railway.com/databases/postgresql
-- Railway pricing plans, checked 2026-05-21: https://docs.railway.com/pricing/plans
-- Railway regions, checked 2026-05-21: https://docs.railway.com/deployments/regions
-- Railway for Agents and MCP docs, checked 2026-05-21: https://docs.railway.com/agents and https://docs.railway.com/cli/mcp
-- Render free tier, pricing, regions, deploy, and MCP docs, checked 2026-05-21: https://render.com/docs/free, https://render.com/pricing, https://render.com/docs/regions, https://render.com/docs/deploys, https://render.com/docs/mcp-server
-- Fly.io deploy, pricing, and managed Postgres docs, checked 2026-05-21: https://fly.io/docs/launch/deploy/, https://fly.io/docs/about/pricing/, https://fly.io/docs/mpg/
-- Vercel runtimes and MCP docs, checked 2026-05-21: https://vercel.com/docs/functions/runtimes and https://vercel.com/docs/agent-resources/vercel-mcp
-- Netlify Functions docs, checked 2026-05-21: https://docs.netlify.com/build/functions/overview/
-- Cloudflare Workers languages docs, checked 2026-05-21: https://developers.cloudflare.com/workers/languages/
+- Railway Spring Boot deployment guide, sprawdzone 2026-05-21: https://docs.railway.com/guides/spring-boot
+- Railway PostgreSQL service docs, sprawdzone 2026-05-21: https://docs.railway.com/databases/postgresql
+- Railway pricing plans, sprawdzone 2026-05-21: https://docs.railway.com/pricing/plans
+- Railway regions, sprawdzone 2026-05-21: https://docs.railway.com/deployments/regions
+- Railway for Agents i dokumentacja MCP, sprawdzone 2026-05-21: https://docs.railway.com/agents
+  oraz https://docs.railway.com/cli/mcp
+- Render free tier, ceny, regiony, deploy i dokumentacja MCP, sprawdzone
+  2026-05-21: https://render.com/docs/free, https://render.com/pricing, https://render.com/docs/regions, https://render.com/docs/deploys, https://render.com/docs/mcp-server
+- Fly.io deploy, ceny i dokumentacja managed Postgres, sprawdzone
+  2026-05-21: https://fly.io/docs/launch/deploy/, https://fly.io/docs/about/pricing/, https://fly.io/docs/mpg/
+- Vercel runtimes i dokumentacja MCP, sprawdzone 2026-05-21: https://vercel.com/docs/functions/runtimes
+  oraz https://vercel.com/docs/agent-resources/vercel-mcp
+- Netlify Functions docs, sprawdzone 2026-05-21: https://docs.netlify.com/build/functions/overview/
+- Cloudflare Workers languages docs, sprawdzone 2026-05-21: https://developers.cloudflare.com/workers/languages/

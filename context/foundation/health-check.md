@@ -22,39 +22,44 @@ ci_provider: GitHub Actions
 recommended_fixes: 5
 ---
 
-## Dependency Health
+## Kondycja Zależności
 
 ### Lockfile
 
-Status: present (`package-lock.json`, `backend/gradle.lockfile`)
-Package manager: npm workspaces and Gradle Wrapper
+Status: obecny (`package-lock.json`, `backend/gradle.lockfile`)
+Menedżer pakietów: npm workspaces i Gradle Wrapper
 
-The root npm workspace is pinned with `package-lock.json`. The backend uses Gradle dependency locking through `backend/gradle.lockfile`, so both detected package-management surfaces have reproducible dependency state.
+Główny npm workspace jest przypięty przez `package-lock.json`. Backend używa blokowania zależności Gradle przez
+`backend/gradle.lockfile`, więc obie wykryte powierzchnie zarządzania pakietami mają odtwarzalny stan zależności.
 
-### Security Audit
+### Audyt Bezpieczeństwa
 
-Tool: `npm.cmd audit --json`; Java audit skipped - no built-in Java audit command exists in this health-check dispatch table.
-Summary: 0 CRITICAL, 0 HIGH, 0 MODERATE, 0 LOW
-Direct vs transitive: npm reported no vulnerabilities across 677 dependencies.
+Narzędzie: `npm.cmd audit --json`; audyt Java pominięty - w tabeli dispatch tego health-checku nie istnieje wbudowana
+komenda audytu Java.
+Podsumowanie: 0 CRITICAL, 0 HIGH, 0 MODERATE, 0 LOW
+Bezpośrednie vs przechodnie: npm nie zgłosił podatności wśród 677 zależności.
 
-Recommended external Java tool: the repository already has `.github/workflows/osv-scanner.yml`, which runs OSV Scanner recursively on pull requests, merge queue, pushes to `main`, weekly schedule, and manual dispatch.
+Rekomendowane zewnętrzne narzędzie Java: repozytorium ma już `.github/workflows/osv-scanner.yml`, które uruchamia OSV
+Scanner rekurencyjnie na pull requestach, merge queue, pushach do `main`, tygodniowym harmonogramie i ręcznym wywołaniu.
 
-### Outdated Dependencies
+### Nieaktualne Zależności
 
-Packages with major version gaps: unable to determine in this run.
+Pakiety z lukami major version: nie udało się ustalić w tym uruchomieniu.
 
-`npm.cmd outdated --json` was attempted, but the escalation request was rejected because it would send private workspace package metadata to the external npm registry. The check is recorded as skipped rather than retried through another route.
+Próbowano `npm.cmd outdated --json`, ale prośba o eskalację została odrzucona, ponieważ wysłałaby metadane prywatnych
+pakietów workspace do zewnętrznego rejestru npm. Kontrola jest zapisana jako pominięta zamiast ponawiana inną ścieżką.
 
-## Test Suite
+## Zestaw Testów
 
 Test runner: Vitest, Spock/JUnit Platform, Playwright
-Tests found: 34 frontend tests, 81 backend tests, 4 e2e tests discovered
-Test execution: passing for frontend and backend; e2e enumeration passing, full e2e execution not attempted in this local health check
+Znalezione testy: 34 testy frontendu, 81 testów backendu, 4 testy e2e
+Wykonanie testów: frontend i backend przechodzą; enumeracja e2e przechodzi, pełnego wykonania e2e nie próbowano w tym
+lokalnym health-checku
 
-Configuration: `frontend/angular.json`, `backend/build.gradle`, `e2e/playwright.config.ts`
-Framework: Angular unit-test builder with Vitest 4.1.5, Spock 2.4 on JUnit Platform, Playwright 1.59.1
+Konfiguracja: `frontend/angular.json`, `backend/build.gradle`, `e2e/playwright.config.ts`
+Framework: Angular unit-test builder z Vitest 4.1.5, Spock 2.4 na JUnit Platform, Playwright 1.59.1
 
-Verification commands run:
+Uruchomione komendy weryfikacyjne:
 
 ```powershell
 npm.cmd run test --workspace frontend
@@ -62,112 +67,132 @@ npm.cmd run test --workspace frontend
 npm.cmd exec --workspace e2e -- playwright test --list
 ```
 
-Results:
+Wyniki:
 
-- Frontend: 13 test files passed, 34 tests passed.
-- Backend: Gradle `test` completed successfully; existing JUnit XML reports show 18 suites, 81 tests, 0 failures, 0 errors.
-- E2E: 4 Playwright tests discovered across 3 files.
+- Frontend: przeszło 13 plików testowych, 34 testy.
+- Backend: Gradle `test` zakończył się sukcesem; istniejące raporty JUnit XML pokazują 18 suite'ów, 81 testów, 0
+  failure, 0 error.
+- E2E: wykryto 4 testy Playwright w 3 plikach.
 
 ## CI/CD
 
-Provider: GitHub Actions
-Configuration: `.github/workflows/ci.yml`, `.github/workflows/osv-scanner.yml`
+Dostawca: GitHub Actions
+Konfiguracja: `.github/workflows/ci.yml`, `.github/workflows/osv-scanner.yml`
 
-| Stage | Status | Notes |
-| --- | --- | --- |
-| Lint | missing | `frontend/package.json` has `lint`, but CI does not run it. No backend style-only lint task is configured beyond Error Prone and NullAway during compilation. |
-| Test | present | CI runs backend tests, frontend tests, and Playwright e2e tests. |
-| Build | present | CI runs `backend/gradlew build` and `npm run frontend:build`. |
-| Type check | present | Angular build enforces strict TypeScript/template checking; backend compilation enforces Java compilation, Error Prone, and NullAway. |
-| Security | present | Separate OSV Scanner workflow runs recursive scans. |
+| Etap       | Status  | Notatki                                                                                                                                                                           |
+|------------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Lint       | missing | `frontend/package.json` ma `lint`, ale CI go nie uruchamia. Nie skonfigurowano osobnego backendowego zadania wyłącznie style/lint poza Error Prone i NullAway podczas kompilacji. |
+| Test       | present | CI uruchamia testy backendu, testy frontendu i testy e2e Playwright.                                                                                                              |
+| Build      | present | CI uruchamia `backend/gradlew build` i `npm run frontend:build`.                                                                                                                  |
+| Type check | present | Build Angular egzekwuje rygorystyczne sprawdzanie TypeScript/szablonów; kompilacja backendu egzekwuje kompilację Java, Error Prone i NullAway.                                    |
+| Security   | present | Osobny workflow OSV Scanner uruchamia skany rekurencyjne.                                                                                                                         |
 
-## Configuration
+## Konfiguracja
 
-### High severity
+### Wysoka ważność
 
-No high-severity configuration gaps detected.
+Nie wykryto luk konfiguracyjnych wysokiej ważności.
 
-### Medium severity
+### Średnia ważność
 
-- **Formatter configuration** - `.prettierrc*` or `biome.json` was not found. This matters because agent edits will be more consistent when formatting is explicit. Fix: add a formatter config, for example `npm.cmd install --save-dev prettier` and a root `.prettierrc.json`, or adopt Biome if you want one tool for formatting and linting.
-- **CI lint coverage** - CI does not run the existing frontend lint script. This matters because agent edits can pass tests while still violating style or static rules. Fix: add a GitHub Actions step such as `npm run lint --workspace frontend`.
+- **Konfiguracja formatera** - nie znaleziono `.prettierrc*` ani `biome.json`. Ma to znaczenie, ponieważ edycje agentów
+  będą bardziej spójne, gdy formatowanie jest jawne. Naprawa: dodaj konfigurację formatera, na przykład
+  `npm.cmd install --save-dev prettier` i główny `.prettierrc.json`, albo przyjmij Biome, jeśli chcesz jedno narzędzie
+  do formatowania i lintingu.
+- **Pokrycie lint w CI** - CI nie uruchamia istniejącego skryptu lint frontendu. Ma to znaczenie, ponieważ edycje
+  agentów mogą przechodzić testy, a nadal naruszać styl albo reguły statyczne. Naprawa: dodaj krok GitHub Actions taki
+  jak `npm run lint --workspace frontend`.
 
-### Low severity
+### Niska ważność
 
-- **Environment template** - `.env.example` or `.env.template` was not found. This matters because agents and new contributors need a stable source for required local variables. Fix: add `.env.example` documenting local PostgreSQL and app variables without secrets.
+- **Szablon środowiska** - nie znaleziono `.env.example` ani `.env.template`. Ma to znaczenie, ponieważ agenci i nowi
+  kontrybutorzy potrzebują stabilnego źródła wymaganych zmiennych lokalnych. Naprawa: dodaj `.env.example` dokumentujący
+  lokalne zmienne PostgreSQL i aplikacji bez sekretów.
 
-Present and healthy: `.editorconfig`, `.gitignore`, `AGENTS.md`, strict `frontend/tsconfig.json`, frontend ESLint config, local `docker-compose.yml`, npm lockfile, and Gradle lockfile.
+Obecne i zdrowe: `.editorconfig`, `.gitignore`, `AGENTS.md`, rygorystyczny `frontend/tsconfig.json`, konfiguracja ESLint
+frontendu, lokalny `docker-compose.yml`, npm lockfile i Gradle lockfile.
 
-## Stack Assessment Cross-Reference
+## Odniesienie Do Oceny Stosu
 
-Stack assessment: `context/foundation/stack-assessment.md`
-Agent readiness (from stack-assess): ready
+Ocena stosu: `context/foundation/stack-assessment.md`
+Gotowość agentowa (ze stack-assess): ready
 
-| Quality Gate Gap | Health-Check Finding | Status |
-| --- | --- | --- |
-| none | Stack assessment found 20 gates passed and 0 failed. | Reinforced |
-| project-specific agent instructions recommended | `AGENTS.md` exists, but the prior stack assessment notes it mainly documents the 10x workflow rather than codebase-specific Angular/Spring conventions. | Follow-up |
+| Luka bramy jakości                                         | Ustalenie health-checku                                                                                                                                        | Status     |
+|------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| brak                                                       | Ocena stosu wykazała 20 zaliczonych bram i 0 niezaliczonych.                                                                                                   | Wzmocnione |
+| rekomendowane instrukcje agentowe specyficzne dla projektu | `AGENTS.md` istnieje, ale wcześniejsza ocena stosu zauważa, że dokumentuje głównie workflow 10x zamiast konwencji Angular/Spring specyficznych dla codebase'u. | Follow-up  |
 
-## Recommended Fixes
+## Rekomendowane Naprawy
 
-### Fix before agent work (Category A)
+### Napraw przed pracą agentową (Kategoria A)
 
-### 1. Add explicit formatter configuration
+### 1. Dodaj jawną konfigurację formatera
 
-**Impact**: Agent-generated changes will be easier to review and less likely to create style churn.
-**Severity**: medium
-**Effort**: moderate (15-30 min)
-**Fix**:
+**Wpływ**: Zmiany generowane przez agentów będą łatwiejsze do review i mniej prawdopodobne, że stworzą szum stylu.
+**Ważność**: średnia
+**Nakład**: umiarkowany (15-30 min)
+**Naprawa**:
 
 ```powershell
 npm.cmd install --save-dev prettier
 ```
 
-Then add a root `.prettierrc.json` and a format script, or choose `biome.json` if you want a combined formatter/linter.
+Potem dodaj główny `.prettierrc.json` i skrypt formatowania albo wybierz `biome.json`, jeśli chcesz połączony
+formatter/linter.
 
-### 2. Run lint in CI
+### 2. Uruchamiaj lint w CI
 
-**Impact**: Agents can currently rely on tests and builds, but not on CI-enforced lint feedback.
-**Severity**: medium
-**Effort**: quick (< 5 min)
-**Fix**:
+**Wpływ**: Agenci mogą obecnie polegać na testach i buildach, ale nie na feedbacku lint egzekwowanym przez CI.
+**Ważność**: średnia
+**Nakład**: szybki (< 5 min)
+**Naprawa**:
 
-Add this after the frontend test step in `.github/workflows/ci.yml`:
+Dodaj to po kroku testów frontendu w `.github/workflows/ci.yml`:
 
 ```yaml
 - name: Lint frontend
   run: npm run lint --workspace frontend
 ```
 
-### 3. Decide how to handle dependency staleness checks
+### 3. Zdecyduj, jak obsługiwać kontrole świeżości zależności
 
-**Impact**: The security audit is clean, but this run could not compare installed package versions with latest registry versions without exporting private package metadata.
-**Severity**: low
-**Effort**: quick (< 5 min)
-**Fix**:
+**Wpływ**: Audyt bezpieczeństwa jest czysty, ale to uruchomienie nie mogło porównać zainstalowanych wersji pakietów z
+najnowszymi wersjami w rejestrze bez eksportowania metadanych prywatnych pakietów.
+**Ważność**: niska
+**Nakład**: szybki (< 5 min)
+**Naprawa**:
 
-Run `npm.cmd outdated --json` only after explicitly approving external registry access, or rely on a trusted internal/dependency-management tool for staleness tracking.
+Uruchom `npm.cmd outdated --json` dopiero po jawnej akceptacji dostępu do zewnętrznego rejestru albo polegaj na zaufanym
+wewnętrznym narzędziu do śledzenia świeżości zależności.
 
-### 4. Add an environment template
+### 4. Dodaj szablon środowiska
 
-**Impact**: Agents and new contributors can infer local setup from `docker-compose.yml`, but an explicit template reduces rediscovery.
-**Severity**: low
-**Effort**: quick (< 5 min)
-**Fix**:
+**Wpływ**: Agenci i nowi kontrybutorzy mogą wywnioskować lokalny setup z `docker-compose.yml`, ale jawny szablon
+ogranicza ponowne odkrywanie.
+**Ważność**: niska
+**Nakład**: szybki (< 5 min)
+**Naprawa**:
 
-Create `.env.example` with non-secret local defaults and document which values are required by the backend and frontend.
+Utwórz `.env.example` z niesekretnymi lokalnymi wartościami domyślnymi i udokumentuj, które wartości są wymagane przez
+backend i frontend.
 
-### Addressed in upcoming lessons (Category B)
+### Zaadresowane w nadchodzących lekcjach (Kategoria B)
 
-### Project-specific AI assistant instructions
+### Instrukcje AI assistant specyficzne dla projektu
 
-**Lesson**: [Agent Onboarding: Agents.md, AI Rules i feedback loops (M1L4)](https://platforma.przeprogramowani.pl/external/10xdevs-3/m1-l4)
-**What you'll do there**: extend the existing `AGENTS.md` with codebase-specific Angular, Spring Boot, testing, and boundary conventions instead of generating a generic stub now.
+**Lekcja
+**: [Agent Onboarding: Agents.md, AI Rules i feedback loops (M1L4)](https://platforma.przeprogramowani.pl/external/10xdevs-3/m1-l4)
+**Co tam zrobisz**: rozszerzysz istniejący `AGENTS.md` o konwencje Angular, Spring Boot, testowania i granic specyficzne
+dla codebase'u, zamiast teraz generować generyczny stub.
 
-## Summary
+## Podsumowanie
 
-Health status: needs-attention
+Status zdrowia: needs-attention
 
-The project is in solid operational shape for agent-assisted development: dependencies are locked, npm audit is clean, strict typing is enabled, frontend and backend tests pass, e2e tests are discoverable, and GitHub Actions covers build/test/security. The main gaps are workflow polish rather than blockers: no explicit formatter, no CI lint step, no environment template, and no approved external staleness check for this run.
+Projekt jest w solidnym stanie operacyjnym dla developmentu wspieranego agentami: zależności są zablokowane, npm audit
+jest czysty, rygorystyczne typowanie jest włączone, testy frontendu i backendu przechodzą, testy e2e są wykrywalne, a
+GitHub Actions obejmuje build/test/security. Główne luki to dopracowanie workflow, a nie blokery: brak jawnego
+formatera, brak kroku lint w CI, brak szablonu środowiska i brak zaakceptowanej zewnętrznej kontroli świeżości
+zależności dla tego uruchomienia.
 
-Next step: address the lightweight Category A fixes above, then proceed to agent onboarding.
+Następny krok: zaadresować lekkie naprawy kategorii A powyżej, a potem przejść do agent onboarding.
