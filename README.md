@@ -27,7 +27,7 @@ cd backend
 ./gradlew bootRun
 ```
 
-The backend exposes `GET http://localhost:8080/api/health`.
+The backend exposes readiness at `GET http://localhost:8080/actuator/health`.
 
 ## Frontend
 

@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import {defineConfig, devices} from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
@@ -21,7 +21,7 @@ export default defineConfig({
         {
           command: 'powershell -NoProfile -ExecutionPolicy Bypass -Command "$repo = Get-Location; try { docker compose up -d postgres; for ($i = 0; $i -lt 60; $i++) { if ((docker inspect --format \\"{{.State.Health.Status}}\\" shooters-platform-postgres) -eq \\"healthy\\") { break }; Start-Sleep -Seconds 1 }; Set-Location backend; .\\gradlew.bat bootRun } finally { Set-Location $repo; docker compose down }"',
           cwd: '..',
-          url: 'http://localhost:8080/api/health',
+            url: 'http://localhost:8080/actuator/health',
           reuseExistingServer: true,
           timeout: 180_000
         },

@@ -13,7 +13,9 @@ Shooters Platform is a multi-stack training and booking app: Spring Boot backend
 - `backend/` is a Java 25 Spring Boot 4.0 Gradle application using PostgreSQL, JPA, Flyway, Spring Security, Error Prone, NullAway, Spock, and Testcontainers.
 - `frontend/` is an Angular 21 TypeScript 5.9 app with Angular Material, strict template checking, Vitest, and Angular ESLint.
 - `e2e/` contains Playwright browser tests; `package.json` workspaces include `frontend` and `e2e`.
-- Backend features live under `backend/src/main/java/com/shootersplatform/backend/<feature>/` with observed `domain`, `web`, `infrastructure`, and `usecase` boundaries. Current top-level features include `identity`, `training`, `bookings`, `health`, and `shared`.
+- Backend features live under `backend/src/main/java/com/shootersplatform/backend/<feature>/` with observed `domain`,
+  `web`, `infrastructure`, and `usecase` boundaries. Current top-level features include `identity`, `bookings`, and
+  `shared`.
 
 ## Backend Module Pattern
 
@@ -85,7 +87,9 @@ Backend quality rules:
 
 ## Testing And CI
 
-CI in @.github/workflows/ci.yml builds/tests the backend, builds/tests/lints the frontend, starts both apps, waits for `/api/health`, then runs Playwright. @.github/workflows/osv-scanner.yml runs recursive OSV scans on pull requests, merge queue, pushes to `main`, weekly schedule, and manual dispatch.
+CI in @.github/workflows/ci.yml builds/tests the backend, builds/tests/lints the frontend, starts both apps, waits for
+`/actuator/health`, then runs Playwright. @.github/workflows/osv-scanner.yml runs recursive OSV scans on pull requests,
+merge queue, pushes to `main`, weekly schedule, and manual dispatch.
 
 ## Commits And PRs
 

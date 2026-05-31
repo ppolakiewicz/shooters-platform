@@ -7,27 +7,15 @@
     </div>
 
     <div class="actions">
-      <a mat-flat-button routerLink="/trainings">
-        <mat-icon aria-hidden="true">track_changes</mat-icon>
-        {{ 'nav.trainings' | translate }}
-      </a>
-
       <a mat-flat-button routerLink="/bookings">
         <mat-icon aria-hidden="true">event_available</mat-icon>
         {{ 'nav.bookings' | translate }}
       </a>
 
-      @if (loading()) {
-        <button mat-stroked-button type="button" disabled>
-          <mat-spinner diameter="18" aria-hidden="true"></mat-spinner>
-          {{ 'common.checking' | translate }}
-        </button>
-      } @else {
-        <button mat-stroked-button type="button" (click)="refreshHealth()">
-          <mat-icon aria-hidden="true">refresh</mat-icon>
-          {{ 'common.refresh' | translate }}
-        </button>
-      }
+        <a mat-stroked-button routerLink="/booking-terms">
+            <mat-icon aria-hidden="true">calendar_month</mat-icon>
+            {{ 'bookings.publicTerms' | translate }}
+        </a>
 
       <button mat-stroked-button type="button" (click)="logout()" [disabled]="signingOut()">
         <mat-icon aria-hidden="true">logout</mat-icon>
@@ -35,33 +23,4 @@
       </button>
     </div>
   </section>
-
-  <section class="metrics" [attr.aria-label]="'home.backendHealth' | translate">
-    <mat-card appearance="outlined">
-      <mat-card-content>
-        <span>{{ 'home.backend' | translate }}</span>
-        <strong [class.ok]="health()?.backend === 'ok'">{{ health()?.backend ?? ('home.offline' | translate) }}</strong>
-      </mat-card-content>
-    </mat-card>
-    <mat-card appearance="outlined">
-      <mat-card-content>
-        <span>{{ 'home.database' | translate }}</span>
-        <strong [class.ok]="health()?.database === 'ok'">{{ health()?.database ?? ('home.offline' | translate) }}</strong>
-      </mat-card-content>
-    </mat-card>
-    <mat-card appearance="outlined">
-      <mat-card-content>
-        <span>{{ 'home.probe' | translate }}</span>
-        <strong>{{ health()?.databaseProbe ?? '-' }}</strong>
-      </mat-card-content>
-    </mat-card>
-  </section>
-
-  @if (error()) {
-    <p class="error" role="alert">{{ error() | translate }}</p>
-  }
-
-  @if (health()) {
-    <p class="timestamp">{{ 'home.lastChecked' | translate:{ date: (health()?.timestamp | date:'medium':undefined:i18n.locale()) ?? '' } }}</p>
-  }
 </main>

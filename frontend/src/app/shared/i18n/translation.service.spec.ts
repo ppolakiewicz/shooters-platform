@@ -1,7 +1,7 @@
-import { TestBed } from '@angular/core/testing';
-import { describe, expect, it, vi } from 'vitest';
+import {TestBed} from '@angular/core/testing';
+import {describe, expect, it, vi} from 'vitest';
 
-import { TranslationService } from './translation.service';
+import {TranslationService} from './translation.service';
 
 describe('TranslationService', () => {
   it('uses Polish as the default fallback language', () => {
@@ -9,7 +9,7 @@ describe('TranslationService', () => {
     const service = createService(storage, 'de-DE');
 
     expect(service.language()).toBe('pl');
-    expect(service.translate('home.title')).toBe('Status usługi');
+      expect(service.translate('home.title')).toBe('Panel');
   });
 
   it('switches to English and persists the choice', () => {
@@ -19,7 +19,7 @@ describe('TranslationService', () => {
     service.setLanguage('en');
 
     expect(service.language()).toBe('en');
-    expect(service.translate('home.title')).toBe('Service status');
+      expect(service.translate('home.title')).toBe('Dashboard');
     expect(storage.setItem).toHaveBeenCalledWith('shooters-platform.language', 'en');
   });
 

@@ -43,12 +43,15 @@ Gwiazda północna oznacza najmniejszy widoczny dla użytkownika przepływ end-t
 
 ## Stan Bazowy
 
-- Frontend: obecny. Istnieją routowane ekrany rezerwacji, tożsamości i szkoleń, w tym publiczna lista/szczegóły rezerwacji i zarządzanie rezerwacjami przez organizatora.
-- Backend/API: obecne. API zawiera już identity, training, bookings, health, kontrolery web, use case'y, serwisy domenowe i adaptery persystencji.
+- Frontend: obecny. Istnieją routowane ekrany rezerwacji i tożsamości, w tym publiczna lista/szczegóły rezerwacji i
+  zarządzanie rezerwacjami przez organizatora.
+- Backend/API: obecne. API zawiera już identity, bookings, kontrolery web, use case'y, serwisy domenowe i adaptery
+  persystencji.
 - Dane: obecne. Schemat bazy danych jest zarządzany migracjami, z tabelami identity i booking już reprezentowanymi.
 - Auth: obecny. Rejestracja i logowanie e-mail/hasło, obsługa sesji, CSRF i autoryzacja na poziomie tras są zaimplementowane.
 - Deploy/infra: częściowe. Istnieją lokalna konfiguracja bazy danych i CI z kontrolami backendu, frontendu oraz end-to-end; nie znaleziono produkcyjnego celu wdrożenia.
-- Obserwowalność: częściowa. Istnieją health checki i logowanie aplikacji; nie znaleziono dedykowanych metryk, tracingu ani raportowania błędów.
+- Obserwowalność: częściowa. Istnieje readiness przez Spring Boot Actuator i logowanie aplikacji; nie znaleziono
+  dedykowanych metryk, tracingu ani raportowania błędów.
 
 ## Fundamenty
 

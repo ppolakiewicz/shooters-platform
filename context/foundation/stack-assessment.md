@@ -21,11 +21,18 @@ gates_failed: 0
 
 Frontend to `shooters-platform-frontend`, aplikacja Angular 21.2 używająca TypeScript 5.9, Angular Material/CDK, RxJS i builderów Angular CLI. `frontend/tsconfig.json` włącza `strict`, `noImplicitOverride`, `noImplicitReturns`, `noFallthroughCasesInSwitch`, rygorystyczne parametry injection, rygorystyczne modyfikatory dostępu inputów oraz rygorystyczne szablony.
 
-Backend to usługa Java 25 Spring Boot 4.0.5 budowana Gradle Wrapperem. `backend/build.gradle` stosuje pluginy Java, Groovy, Spring Boot, dependency management, Error Prone i NullAway. Backend używa Spring Web MVC, Spring Security, Spring Data JPA, Bean Validation, Flyway, PostgreSQL i Bouncy Castle. Układ źródeł idzie za pakietami funkcjonalnymi, takimi jak `identity`, `training`, `bookings`, `health` i `shared`, z widocznymi granicami `domain`, `web`, `infrastructure` i `usecase`.
+Backend to usługa Java 25 Spring Boot 4.0.6 budowana Gradle Wrapperem. `backend/build.gradle` stosuje pluginy Java,
+Groovy, Spring Boot, dependency management, Error Prone i NullAway. Backend używa Spring Web MVC, Spring Security,
+Spring Data JPA, Bean Validation, Flyway, PostgreSQL, Spring Boot Actuator i Bouncy Castle. Układ źródeł idzie za
+pakietami funkcjonalnymi, takimi jak `identity`, `bookings` i `shared`, z widocznymi granicami `domain`, `web`,
+`infrastructure` i `usecase`.
 
 Testy są podzielone warstwami. Frontend używa angularowego buildera testów jednostkowych z Vitest i jsdom. Backend używa Spock 2.4 na JUnit Platform, wsparcia testowego Spring Boot, wsparcia testowego Spring Security i Testcontainers. Workspace `e2e` używa Playwright 1.59.1 z typowanym `playwright.config.ts`.
 
-CI działa w GitHub Actions w `.github/workflows/ci.yml`. Instaluje zależności npm, buduje i testuje backend, buduje i testuje frontend, uruchamia obie aplikacje, czeka na health checki i uruchamia testy e2e Playwright w oficjalnym kontenerze Playwright. Lokalna infrastruktura to `docker-compose.yml` z PostgreSQL 18.3 i healthcheckiem. Nie wykryto produkcyjnego celu wdrożenia.
+CI działa w GitHub Actions w `.github/workflows/ci.yml`. Instaluje zależności npm, buduje i testuje backend, buduje i
+testuje frontend, uruchamia obie aplikacje, czeka na `/actuator/health` i uruchamia testy e2e Playwright w oficjalnym
+kontenerze Playwright. Lokalna infrastruktura to `docker-compose.yml` z PostgreSQL 18.3 i healthcheckiem. Nie wykryto
+produkcyjnego celu wdrożenia.
 
 ## Ocena Bram Jakości
 
@@ -92,7 +99,7 @@ Kod backendu mieszka pod `backend/src/main/java/com/shootersplatform/backend`.
 
 Kod frontendu mieszka pod `frontend/src/app`.
 
-- Grupuj kod funkcji według folderów domenowych, takich jak `identity`, `training`, `bookings` i `home`.
+- Grupuj kod funkcji według folderów domenowych, takich jak `identity`, `bookings` i `home`.
 - Trzymaj trasy w `app.routes.ts`.
 - Preferuj standalone components Angular i typowane serwisy pasujące do istniejącego nazewnictwa component/service/spec.
 - Zachowaj zgodność z rygorystycznym TypeScript i rygorystycznymi szablonami Angular.

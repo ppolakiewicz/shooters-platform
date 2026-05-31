@@ -41,7 +41,7 @@ class SecurityConfiguration {
                         )
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.GET, "/api/health", "/api/auth/csrf").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/actuator/health", "/api/auth/csrf").permitAll()
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/auth/register",
@@ -55,7 +55,6 @@ class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/api/bookings/reservations/cancel-by-participant").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings/waitlist/cancel-by-participant").permitAll()
                         .requestMatchers("/api/bookings/**").hasRole("USER")
-                        .requestMatchers("/api/trainings/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)

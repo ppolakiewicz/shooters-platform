@@ -25,8 +25,8 @@ class AuthControllerSecuritySpec extends AbstractIntegrationSpec {
         auth = new AuthApiClient(mockMvc)
     }
 
-    def "public health endpoint stays accessible"() {
-        when: "The public health endpoint is requested"
+    def "public actuator health endpoint stays accessible"() {
+        when: "The public actuator health endpoint is requested"
             def result = auth.health()
 
         then: "The backend responds successfully without authentication"

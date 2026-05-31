@@ -111,7 +111,7 @@ public class AuthApiClient {
     }
 
     public ResultActions health() throws Exception {
-        return mockMvc.perform(get("/api/health"));
+        return mockMvc.perform(get("/actuator/health"));
     }
 
     private static String nextRegistrationClientIp() {

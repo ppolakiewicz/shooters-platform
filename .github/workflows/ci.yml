@@ -81,7 +81,7 @@ jobs:
         run: |
           attempt=1
           while [ "$attempt" -le 120 ]; do
-            if curl --fail --silent --show-error http://localhost:8080/api/health > /tmp/backend-health.json; then
+            if curl --fail --silent --show-error http://localhost:8080/actuator/health > /tmp/backend-health.json; then
               cat /tmp/backend-health.json
               exit 0
             fi

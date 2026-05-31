@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import {expect, test} from '@playwright/test';
 
 test('registers, logs out, and logs in again', async ({ page }) => {
   // given: a new user identity for the authentication journey
@@ -25,10 +25,10 @@ test('registers, logs out, and logs in again', async ({ page }) => {
   await page.getByRole('button', { name: 'Create account' }).click();
 
   // then: the user lands on the authenticated home page
-  await expect(page.getByRole('heading', { name: 'Service status' })).toBeVisible();
+    await expect(page.getByRole('heading', {name: 'Dashboard'})).toBeVisible();
   await expect(page.getByText(`Signed in as ${username}`)).toBeVisible();
-  await expect(page.getByText('Backend')).toBeVisible();
-  await expect(page.getByText('Database')).toBeVisible();
+    await expect(page.getByRole('link', {name: 'Bookings'})).toBeVisible();
+    await expect(page.getByRole('link', {name: 'Public terms'})).toBeVisible();
 
   // when: the user logs out
   await page.getByRole('button', { name: 'Logout' }).click();
@@ -40,6 +40,6 @@ test('registers, logs out, and logs in again', async ({ page }) => {
   await page.getByRole('button', { name: 'Log in' }).click();
 
   // then: the previous account is authenticated again
-  await expect(page.getByRole('heading', { name: 'Service status' })).toBeVisible();
+    await expect(page.getByRole('heading', {name: 'Dashboard'})).toBeVisible();
   await expect(page.getByText(`Signed in as ${username}`)).toBeVisible();
 });
