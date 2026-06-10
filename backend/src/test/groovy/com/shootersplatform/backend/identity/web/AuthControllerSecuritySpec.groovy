@@ -2,13 +2,13 @@ package com.shootersplatform.backend.identity.web
 
 import com.shootersplatform.backend.AbstractIntegrationSpec
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.jdbc.core.simple.JdbcClient
 import org.springframework.mock.web.MockHttpSession
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
 
-import static org.hamcrest.Matchers.contains
-import static org.hamcrest.Matchers.endsWith
+import static org.hamcrest.Matchers.*
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -19,6 +19,9 @@ class AuthControllerSecuritySpec extends AbstractIntegrationSpec {
     WebApplicationContext context
 
     AuthApiClient auth
+
+    @Autowired
+    JdbcClient jdbcClient
 
     def setup() {
         MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build()
@@ -49,6 +52,32 @@ class AuthControllerSecuritySpec extends AbstractIntegrationSpec {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath('$.username').value(username))
                     .andExpect(jsonPath('$.roles', contains('USER')))
+    }
+
+    def "login and current user expose every persisted role"() {
+        given: "A registered user with an administratively assigned organizer role"
+            def email = uniqueEmail()
+            auth.register(email, uniqueUsername(), "correct horse battery").andExpect(status().isCreated())
+            jdbcClient.sql("""
+                    insert into user_account_roles (user_account_id, role_name)
+                    select id, 'ORGANIZER'
+                    from user_accounts
+                    where email = :email
+                    on conflict do nothing
+                    """)
+                    .param("email", email)
+                    .update()
+
+        when: "The user logs in"
+            def result = auth.login(email, "correct horse battery")
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath('$.roles', containsInAnyOrder('USER', 'ORGANIZER')))
+                    .andReturn()
+
+        then: "Login and current-user responses expose both roles"
+            auth.me(result.request.getSession(false) as MockHttpSession)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath('$.roles', containsInAnyOrder('USER', 'ORGANIZER')))
     }
 
     def "register rejects duplicate email"() {

@@ -54,6 +54,7 @@ class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/api/bookings/reservations/confirm-waitlist-offer").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings/reservations/cancel-by-participant").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings/waitlist/cancel-by-participant").permitAll()
+                        .requestMatchers("/api/bookings/training-templates/**").hasRole("ORGANIZER")
                         .requestMatchers("/api/bookings/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )

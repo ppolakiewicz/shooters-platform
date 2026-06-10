@@ -1,37 +1,40 @@
-package com.shootersplatform.backend.bookings.trainingenrollment.infrastructure;
+package com.shootersplatform.backend.bookings.trainingtemplate.infrastructure;
 
 import com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel;
 import jakarta.persistence.*;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
+import java.time.LocalTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Table(name = "booking_training_enrollments")
-class TrainingEnrollmentEntity {
+@Table(name = "booking_training_templates")
+class TrainingTemplateEntity {
 
     @Id
     @Column(name = "id", nullable = false)
-    private UUID id;
+    private @Nullable UUID id;
 
     @Column(name = "owner_user_id", nullable = false)
-    private UUID ownerUserId;
+    private @Nullable UUID ownerUserId;
 
     @Column(name = "name", nullable = false, length = 120)
-    private String name;
+    private @Nullable String name;
 
     @Column(name = "description", nullable = false, length = 2048)
-    private String description;
+    private @Nullable String description;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "training_level", nullable = false, length = 20)
-    private TrainingLevel trainingLevel;
+    private @Nullable TrainingLevel trainingLevel;
 
     @Column(name = "place_name", nullable = false, length = 240)
-    private String placeName;
+    private @Nullable String placeName;
 
     @Column(name = "address", nullable = false, length = 240)
-    private String address;
+    private @Nullable String address;
 
     @Column(name = "latitude", nullable = false)
     private double latitude;
@@ -48,14 +51,17 @@ class TrainingEnrollmentEntity {
     @Column(name = "duration_minutes", nullable = false)
     private int durationMinutes;
 
+    @Column(name = "default_start_time", nullable = false)
+    private @Nullable LocalTime defaultStartTime;
+
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+    private @Nullable Instant createdAt;
 
     @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
+    private @Nullable Instant updatedAt;
 
     UUID getId() {
-        return id;
+        return Objects.requireNonNull(id);
     }
 
     void setId(UUID id) {
@@ -63,7 +69,7 @@ class TrainingEnrollmentEntity {
     }
 
     UUID getOwnerUserId() {
-        return ownerUserId;
+        return Objects.requireNonNull(ownerUserId);
     }
 
     void setOwnerUserId(UUID ownerUserId) {
@@ -71,7 +77,7 @@ class TrainingEnrollmentEntity {
     }
 
     String getName() {
-        return name;
+        return Objects.requireNonNull(name);
     }
 
     void setName(String name) {
@@ -79,7 +85,7 @@ class TrainingEnrollmentEntity {
     }
 
     String getDescription() {
-        return description;
+        return Objects.requireNonNull(description);
     }
 
     void setDescription(String description) {
@@ -87,7 +93,7 @@ class TrainingEnrollmentEntity {
     }
 
     TrainingLevel getTrainingLevel() {
-        return trainingLevel;
+        return Objects.requireNonNull(trainingLevel);
     }
 
     void setTrainingLevel(TrainingLevel trainingLevel) {
@@ -95,7 +101,7 @@ class TrainingEnrollmentEntity {
     }
 
     String getPlaceName() {
-        return placeName;
+        return Objects.requireNonNull(placeName);
     }
 
     void setPlaceName(String placeName) {
@@ -103,7 +109,7 @@ class TrainingEnrollmentEntity {
     }
 
     String getAddress() {
-        return address;
+        return Objects.requireNonNull(address);
     }
 
     void setAddress(String address) {
@@ -150,8 +156,16 @@ class TrainingEnrollmentEntity {
         this.durationMinutes = durationMinutes;
     }
 
+    LocalTime getDefaultStartTime() {
+        return Objects.requireNonNull(defaultStartTime);
+    }
+
+    void setDefaultStartTime(LocalTime defaultStartTime) {
+        this.defaultStartTime = defaultStartTime;
+    }
+
     Instant getCreatedAt() {
-        return createdAt;
+        return Objects.requireNonNull(createdAt);
     }
 
     void setCreatedAt(Instant createdAt) {
@@ -159,7 +173,7 @@ class TrainingEnrollmentEntity {
     }
 
     Instant getUpdatedAt() {
-        return updatedAt;
+        return Objects.requireNonNull(updatedAt);
     }
 
     void setUpdatedAt(Instant updatedAt) {

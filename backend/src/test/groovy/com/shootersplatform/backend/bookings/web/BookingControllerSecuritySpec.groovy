@@ -4,6 +4,7 @@ import com.jayway.jsonpath.JsonPath
 import com.shootersplatform.backend.AbstractIntegrationSpec
 import com.shootersplatform.backend.identity.web.AuthApiClient
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.jdbc.core.simple.JdbcClient
 import org.springframework.mock.web.MockHttpSession
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
@@ -26,6 +27,10 @@ class BookingControllerSecuritySpec extends AbstractIntegrationSpec {
     ReservationApiClient reservations
     WaitlistApiClient waitlist
     TermApiClient terms
+    TrainingTemplateApiClient trainingTemplates
+
+    @Autowired
+    JdbcClient jdbcClient
 
     def setup() {
         mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build()
@@ -33,6 +38,7 @@ class BookingControllerSecuritySpec extends AbstractIntegrationSpec {
         reservations = new ReservationApiClient(mockMvc)
         waitlist = new WaitlistApiClient(mockMvc)
         terms = new TermApiClient(mockMvc)
+        trainingTemplates = new TrainingTemplateApiClient(mockMvc)
     }
 
     def "management booking endpoints require authenticated user and csrf"() {
@@ -83,8 +89,112 @@ class BookingControllerSecuritySpec extends AbstractIntegrationSpec {
                     .andExpect(jsonPath('$.capacity').value(2))
     }
 
+    def "training template endpoints require organizer role"() {
+        given: "A regular user session and a random template id"
+            def userSession = registerSession()
+            def templateId = UUID.randomUUID()
+
+        expect: "Anonymous requests are unauthorized and regular users are forbidden"
+            trainingTemplates.listWithoutSession().andExpect(status().isUnauthorized())
+            trainingTemplates.list(userSession).andExpect(status().isForbidden())
+            trainingTemplates.get(userSession, templateId).andExpect(status().isForbidden())
+            trainingTemplates.create(userSession, "Forbidden").andExpect(status().isForbidden())
+            trainingTemplates.update(userSession, templateId, "Forbidden").andExpect(status().isForbidden())
+            trainingTemplates.delete(userSession, templateId).andExpect(status().isForbidden())
+
+        and: "An organizer can reach the endpoint"
+            trainingTemplates.list(organizerSession()).andExpect(status().isOk())
+    }
+
+    def "training template request validation reports each invalid bean value"(
+            String name,
+            String description,
+            int capacity,
+            int cancellationDays,
+            int durationMinutes
+    ) {
+        given: "An authenticated organizer"
+            def session = organizerSession()
+
+        expect: "The invalid request is rejected before domain execution"
+            trainingTemplates.create(
+                    session,
+                    name,
+                    description,
+                    com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel.BASIC,
+                    capacity,
+                    cancellationDays,
+                    durationMinutes,
+                    "09:15"
+            )
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath('$.title').value('Invalid request'))
+
+        where:
+            name            | description      | capacity | cancellationDays | durationMinutes
+            ""              | ""               | 8        | 1                | 90
+            "n".repeat(121) | ""               | 8        | 1                | 90
+            "Valid"         | "d".repeat(2049) | 8        | 1                | 90
+            "Valid"         | ""               | 0        | 1                | 90
+            "Valid"         | ""               | 11       | 1                | 90
+            "Valid"         | ""               | 8        | -1               | 90
+            "Valid"         | ""               | 8        | 366              | 90
+            "Valid"         | ""               | 8        | 1                | 29
+            "Valid"         | ""               | 8        | 1                | 1441
+    }
+
+    def "training template request rejects missing required object values"() {
+        given: "An authenticated organizer and a request missing required object fields"
+            def session = organizerSession()
+            def body = """
+                    {
+                      "capacity": 8,
+                      "cancellationDeadlineDays": 1,
+                      "durationMinutes": 90
+                    }
+                    """
+
+        expect: "Bean validation returns problem JSON"
+            trainingTemplates.createRaw(session, body)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath('$.title').value('Invalid request'))
+    }
+
+    def "training template domain validation reports unsupported time steps"() {
+        given: "An authenticated organizer"
+            def session = organizerSession()
+
+        expect: "A non-quarter-hour start is rejected by domain validation"
+            trainingTemplates.create(
+                    session,
+                    "Invalid time",
+                    com.shootersplatform.backend.bookings.traininglevel.domain.TrainingLevel.BASIC,
+                    8,
+                    90,
+                    "09:01"
+            )
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath('$.title').value('Invalid booking request'))
+    }
+
     private MockHttpSession registerSession() {
         def result = auth.register(uniqueEmail(), uniqueUsername(), "correct horse battery").andExpect(status().isCreated()).andReturn()
+        result.request.getSession(false) as MockHttpSession
+    }
+
+    private MockHttpSession organizerSession() {
+        def email = uniqueEmail()
+        auth.register(email, uniqueUsername(), "correct horse battery").andExpect(status().isCreated())
+        jdbcClient.sql("""
+                insert into user_account_roles (user_account_id, role_name)
+                select id, 'ORGANIZER'
+                from user_accounts
+                where email = :email
+                on conflict do nothing
+                """)
+                .param("email", email)
+                .update()
+        def result = auth.login(email, "correct horse battery").andExpect(status().isOk()).andReturn()
         result.request.getSession(false) as MockHttpSession
     }
 

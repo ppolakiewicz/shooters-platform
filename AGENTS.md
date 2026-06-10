@@ -60,11 +60,14 @@ Boundary rules:
 Testing rules:
 
 - Domain tests cover rules of one model or submodule without Spring and without orchestration across other submodules.
+- Domain tests uses in-memory port implementations
 - Use case tests cover orchestration, transaction-level business flows, compound results, and module cooperation. Prefer
   real domain services with in-memory port implementations; use mocks only for external gateways/adapters or narrow
   contract tests.
-- Web tests cover HTTP contracts, security, request/response mapping, and exception handling without duplicating the
+- Web tests cover main business cases, main business lifecycle, HTTP contracts, security, request/response mapping, and
+  exception handling without duplicating the
   full domain test matrix.
+- Web tests uses spring integration tests and created api clients that encapsulates communication with web api.
 
 Backend quality rules:
 

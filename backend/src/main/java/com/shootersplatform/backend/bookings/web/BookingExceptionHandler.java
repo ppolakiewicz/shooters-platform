@@ -5,8 +5,8 @@ import com.shootersplatform.backend.bookings.reservation.domain.ReservationNotFo
 import com.shootersplatform.backend.bookings.reservation.domain.ReservationValidationException;
 import com.shootersplatform.backend.bookings.term.domain.TermNotFoundException;
 import com.shootersplatform.backend.bookings.term.domain.TermValidationException;
-import com.shootersplatform.backend.bookings.trainingenrollment.domain.TrainingEnrollmentNotFoundException;
-import com.shootersplatform.backend.bookings.trainingenrollment.domain.TrainingEnrollmentValidationException;
+import com.shootersplatform.backend.bookings.trainingtemplate.domain.TrainingTemplateNotFoundException;
+import com.shootersplatform.backend.bookings.trainingtemplate.domain.TrainingTemplateValidationException;
 import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistNotFoundException;
 import com.shootersplatform.backend.bookings.waitlist.domain.WaitlistValidationException;
 import org.springframework.http.HttpStatus;
@@ -26,7 +26,7 @@ class BookingExceptionHandler {
             TermNotFoundException.class,
             ReservationNotFoundException.class,
             WaitlistNotFoundException.class,
-            TrainingEnrollmentNotFoundException.class
+            TrainingTemplateNotFoundException.class
     })
     ProblemDetail notFound(RuntimeException exception) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
@@ -38,7 +38,7 @@ class BookingExceptionHandler {
             TermValidationException.class,
             ReservationValidationException.class,
             WaitlistValidationException.class,
-            TrainingEnrollmentValidationException.class,
+            TrainingTemplateValidationException.class,
             LocationValidationException.class
     })
     ProblemDetail validation(RuntimeException exception) {

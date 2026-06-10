@@ -3,7 +3,7 @@ package com.shootersplatform.backend.bookings.usecase
 import com.shootersplatform.backend.bookings.notification.BookingNotificationServiceTestConfiguration
 import com.shootersplatform.backend.bookings.reservation.ReservationServiceTestConfiguration
 import com.shootersplatform.backend.bookings.term.TermServiceTestConfiguration
-import com.shootersplatform.backend.bookings.trainingenrollment.TrainingEnrollmentServiceTestConfiguration
+import com.shootersplatform.backend.bookings.trainingtemplate.TrainingTemplateServiceTestConfiguration
 import com.shootersplatform.backend.bookings.waitlist.WaitlistServiceTestConfiguration
 import com.shootersplatform.backend.identity.InMemoryLoginRateLimiter
 import com.shootersplatform.backend.identity.InMemoryUserAccountRepository
@@ -36,9 +36,11 @@ class BookingUseCaseTestContext {
     final RemoveWaitlistEntryByOwnerUseCase removeWaitlistEntryByOwner
     final ListWaitlistEntriesUseCase listWaitlistEntries
 
-    final CreateTrainingEnrollmentUseCase createTrainingEnrollment
-    final UpdateTrainingEnrollmentUseCase updateTrainingEnrollment
-    final ListTrainingEnrollmentsUseCase listTrainingEnrollments
+    final CreateTrainingTemplateUseCase createTrainingTemplate
+    final GetTrainingTemplateUseCase getTrainingTemplate
+    final UpdateTrainingTemplateUseCase updateTrainingTemplate
+    final DeleteTrainingTemplateUseCase deleteTrainingTemplate
+    final ListTrainingTemplatesUseCase listTrainingTemplates
 
     BookingUseCaseTestContext() {
         this(Clock.fixed(BASE_TIME, ZoneOffset.UTC))
@@ -49,7 +51,7 @@ class BookingUseCaseTestContext {
         def reservations = ReservationServiceTestConfiguration.inMemory(clock)
         def waitlist = WaitlistServiceTestConfiguration.inMemory(clock)
         def notifications = BookingNotificationServiceTestConfiguration.inMemory()
-        def trainingEnrollments = TrainingEnrollmentServiceTestConfiguration.inMemory(clock)
+        def trainingTemplates = TrainingTemplateServiceTestConfiguration.inMemory(clock)
         def waitlistPromotion = new WaitlistPromotionCoordinator(reservations, waitlist, notifications, clock)
 
         createTerm = new CreateTermUseCase(terms)
@@ -75,9 +77,11 @@ class BookingUseCaseTestContext {
         removeWaitlistEntryByOwner = new RemoveWaitlistEntryByOwnerUseCase(waitlist, terms)
         listWaitlistEntries = new ListWaitlistEntriesUseCase(waitlist, terms)
 
-        createTrainingEnrollment = new CreateTrainingEnrollmentUseCase(trainingEnrollments)
-        updateTrainingEnrollment = new UpdateTrainingEnrollmentUseCase(trainingEnrollments)
-        listTrainingEnrollments = new ListTrainingEnrollmentsUseCase(trainingEnrollments)
+        createTrainingTemplate = new CreateTrainingTemplateUseCase(trainingTemplates)
+        getTrainingTemplate = new GetTrainingTemplateUseCase(trainingTemplates)
+        updateTrainingTemplate = new UpdateTrainingTemplateUseCase(trainingTemplates)
+        deleteTrainingTemplate = new DeleteTrainingTemplateUseCase(trainingTemplates)
+        listTrainingTemplates = new ListTrainingTemplatesUseCase(trainingTemplates)
     }
 
     private static registerUser(Clock clock) {

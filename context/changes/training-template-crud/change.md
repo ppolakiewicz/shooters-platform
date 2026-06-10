@@ -1,7 +1,7 @@
 ---
 change_id: training-template-crud
 title: Training template CRUD for organizers
-status: new
+status: implementing
 created: 2026-06-09
 updated: 2026-06-09
 archived_at: null

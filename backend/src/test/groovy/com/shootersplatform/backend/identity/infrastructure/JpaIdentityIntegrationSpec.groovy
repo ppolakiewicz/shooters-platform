@@ -59,6 +59,28 @@ class JpaIdentityIntegrationSpec extends AbstractIntegrationSpec {
             roleCount == 1
     }
 
+    def "repository loads all persisted roles while registration still grants only user"() {
+        given: "A newly registered user with only the default role"
+            def email = "organizer-${UUID.randomUUID()}@example.com"
+            def username = "Organizer_${UUID.randomUUID().toString().replace("-", "").substring(0, 12)}"
+            def registered = registerUser.register(email, username, "correct horse battery", "127.0.0.1")
+
+        expect: "Registration grants only USER"
+            registered.roles() == [UserRole.USER] as Set
+
+        when: "The organizer role is assigned administratively"
+            jdbcClient.sql("""
+                    insert into user_account_roles (user_account_id, role_name)
+                    values (:userId, 'ORGANIZER')
+                    on conflict do nothing
+                    """)
+                    .param("userId", registered.id().value())
+                    .update()
+
+        then: "The repository loads both persisted roles"
+            userAccounts.findById(registered.id()).orElseThrow().roles() == [UserRole.USER, UserRole.ORGANIZER] as Set
+    }
+
     def "flyway creates password reset token schema and reset updates user password"() {
         given: "A persisted user and password reset token"
             def email = "reset-${UUID.randomUUID()}@example.com"

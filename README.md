@@ -29,6 +29,20 @@ cd backend
 
 The backend exposes readiness at `GET http://localhost:8080/actuator/health`.
 
+### Granting the organizer role
+
+Normal registration grants only the `USER` role. To grant an existing account the additional `ORGANIZER` role, run:
+
+```sql
+insert into user_account_roles (user_account_id, role_name)
+select id, 'ORGANIZER'
+from user_accounts
+where email = 'organizer@example.com'
+on conflict do nothing;
+```
+
+Replace the example email with the normalized email address of the target account. The command is idempotent.
+
 ## Frontend
 
 Install JavaScript dependencies:
