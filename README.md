@@ -20,6 +20,18 @@ Start PostgreSQL:
 docker compose up -d postgres
 ```
 
+Start PostgreSQL together with pgAdmin:
+
+```bash
+docker compose up -d postgres pgadmin
+```
+
+pgAdmin is available at `http://localhost:5050`:
+
+- login: `admin@shooters.local`
+- password: `shooters`
+- preconfigured server: `Shooters Platform (local)`
+
 Run the Spring Boot application:
 
 ```bash
@@ -42,6 +54,19 @@ on conflict do nothing;
 ```
 
 Replace the example email with the normalized email address of the target account. The command is idempotent.
+
+To create a local organizer account, start PostgreSQL and the backend, then run:
+
+```powershell
+.\scripts\create-organizer.ps1 `
+  -Email organizer@example.com `
+  -Username Organizer `
+  -Password 'correct horse battery'
+```
+
+The script registers a missing account through the application API so the password is validated and hashed normally.
+It then idempotently grants both `USER` and `ORGANIZER`. For an existing email, credentials remain unchanged and only
+the roles are ensured.
 
 ## Frontend
 

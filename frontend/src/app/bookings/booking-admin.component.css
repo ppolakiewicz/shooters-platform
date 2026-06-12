@@ -234,9 +234,3 @@ th {
     border-bottom: 0;
   }
 }
-
-@media (min-width: 900px) {
-  .admin-grid {
-    grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
-  }
-}

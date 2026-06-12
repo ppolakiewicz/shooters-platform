@@ -1,0 +1,25 @@
+<main class="page"><a mat-button routerLink="/training-templates">{{'trainingTemplates.back'|translate}}</a>@if(notFound()){
+    <h1>{{'trainingTemplates.notFound'|translate}}</h1>}@else if(template();as item){
+    <header><h1>{{item.name}}</h1>
+        <div><a mat-stroked-button [routerLink]="['edit']">{{'trainingTemplates.edit'|translate}}</a>
+            <button mat-flat-button (click)="remove()">{{'common.delete'|translate}}</button>
+        </div>
+    </header>
+    <dl>
+        <dt>{{'common.description'|translate}}</dt>
+        <dd>{{item.description||'-'}}</dd>
+        <dt>{{'bookings.trainingLevel.label'|translate}}</dt>
+        <dd>{{('bookings.trainingLevel.'+item.trainingLevel)|translate}}</dd>
+        <dt>{{'common.place'|translate}}</dt>
+        <dd>{{item.location.placeName}}, {{item.location.address}}</dd>
+        <dt>{{'common.capacity'|translate}}</dt>
+        <dd>{{item.capacity}}</dd>
+        <dt>{{'trainingTemplates.durationHours'|translate}}</dt>
+        <dd>{{item.durationMinutes/60}}</dd>
+        <dt>{{'trainingTemplates.defaultStartTime'|translate}}</dt>
+        <dd>{{item.defaultStartTime}}</dd>
+        <dt>{{'trainingTemplates.updatedAt'|translate}}</dt>
+        <dd>{{item.updatedAt|date:'medium':undefined:i18n.locale()}}</dd>
+    </dl>
+    }
+</main>

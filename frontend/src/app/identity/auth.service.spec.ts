@@ -40,7 +40,6 @@ describe('AuthService', () => {
       password: 'correct horse battery'
     });
 
-    http.expectOne('/api/auth/csrf').flush('');
     const request = await nextRequest('/api/auth/register');
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual({
@@ -69,7 +68,6 @@ describe('AuthService', () => {
   it('logs out with csrf and clears current user', async () => {
     const logout = service.logout();
 
-    http.expectOne('/api/auth/csrf').flush('');
     const request = await nextRequest('/api/auth/logout');
     expect(request.request.method).toBe('POST');
     request.flush(null);
@@ -81,7 +79,6 @@ describe('AuthService', () => {
   it('requests password reset with csrf', async () => {
     const requestReset = service.requestPasswordReset({email: 'owner@example.com'});
 
-    http.expectOne('/api/auth/csrf').flush('');
     const request = await nextRequest('/api/auth/password-reset-requests');
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual({email: 'owner@example.com'});
@@ -93,7 +90,6 @@ describe('AuthService', () => {
   it('resets password with csrf', async () => {
     const reset = service.resetPassword({token: 'reset-token', password: 'new correct password'});
 
-    http.expectOne('/api/auth/csrf').flush('');
     const request = await nextRequest('/api/auth/password-reset');
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual({token: 'reset-token', password: 'new correct password'});

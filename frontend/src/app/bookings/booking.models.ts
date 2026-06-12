@@ -14,19 +14,6 @@ export interface BookingLocation {
   longitude: number;
 }
 
-export interface TrainingEnrollment {
-  id: string;
-  name: string;
-  description: string;
-  trainingLevel: TrainingLevel;
-  location: BookingLocation;
-  capacity: number;
-  cancellationDeadlineDays: number;
-  durationMinutes: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface Term {
   id: string;
   name: string;
@@ -81,7 +68,7 @@ export type CreatedBooking =
   | { type: 'RESERVATION'; reservation: CreatedReservation; waitlistEntry: null }
   | { type: 'WAITLIST_ENTRY'; reservation: null; waitlistEntry: CreatedWaitlistEntry };
 
-export interface UpsertTrainingEnrollment {
+export interface UpsertTerm {
   name: string;
   description: string;
   trainingLevel: TrainingLevel;
@@ -89,9 +76,6 @@ export interface UpsertTrainingEnrollment {
   capacity: number;
   cancellationDeadlineDays: number;
   durationMinutes: number;
-}
-
-export interface UpsertTerm extends UpsertTrainingEnrollment {
   startsAt: string;
 }
 

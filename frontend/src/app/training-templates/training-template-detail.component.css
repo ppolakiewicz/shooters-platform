@@ -1,0 +1,1 @@
+.page{max-width:800px;margin:auto;padding:24px}header{display:flex;justify-content:space-between;align-items:center;gap:16px}dl{display:grid;grid-template-columns:max-content 1fr;gap:10px 20px}dt{font-weight:700}dd{margin:0}

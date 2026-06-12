@@ -10,6 +10,7 @@ import {BookingAdminComponent} from './bookings/booking-admin.component';
 import {BookingPublicDetailComponent} from './bookings/booking-public-detail.component';
 import {BookingPublicListComponent} from './bookings/booking-public-list.component';
 import {BookingTokenResultComponent} from './bookings/booking-token-result.component';
+import {organizerGuard} from './identity/organizer.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -21,6 +22,11 @@ export const routes: Routes = [
   { path: 'booking-confirm/:token', component: BookingTokenResultComponent, data: { action: 'confirm' } },
   { path: 'booking-cancel/:token', component: BookingTokenResultComponent, data: { action: 'cancel' } },
   { path: 'bookings', component: BookingAdminComponent, canActivate: [authGuard] },
+  {
+    path: 'training-templates',
+    canActivate: [organizerGuard],
+    loadChildren: () => import('./training-templates/training-template.routes').then((module) => module.trainingTemplateRoutes)
+  },
   { path: '', component: HomeComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }
 ];

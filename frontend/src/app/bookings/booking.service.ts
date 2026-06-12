@@ -7,9 +7,7 @@ import {
   CreateReservation,
   ReservationSummary,
   Term,
-  TrainingEnrollment,
   UpsertTerm,
-  UpsertTrainingEnrollment,
   WaitlistEntrySummary
 } from './booking.models';
 
@@ -38,18 +36,6 @@ export class BookingService {
 
   async cancelByToken(token: string): Promise<ReservationSummary> {
     return this.httpPostNoCsrf<ReservationSummary>('/api/bookings/reservations/cancel-by-participant', { token });
-  }
-
-  async enrollments(): Promise<TrainingEnrollment[]> {
-    return this.read(() => this.http.get<TrainingEnrollment[]>('/api/bookings/training-enrollments'));
-  }
-
-  async createEnrollment(request: UpsertTrainingEnrollment): Promise<TrainingEnrollment> {
-    return this.mutate(() => this.http.post<TrainingEnrollment>('/api/bookings/training-enrollments', request));
-  }
-
-  async updateEnrollment(id: string, request: UpsertTrainingEnrollment): Promise<TrainingEnrollment> {
-    return this.mutate(() => this.http.put<TrainingEnrollment>(`/api/bookings/training-enrollments/${id}`, request));
   }
 
   async ownerTerms(): Promise<Term[]> {
@@ -107,7 +93,6 @@ export class BookingService {
     this.loading.set(true);
     this.error.set(null);
     try {
-      await firstValueFrom(this.http.get('/api/auth/csrf', { responseType: 'text' }));
       return await firstValueFrom(request());
     } catch (error) {
       this.error.set(this.errorMessage(error));

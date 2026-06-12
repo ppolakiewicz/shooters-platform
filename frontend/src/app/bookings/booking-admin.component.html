@@ -27,74 +27,8 @@
     </section>
   } @else {
     <section class="admin-grid">
-      <form class="panel" (submit)="createEnrollment(); $event.preventDefault()">
-        <h2>{{ 'bookings.newEnrollment' | translate }}</h2>
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'common.name' | translate }}</mat-label>
-          <input matInput [formField]="enrollmentForm.name">
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'common.description' | translate }}</mat-label>
-          <textarea matInput rows="3" [formField]="enrollmentForm.description"></textarea>
-        </mat-form-field>
-          <mat-form-field appearance="outline">
-              <mat-label>{{ 'bookings.trainingLevel.label' | translate }}</mat-label>
-              <mat-select [formField]="enrollmentForm.trainingLevel">
-                  @for (level of trainingLevels; track level) {
-                  <mat-option [value]="level">{{ trainingLevelKey(level) | translate }}</mat-option>
-                  }
-              </mat-select>
-          </mat-form-field>
-        <div class="form-grid">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'common.place' | translate }}</mat-label>
-            <input matInput [formField]="enrollmentForm.placeName">
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'common.address' | translate }}</mat-label>
-            <input matInput [formField]="enrollmentForm.address">
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'common.latitude' | translate }}</mat-label>
-            <input matInput type="number" step="0.0001" [formField]="enrollmentForm.latitude">
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'common.longitude' | translate }}</mat-label>
-            <input matInput type="number" step="0.0001" [formField]="enrollmentForm.longitude">
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'common.capacity' | translate }}</mat-label>
-            <input matInput type="number" [formField]="enrollmentForm.capacity">
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'bookings.cancelDays' | translate }}</mat-label>
-            <input matInput type="number" [formField]="enrollmentForm.cancellationDeadlineDays">
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'bookings.durationMinutes' | translate }}</mat-label>
-            <input matInput type="number" [formField]="enrollmentForm.durationMinutes">
-          </mat-form-field>
-        </div>
-        <button mat-flat-button type="submit" [disabled]="enrollmentForm().invalid() || savingEnrollment()">
-          @if (savingEnrollment()) {
-            <mat-spinner diameter="18" aria-hidden="true"></mat-spinner>
-          } @else {
-            <mat-icon aria-hidden="true">add</mat-icon>
-          }
-          {{ 'bookings.createEnrollment' | translate }}
-        </button>
-      </form>
-
       <form class="panel" (submit)="createTerm(); $event.preventDefault()">
         <h2>{{ 'bookings.newTerm' | translate }}</h2>
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'bookings.trainingEnrollment' | translate }}</mat-label>
-          <mat-select [formField]="termForm.enrollmentId" (selectionChange)="applyEnrollment($event.value)">
-            @for (enrollment of enrollments(); track enrollment.id) {
-              <mat-option [value]="enrollment.id">{{ enrollment.name }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>{{ 'common.name' | translate }}</mat-label>
           <input matInput [formField]="termForm.name">
@@ -145,7 +79,7 @@
           <mat-label>{{ 'bookings.startsAt' | translate }}</mat-label>
           <input matInput type="datetime-local" [formField]="termForm.startsAt">
         </mat-form-field>
-        <button mat-flat-button type="submit" [disabled]="termForm().invalid() || savingTerm() || !enrollments().length">
+          <button mat-flat-button type="submit" [disabled]="termForm().invalid() || savingTerm()">
           @if (savingTerm()) {
             <mat-spinner diameter="18" aria-hidden="true"></mat-spinner>
           } @else {

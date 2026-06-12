@@ -5,17 +5,55 @@ import {describe, expect, it, vi} from 'vitest';
 
 import {BookingAdminComponent} from './booking-admin.component';
 import {BookingService} from './booking.service';
-import {ReservationSummary, Term, TrainingEnrollment, WaitlistEntrySummary} from './booking.models';
+import {ReservationSummary, Term, TrainingLevel, WaitlistEntrySummary} from './booking.models';
 
 describe('BookingAdminComponent', () => {
-  it('loads enrollments and terms for management', async () => {
+    it('loads only owner terms for management', async () => {
     const service = serviceMock();
 
     const { component } = await createComponent(service);
 
-    await vi.waitFor(() => expect(component.enrollments()).toHaveLength(1));
+        await vi.waitFor(() => expect(component.terms()).toHaveLength(1));
+        expect(service.ownerTerms).toHaveBeenCalledOnce();
     expect(component.terms()[0].name).toBe('Basic pistol');
   });
+
+    it('creates a term from manually entered training data', async () => {
+        const service = serviceMock();
+        const {component} = await createComponent(service);
+        component.termModel.set({
+            name: 'Advanced pistol',
+            description: 'Manual term',
+            trainingLevel: 'ADVANCED',
+            placeName: 'Range B',
+            address: 'Second Street 2',
+            latitude: 50.0614,
+            longitude: 19.9383,
+            capacity: 10,
+            cancellationDeadlineDays: 3,
+            durationMinutes: 120,
+            startsAt: '2026-06-15T18:00'
+        });
+
+        component.createTerm();
+
+        await vi.waitFor(() => expect(service.createTerm).toHaveBeenCalledOnce());
+        expect(service.createTerm).toHaveBeenCalledWith({
+            name: 'Advanced pistol',
+            description: 'Manual term',
+            trainingLevel: 'ADVANCED',
+            location: {
+                placeName: 'Range B',
+                address: 'Second Street 2',
+                latitude: 50.0614,
+                longitude: 19.9383
+            },
+            capacity: 10,
+            cancellationDeadlineDays: 3,
+            durationMinutes: 120,
+            startsAt: '2026-06-15T18:00'
+        });
+    });
 
   it('opens reservations for selected term', async () => {
     const service = serviceMock();
@@ -45,50 +83,6 @@ describe('BookingAdminComponent', () => {
     expect(fixture.nativeElement.querySelector('td[data-label="Position"]')?.textContent).toContain('1');
   });
 
-    it('sends training level when creating an enrollment', async () => {
-        const service = serviceMock();
-        service.createEnrollment.mockResolvedValue(sampleEnrollment({
-            id: 'new-enrollment-id',
-            trainingLevel: 'ADVANCED'
-        }));
-        const {component} = await createComponent(service);
-
-        component.enrollmentModel.set({
-            name: 'Advanced pistol',
-            description: '',
-            trainingLevel: 'ADVANCED',
-            placeName: 'Range A',
-            address: 'Range Street 1',
-            latitude: 52.2297,
-            longitude: 21.0122,
-            capacity: 8,
-            cancellationDeadlineDays: 2,
-            durationMinutes: 90
-        });
-        component.createEnrollment();
-
-        await vi.waitFor(() => expect(service.createEnrollment).toHaveBeenCalled());
-        expect(service.createEnrollment).toHaveBeenCalledWith(expect.objectContaining({trainingLevel: 'ADVANCED'}));
-    });
-
-    it('copies enrollment training level to the term form', async () => {
-        const service = serviceMock();
-        const {component} = await createComponent(service);
-
-        await vi.waitFor(() => expect(component.termModel().trainingLevel).toBe('INTERMEDIATE'));
-    });
-
-    it('sends copied training level when creating a term', async () => {
-        const service = serviceMock();
-        service.createTerm.mockResolvedValue(sampleTerm({trainingLevel: 'INTERMEDIATE'}));
-        const {component} = await createComponent(service);
-
-        await vi.waitFor(() => expect(component.termModel().trainingLevel).toBe('INTERMEDIATE'));
-        component.createTerm();
-
-        await vi.waitFor(() => expect(service.createTerm).toHaveBeenCalled());
-        expect(service.createTerm).toHaveBeenCalledWith(expect.objectContaining({trainingLevel: 'INTERMEDIATE'}));
-    });
 });
 
 async function createComponent(service: unknown) {
@@ -107,15 +101,14 @@ async function createComponent(service: unknown) {
 }
 
 interface BookingAdminComponentTestAccess {
-  enrollments: () => TrainingEnrollment[];
   terms: () => Term[];
   reservations: () => ReservationSummary[];
   waitlistEntries: () => WaitlistEntrySummary[];
-    enrollmentModel: {
+    termModel: {
         set(value: {
             name: string;
             description: string;
-            trainingLevel: 'BASIC' | 'INTERMEDIATE' | 'ADVANCED';
+            trainingLevel: TrainingLevel;
             placeName: string;
             address: string;
             latitude: number;
@@ -123,13 +116,9 @@ interface BookingAdminComponentTestAccess {
             capacity: number;
             cancellationDeadlineDays: number;
             durationMinutes: number;
+            startsAt: string;
         }): void;
     };
-    termModel: () => {
-        trainingLevel: 'BASIC' | 'INTERMEDIATE' | 'ADVANCED';
-    };
-
-    createEnrollment(): void;
 
     createTerm(): void;
   openReservations(term: Term): Promise<void>;
@@ -137,10 +126,8 @@ interface BookingAdminComponentTestAccess {
 
 function serviceMock() {
   return {
-    enrollments: vi.fn().mockResolvedValue([sampleEnrollment()]),
     ownerTerms: vi.fn().mockResolvedValue([sampleTerm()]),
-    createEnrollment: vi.fn(),
-    createTerm: vi.fn(),
+      createTerm: vi.fn().mockResolvedValue(sampleTerm({name: 'Advanced pistol', trainingLevel: 'ADVANCED'})),
     reservations: vi.fn().mockResolvedValue([{
       id: 'reservation-id',
       termId: 'term-id',
@@ -173,28 +160,20 @@ function serviceMock() {
   };
 }
 
-function sampleEnrollment(overrides: Partial<TrainingEnrollment> = {}): TrainingEnrollment {
+function sampleTerm(overrides: Partial<Term> = {}): Term {
   return {
-    id: 'enrollment-id',
+      id: 'term-id',
     name: 'Basic pistol',
     description: '',
       trainingLevel: 'INTERMEDIATE',
     location: { placeName: 'Range A', address: 'Range Street 1', latitude: 52.2297, longitude: 21.0122 },
     capacity: 8,
+      availablePlaces: 5,
     cancellationDeadlineDays: 2,
     durationMinutes: 90,
+      startsAt: '2026-06-01T12:00:00',
     createdAt: '2026-05-08T10:00:00Z',
       updatedAt: '2026-05-08T10:00:00Z',
-      ...overrides
-  };
-}
-
-function sampleTerm(overrides: Partial<Term> = {}): Term {
-  return {
-    ...sampleEnrollment(),
-    id: 'term-id',
-    availablePlaces: 5,
-      startsAt: '2026-06-01T12:00:00',
       ...overrides
   };
 }

@@ -11,7 +11,7 @@ import {MatSelectModule} from '@angular/material/select';
 
 import {TranslatePipe} from '../shared/i18n/translate.pipe';
 import {TranslationService} from '../shared/i18n/translation.service';
-import {ReservationSummary, Term, TrainingEnrollment, TrainingLevel, WaitlistEntrySummary} from './booking.models';
+import {ReservationSummary, Term, TrainingLevel, WaitlistEntrySummary} from './booking.models';
 import {BookingService} from './booking.service';
 
 @Component({
@@ -37,13 +37,11 @@ export class BookingAdminComponent {
   private readonly bookings = inject(BookingService);
   protected readonly i18n = inject(TranslationService);
 
-  protected readonly enrollments = signal<TrainingEnrollment[]>([]);
   protected readonly terms = signal<Term[]>([]);
   protected readonly selectedTermId = signal<string | null>(null);
   protected readonly reservations = signal<ReservationSummary[]>([]);
   protected readonly waitlistEntries = signal<WaitlistEntrySummary[]>([]);
   protected readonly loading = signal(false);
-  protected readonly savingEnrollment = signal(false);
   protected readonly savingTerm = signal(false);
   protected readonly loadingReservations = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -51,50 +49,20 @@ export class BookingAdminComponent {
 
   protected readonly selectedTerm = computed(() => this.terms().find((term) => term.id === this.selectedTermId()) ?? null);
 
-  protected readonly enrollmentModel = signal({
+    protected readonly termModel = signal({
     name: 'Basic pistol',
     description: '',
-      trainingLevel: 'BASIC' as TrainingLevel,
+        trainingLevel: 'BASIC' as TrainingLevel,
     placeName: 'Range A',
     address: 'Range Street 1',
     latitude: 52.2297,
     longitude: 21.0122,
     capacity: 8,
     cancellationDeadlineDays: 2,
-    durationMinutes: 90
-  });
-  protected readonly enrollmentForm = form(this.enrollmentModel, (path) => {
-    required(path.name, { message: 'validation.nameRequired' });
-    maxLength(path.name, 120, { message: 'validation.useAtMost' });
-    maxLength(path.description, 2048, { message: 'validation.useAtMost' });
-      required(path.trainingLevel, {message: 'validation.trainingLevelRequired'});
-    required(path.placeName, { message: 'validation.placeRequired' });
-    required(path.address, { message: 'validation.addressRequired' });
-    min(path.latitude, -90, { message: 'validation.latitudeMin' });
-    max(path.latitude, 90, { message: 'validation.latitudeMax' });
-    min(path.longitude, -180, { message: 'validation.longitudeMin' });
-    max(path.longitude, 180, { message: 'validation.longitudeMax' });
-    min(path.capacity, 1, { message: 'validation.capacityAtLeastOne' });
-    min(path.cancellationDeadlineDays, 0, { message: 'validation.cancellationDaysNonNegative' });
-    min(path.durationMinutes, 1, { message: 'validation.durationAtLeastOne' });
-  });
-
-  protected readonly termModel = signal({
-    enrollmentId: '',
-    name: '',
-    description: '',
-      trainingLevel: 'BASIC' as TrainingLevel,
-    placeName: '',
-    address: '',
-    latitude: 52.2297,
-    longitude: 21.0122,
-    capacity: 1,
-    cancellationDeadlineDays: 0,
     durationMinutes: 60,
     startsAt: nextWeekLocalDateTime()
   });
   protected readonly termForm = form(this.termModel, (path) => {
-    required(path.enrollmentId, { message: 'validation.trainingEnrollmentRequired' });
     required(path.name, { message: 'validation.nameRequired' });
     maxLength(path.name, 120, { message: 'validation.useAtMost' });
     maxLength(path.description, 2048, { message: 'validation.useAtMost' });
@@ -119,50 +87,12 @@ export class BookingAdminComponent {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const [enrollments, terms] = await Promise.all([
-        this.bookings.enrollments(),
-        this.bookings.ownerTerms()
-      ]);
-      this.enrollments.set(enrollments);
-      this.terms.set(terms);
-      if (!this.termModel().enrollmentId && enrollments.length) {
-        this.applyEnrollment(enrollments[0].id);
-      }
+        this.terms.set(await this.bookings.ownerTerms());
     } catch {
       this.error.set(this.bookings.error() ?? 'errors.loadBookingAdminFailed');
     } finally {
       this.loading.set(false);
     }
-  }
-
-  protected createEnrollment(): void {
-    submit(this.enrollmentForm, async () => {
-      const model = this.enrollmentModel();
-      this.savingEnrollment.set(true);
-      this.error.set(null);
-      try {
-        const enrollment = await this.bookings.createEnrollment({
-          name: model.name,
-          description: model.description,
-            trainingLevel: model.trainingLevel,
-          location: {
-            placeName: model.placeName,
-            address: model.address,
-            latitude: model.latitude,
-            longitude: model.longitude
-          },
-          capacity: model.capacity,
-          cancellationDeadlineDays: model.cancellationDeadlineDays,
-          durationMinutes: model.durationMinutes
-        });
-        this.enrollments.update((items) => [enrollment, ...items]);
-        this.applyEnrollment(enrollment.id);
-      } catch {
-        this.error.set(this.bookings.error() ?? 'errors.createTrainingEnrollmentFailed');
-      } finally {
-        this.savingEnrollment.set(false);
-      }
-    });
   }
 
   protected createTerm(): void {
@@ -212,29 +142,6 @@ export class BookingAdminComponent {
     } finally {
       this.loadingReservations.set(false);
     }
-  }
-
-  protected applyEnrollment(enrollmentId: string): void {
-    const enrollment = this.enrollments().find((item) => item.id === enrollmentId);
-    if (!enrollment) {
-      this.termModel.update((model) => ({ ...model, enrollmentId }));
-      return;
-    }
-
-    this.termModel.update((model) => ({
-      ...model,
-      enrollmentId,
-      name: enrollment.name,
-      description: enrollment.description,
-        trainingLevel: enrollment.trainingLevel,
-      placeName: enrollment.location.placeName,
-      address: enrollment.location.address,
-      latitude: enrollment.location.latitude,
-      longitude: enrollment.location.longitude,
-      capacity: enrollment.capacity,
-      cancellationDeadlineDays: enrollment.cancellationDeadlineDays,
-      durationMinutes: enrollment.durationMinutes
-    }));
   }
 
   protected async cancelReservation(reservation: ReservationSummary): Promise<void> {

@@ -1,0 +1,15 @@
+<main class="page">
+    <header>
+        <div><p>{{ 'app.brand' | translate }}</p>
+            <h1>{{ 'trainingTemplates.title' | translate }}</h1></div>
+        <div><a mat-stroked-button routerLink="/">{{ 'nav.home' | translate }}</a> <a mat-flat-button
+                                                                                      routerLink="/training-templates/new">{{
+            'trainingTemplates.create' | translate }}</a></div>
+    </header>
+    @if (failed()) {<p role="alert">{{ 'trainingTemplates.loadFailed' | translate }}</p>} @else if (!loading() &&
+    !templates().length) {<p>{{ 'trainingTemplates.empty' | translate }}</p>} @else if (!loading()) {
+    <div class="cards">@for(template of templates();track template.id){<a class="card"
+                                                                          [routerLink]="['/training-templates',template.id]"><strong>{{template.name}}</strong><span>{{ ('bookings.trainingLevel.'+template.trainingLevel)|translate }}</span><span>{{template.updatedAt|date:'medium':undefined:i18n.locale()}}</span></a>}
+    </div>
+    }
+</main>

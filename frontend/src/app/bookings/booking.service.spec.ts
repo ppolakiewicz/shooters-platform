@@ -54,7 +54,6 @@ describe('BookingService', () => {
       password: 'correct horse battery'
     });
 
-    http.expectOne('/api/auth/csrf').flush('');
     const request = await nextRequest('/api/bookings/reservations');
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual({
@@ -82,6 +81,45 @@ describe('BookingService', () => {
 
     await expect(confirm).resolves.toMatchObject({ status: 'CONFIRMED' });
   });
+
+    it('loads owner terms without requesting templates', async () => {
+        const response = [sampleTerm()];
+
+        const terms = service.ownerTerms();
+
+        const request = http.expectOne('/api/bookings/terms');
+        expect(request.request.method).toBe('GET');
+        request.flush(response);
+
+        await expect(terms).resolves.toEqual(response);
+    });
+
+    it('creates a term with explicit training data', async () => {
+        const requestBody = {
+            name: 'Advanced pistol',
+            description: 'Manual term',
+            trainingLevel: 'ADVANCED' as const,
+            location: {
+                placeName: 'Range B',
+                address: 'Second Street 2',
+                latitude: 50.0614,
+                longitude: 19.9383
+            },
+            capacity: 10,
+            cancellationDeadlineDays: 3,
+            durationMinutes: 120,
+            startsAt: '2026-06-15T18:00'
+        };
+
+        const create = service.createTerm(requestBody);
+
+        const request = await nextRequest('/api/bookings/terms');
+        expect(request.request.method).toBe('POST');
+        expect(request.request.body).toEqual(requestBody);
+        request.flush(sampleTerm());
+
+        await expect(create).resolves.toEqual(sampleTerm());
+    });
 
   async function nextRequest(url: string): Promise<TestRequest> {
     let requests: TestRequest[] = [];

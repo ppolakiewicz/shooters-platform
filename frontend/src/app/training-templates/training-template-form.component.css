@@ -1,0 +1,14 @@
+.template-form {
+    display: grid;
+    gap: 12px
+}
+
+.grid {
+    display: grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px
+}
+
+button {
+    justify-self: start
+}

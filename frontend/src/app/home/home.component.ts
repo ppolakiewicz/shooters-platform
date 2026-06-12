@@ -19,6 +19,7 @@ export class HomeComponent {
   protected readonly auth = inject(AuthService);
 
   protected readonly signingOut = signal(false);
+    protected readonly organizer = () => this.auth.currentUser()?.roles.includes('ORGANIZER') ?? false;
 
   protected async logout(): Promise<void> {
     this.signingOut.set(true);

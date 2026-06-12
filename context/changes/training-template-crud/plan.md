@@ -650,9 +650,9 @@ późniejszej zmiany publikowania terminów zamiast rozszerzać ten zakres.
 
 #### Ręczne
 
-- [ ] 1.4 Lokalny schemat po migracji zawiera końcowe obiekty szablonów
-- [ ] 1.5 Administracyjne SQL nadawania roli jest idempotentne
-- [ ] 1.6 Nowa rejestracja nadal nadaje wyłącznie USER
+- [x] 1.4 Lokalny schemat po migracji zawiera końcowe obiekty szablonów
+- [x] 1.5 Administracyjne SQL nadawania roli jest idempotentne
+- [x] 1.6 Nowa rejestracja nadal nadaje wyłącznie USER
 
 ### Faza 2: Backendowy CRUD szablonów z kontrolą właściciela
 
@@ -664,41 +664,41 @@ późniejszej zmiany publikowania terminów zamiast rozszerzać ten zakres.
 
 #### Ręczne
 
-- [ ] 2.4 Organizator wykonuje pięć operacji API, a lista zmienia kolejność po edycji
-- [ ] 2.5 Zwykły USER otrzymuje 403 wyłącznie dla endpointów szablonów
-- [ ] 2.6 Obcy i brakujący szablon zwracają 404
+- [x] 2.4 Organizator wykonuje pięć operacji API, a lista zmienia kolejność po edycji
+- [x] 2.5 Zwykły USER otrzymuje 403 wyłącznie dla endpointów szablonów
+- [x] 2.6 Obcy i brakujący szablon zwracają 404
 
 ### Faza 3: Oddzielenie istniejącego zarządzania terminami od szablonów
 
 #### Automatyczne
 
-- [ ] 3.1 Testy serwisu bookings i komponentu admin przechodzą
-- [ ] 3.2 Produkcyjny build Angular przechodzi
-- [ ] 3.3 Lint frontendu przechodzi
-- [ ] 3.4 Stare odwołania klienta enrollment usunięto
+- [x] 3.1 Testy serwisu bookings i komponentu admin przechodzą
+- [x] 3.2 Produkcyjny build Angular przechodzi
+- [x] 3.3 Lint frontendu przechodzi
+- [x] 3.4 Stare odwołania klienta enrollment usunięto
 
 #### Ręczne
 
-- [ ] 3.5 Zwykły USER ładuje zarządzanie rezerwacjami bez żądania szablonów
-- [ ] 3.6 Ręczne tworzenie terminu działa
-- [ ] 3.7 Zarządzanie rezerwacjami i listą rezerwową pozostaje bez zmian
+- [x] 3.5 Zwykły USER ładuje zarządzanie rezerwacjami bez żądania szablonów
+- [x] 3.6 Ręczne tworzenie terminu działa
+- [x] 3.7 Zarządzanie rezerwacjami i listą rezerwową pozostaje bez zmian
 
 ### Faza 4: Funkcja Angular do zarządzania szablonami Organizatora
 
 #### Automatyczne
 
-- [ ] 4.1 Wszystkie testy Angular przechodzą
-- [ ] 4.2 Produkcyjny build Angular przechodzi
-- [ ] 4.3 Lint Angular przechodzi
-- [ ] 4.4 Pełny build backendu nadal przechodzi
-- [ ] 4.5 Nie pozostały aktywne odwołania do training-enrollment
+- [x] 4.1 Wszystkie testy Angular przechodzą
+- [x] 4.2 Produkcyjny build Angular przechodzi
+- [x] 4.3 Lint Angular przechodzi
+- [x] 4.4 Pełny build backendu nadal przechodzi
+- [x] 4.5 Nie pozostały aktywne odwołania do training-enrollment
 
 #### Ręczne
 
-- [ ] 4.6 Zwykły USER nie widzi nawigacji, a chronione trasy przekierowują na home
-- [ ] 4.7 Organizator tworzy i widzi poprawny szablon na liście
-- [ ] 4.8 Organizator wyświetla, edytuje i obserwuje zmianę kolejności listy
-- [ ] 4.9 Potwierdzenie opuszczenia pojawia się tylko po interakcji z formularzem
-- [ ] 4.10 Anulowanie i potwierdzenie usunięcia działają poprawnie
-- [ ] 4.11 Stany błędu i not-found zachowują uzgodniony kontekst
-- [ ] 4.12 Pokrycie polskie i angielskie jest kompletne
+- [x] 4.6 Zwykły USER nie widzi nawigacji, a chronione trasy przekierowują na home
+- [x] 4.7 Organizator tworzy i widzi poprawny szablon na liście
+- [x] 4.8 Organizator wyświetla, edytuje i obserwuje zmianę kolejności listy
+- [x] 4.9 Potwierdzenie opuszczenia pojawia się tylko po interakcji z formularzem
+- [x] 4.10 Anulowanie i potwierdzenie usunięcia działają poprawnie
+- [x] 4.11 Stany błędu i not-found zachowują uzgodniony kontekst
+- [x] 4.12 Pokrycie polskie i angielskie jest kompletne

@@ -11,6 +11,12 @@
         <mat-icon aria-hidden="true">event_available</mat-icon>
         {{ 'nav.bookings' | translate }}
       </a>
+        @if (organizer()) {
+        <a mat-flat-button routerLink="/training-templates">
+            <mat-icon aria-hidden="true">view_list</mat-icon>
+            {{ 'nav.trainingTemplates' | translate }}
+        </a>
+        }
 
         <a mat-stroked-button routerLink="/booking-terms">
             <mat-icon aria-hidden="true">calendar_month</mat-icon>

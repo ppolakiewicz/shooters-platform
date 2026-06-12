@@ -16,5 +16,24 @@ services:
       timeout: 3s
       retries: 10
 
+  pgadmin:
+    image: dpage/pgadmin4:9.15
+    container_name: shooters-platform-pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@shooters.com
+      PGADMIN_DEFAULT_PASSWORD: shooters
+      PGADMIN_DISABLE_POSTFIX: "true"
+      PGADMIN_REPLACE_SERVERS_ON_STARTUP: "true"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
+
 volumes:
   postgres-data:
+  pgadmin-data:

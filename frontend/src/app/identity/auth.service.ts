@@ -74,7 +74,6 @@ export class AuthService {
     }
 
   async logout(): Promise<void> {
-    await this.ensureCsrf();
     await firstValueFrom(this.http.post<void>('/api/auth/logout', {}));
     this.user.set(null);
     this.error.set(null);
@@ -84,7 +83,6 @@ export class AuthService {
     this.loading.set(true);
     this.error.set(null);
     try {
-      await this.ensureCsrf();
       const user = await firstValueFrom(this.http.post<AuthUser>(url, credentials));
       this.user.set(user);
       return user;
@@ -100,27 +98,12 @@ export class AuthService {
         this.loading.set(true);
         this.error.set(null);
         try {
-            await this.ensureCsrf();
             await firstValueFrom(this.http.post<void>(url, body));
         } catch (error) {
             this.error.set(this.errorMessage(error));
             throw error;
         } finally {
             this.loading.set(false);
-    }
-  }
-
-  private async ensureCsrf(): Promise<void> {
-    await firstValueFrom(this.http.get('/api/auth/csrf', { responseType: 'text' }));
-    await this.waitForXsrfCookie();
-  }
-
-  private async waitForXsrfCookie(): Promise<void> {
-    for (let attempt = 0; attempt < 5; attempt++) {
-      if (document.cookie.split(';').some((cookie) => cookie.trim().startsWith('XSRF-TOKEN='))) {
-        return;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 0));
     }
   }
 
